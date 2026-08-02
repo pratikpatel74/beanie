@@ -1,0 +1,115 @@
+// roomManager.js — In-memory store for all active game rooms
+//
+// Each room maps a roomCode → game state (from engine.js).
+// The Socket.io layer calls these functions; the results are
+// broadcast to all players in the room.
+
+const {
+  createGame, addPlayer, removePlayer,
+  startGame, nextRound,
+  drawFromPile, drawFromDiscard,
+  layDownSet, addCardsToSet, stealBeanie, discard,
+  STATUS,
+} = require('../game/engine');
+
+const rooms = new Map(); // roomCode → gameState
+
+// ─── Room lifecycle ──────────────────────────────────────────────────────────
+
+function generateRoomCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no ambiguous chars (0/O, 1/I)
+  let code = '';
+  for (let i = 0; i < 4; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  return rooms.has(code) ? generateRoomCode() : code; // retry on collision
+}
+
+function createRoom(hostId, hostName) {
+  const roomCode = generateRoomCode();
+  let game = createGame(roomCode);
+  game = addPlayer(game, hostId, hostName);
+  rooms.set(roomCode, game);
+  return { roomCode, game };
+}
+
+function joinRoom(roomCode, playerId, playerName) {
+  const game = rooms.get(roomCode);
+  if (!game) return { error: 'Room not found' };
+  if (game.status !== STATUS.WAITING) return { error: 'Game already in progress' };
+
+  const updated = addPlayer(game, playerId, playerName);
+  if (updated.error) return { error: updated.error };
+
+  rooms.set(roomCode, updated);
+  return { game: updated };
+}
+
+function leaveRoom(roomCode, playerId) {
+  const game = rooms.get(roomCode);
+  if (!game) return { error: 'Room not found' };
+
+  const updated = removePlayer(game, playerId);
+  if (updated.error) return { error: updated.error };
+
+  // Delete room if empty
+  if (updated.players.length === 0) {
+    rooms.delete(roomCode);
+    return { deleted: true };
+  }
+
+  rooms.set(roomCode, updated);
+  return { game: updated };
+}
+
+function getRoom(roomCode) {
+  return rooms.get(roomCode) || null;
+}
+
+/** Host cancels the game — deletes the room entirely. Returns { ok } or { error }. */
+function cancelGame(roomCode, requestingPlayerId) {
+  const game = rooms.get(roomCode);
+  if (!game) return { error: 'Room not found' };
+  if (game.players[0]?.id !== requestingPlayerId) return { error: 'Only the host can cancel the game' };
+  rooms.delete(roomCode);
+  return { ok: true };
+}
+
+// ─── Game actions — each returns { game } or { error } ──────────────────────
+
+function _action(roomCode, fn) {
+  const game = rooms.get(roomCode);
+  if (!game) return { error: 'Room not found' };
+  const updated = fn(game);
+  if (updated.error) return { error: updated.error };
+  rooms.set(roomCode, updated);
+  return { game: updated };
+}
+
+function start(roomCode)            { return _action(roomCode, g => startGame(g)); }
+function beginNextRound(roomCode)   { return _action(roomCode, g => nextRound(g)); }
+
+function playerDrawFromPile(roomCode, playerId) {
+  return _action(roomCode, g => drawFromPile(g, playerId));
+}
+function playerDrawFromDiscard(roomCode, playerId) {
+  return _action(roomCode, g => drawFromDiscard(g, playerId));
+}
+function playerLayDownSet(roomCode, playerId, cardIds, beanieOverrides = {}) {
+  return _action(roomCode, g => layDownSet(g, playerId, cardIds, beanieOverrides));
+}
+function playerAddCardsToSet(roomCode, playerId, setIndex, cardIds) {
+  return _action(roomCode, g => addCardsToSet(g, playerId, setIndex, cardIds));
+}
+function playerStealBeanie(roomCode, playerId, setIndex, replacementCardId, beanieCardId = null) {
+  return _action(roomCode, g => stealBeanie(g, playerId, setIndex, replacementCardId, beanieCardId));
+}
+function playerDiscard(roomCode, playerId, cardId) {
+  return _action(roomCode, g => discard(g, playerId, cardId));
+}
+
+module.exports = {
+  createRoom, joinRoom, leaveRoom, getRoom, cancelGame,
+  start, beginNextRound,
+  playerDrawFromPile, playerDrawFromDiscard,
+  playerLayDownSet, playerAddCardsToSet,
+  playerStealBeanie, playerDiscard,
+};

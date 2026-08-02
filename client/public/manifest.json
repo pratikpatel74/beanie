@@ -1,0 +1,24 @@
+{
+  "name": "Beanie Card Game",
+  "short_name": "Beanie",
+  "description": "Multiplayer Rummy-style card game — wild Beanies each round!",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0E0D1E",
+  "theme_color": "#0E0D1E",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
