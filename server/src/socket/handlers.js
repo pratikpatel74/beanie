@@ -2,47 +2,92 @@
 //
 // Every client event follows the same pattern:
 //   1. Execute the action via roomManager
-//   2. If error → emit 'error' back to the sender only
+//   2. If error → emit 'game:error' back to the sender only
 //   3. If success → broadcast 'game:state' to everyone in the room
 //      (state is sanitised — each player only sees their own hand)
 //
-// Client events:   room:create, room:join, room:leave, game:start,
-//                  game:draw-pile, game:draw-discard, game:lay-set,
-//                  game:add-to-set, game:steal-beanie, game:discard,
-//                  game:next-round
+// Reconnect strategy
+// ──────────────────
+// Each browser generates a persistent clientId (stored in localStorage) and
+// sends it as socket.handshake.auth.clientId on every connection.
 //
-// Server events:   game:state, game:error, room:joined, room:left,
-//                  room:created, game:timer
+// Module-level maps track the relationship between clientId, the player's
+// stable game-identity (playerId = their original socket.id), and the current
+// live socket. When a player disconnects mid-game:
+//   • their seat is held for RECONNECT_GRACE_MS (60 s)
+//   • if they reconnect in time, the new socket is mapped to their old playerId
+//     and they receive game:state as if nothing happened
+//   • if the grace period expires, the disconnect is surfaced to other players
+//
+// Server-restart recovery is handled separately via room:rejoin (sent by the
+// client on every connect using its localStorage session data).
 
 const rm = require('../rooms/roomManager');
-const { startTimer, clearTimer, getTimeRemaining, DEFAULT_DURATION_MS } = require('./timers');
+const { startTimer, clearTimer, DEFAULT_DURATION_MS } = require('./timers');
 const { PHASE, STATUS } = require('../game/engine');
 
-// How long each turn lasts. Can be configured per-room in future.
-const TURN_DURATION_MS = DEFAULT_DURATION_MS;
+const TURN_DURATION_MS     = DEFAULT_DURATION_MS;
+const RECONNECT_GRACE_MS   = 60 * 1000; // 60 seconds
+
+// ─── Module-level session maps ────────────────────────────────────────────────
+// These survive across individual socket connections.
+
+// clientId → { roomCode, playerId, socketId }
+const clientToSession = new Map();
+
+// playerId (original, stable game identity) → current live socket
+const playerToSocket = new Map();
+
+// clientId → setTimeout handle (grace period timers)
+const disconnectedTimers = new Map();
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 module.exports = function registerHandlers(io, socket) {
-  // Track which room this socket is in and the player's id
-  let currentRoom = null;
-  let currentPlayerId = socket.id; // use socket id as player id
+  const clientId = socket.handshake.auth?.clientId;
 
-  // ─── Helpers ──────────────────────────────────────────────────────────────
+  // Determine this socket's room + player identity.
+  // For returning clients: restore from session map.
+  // For new clients:       playerId = socket.id (first connection).
+  let currentRoom     = null;
+  let currentPlayerId = socket.id; // default for new connections
+
+  if (clientId && clientToSession.has(clientId)) {
+    const session    = clientToSession.get(clientId);
+    currentRoom      = session.roomCode;
+    currentPlayerId  = session.playerId;
+    session.socketId = socket.id;
+    clientToSession.set(clientId, session);
+    playerToSocket.set(currentPlayerId, socket);
+
+    // Clear any pending grace-period timer
+    if (disconnectedTimers.has(clientId)) {
+      clearTimeout(disconnectedTimers.get(clientId));
+      disconnectedTimers.delete(clientId);
+      console.log(`[reconnect] ${clientId.slice(0, 8)}… re-attached as ${currentPlayerId} in ${currentRoom}`);
+    }
+  } else {
+    // Fresh connection — register socket under its own id
+    if (clientId) playerToSocket.set(currentPlayerId, socket);
+  }
+
+  // ─── Helpers ────────────────────────────────────────────────────────────
 
   function sendError(msg) {
     socket.emit('game:error', { message: msg });
   }
 
-  /** Broadcast sanitised game state to everyone in the room. */
+  /** Broadcast sanitised game state to every player's current live socket. */
   function broadcast(roomCode, game) {
     if (!game) return;
     game.players.forEach(player => {
-      // Find the socket belonging to this player
-      const targetSocket = io.sockets.sockets.get(player.id);
-      if (targetSocket) {
-        targetSocket.emit('game:state', sanitise(game, player.id));
+      const target = playerToSocket.get(player.id);
+      if (target && target.connected) {
+        // Include myPlayerId so the client knows which player it is
+        // even after reconnect (when socket.id has changed)
+        target.emit('game:state', { ...sanitise(game, player.id), myPlayerId: player.id });
       }
     });
-    // Also send the public view to any spectators (same room, not a player)
     socket.to(roomCode).emit('game:state:public', publicView(game));
   }
 
@@ -54,22 +99,23 @@ module.exports = function registerHandlers(io, socket) {
     const currentPlayer = game.players[game.currentPlayerIndex];
 
     startTimer(roomCode, TURN_DURATION_MS, () => {
-      // Timer expired — force a discard or draw+discard
+      // Timer expired — force a discard (or draw+discard if still in draw phase)
       let g = rm.getRoom(roomCode);
       if (!g || g.status !== STATUS.PLAYING) return;
 
       const cp = g.players[g.currentPlayerIndex];
       if (!cp) return;
 
-      // If still in DRAW phase, draw from pile first
       if (g.phase === PHASE.DRAW && g.drawPile.length > 0) {
         const drawn = rm.playerDrawFromPile(roomCode, cp.id);
         if (!drawn.error) g = drawn.game;
       }
 
-      // Discard the first card in hand
       if (g.phase === PHASE.ACTION && cp.hand.length > 0) {
-        const forced = rm.playerDiscard(roomCode, cp.id, g.players.find(p => p.id === cp.id).hand[0].id);
+        const forced = rm.playerDiscard(
+          roomCode, cp.id,
+          g.players.find(p => p.id === cp.id).hand[0].id
+        );
         if (!forced.error) {
           broadcast(roomCode, forced.game);
           resetTimer(roomCode, forced.game);
@@ -78,7 +124,6 @@ module.exports = function registerHandlers(io, socket) {
       }
     });
 
-    // Broadcast timer start so clients can show countdown
     io.to(roomCode).emit('game:timer', {
       playerId:   currentPlayer.id,
       playerName: currentPlayer.name,
@@ -95,6 +140,11 @@ module.exports = function registerHandlers(io, socket) {
     currentRoom = roomCode;
     socket.join(roomCode);
 
+    if (clientId) {
+      clientToSession.set(clientId, { roomCode, playerId: currentPlayerId, socketId: socket.id });
+    }
+    playerToSocket.set(currentPlayerId, socket);
+
     socket.emit('room:created', { roomCode });
     broadcast(roomCode, game);
   });
@@ -102,14 +152,62 @@ module.exports = function registerHandlers(io, socket) {
   socket.on('room:join', ({ roomCode, playerName }) => {
     if (!roomCode?.trim() || !playerName?.trim()) return sendError('Room code and name required');
 
-    const result = rm.joinRoom(roomCode.toUpperCase().trim(), currentPlayerId, playerName.trim());
+    const code   = roomCode.toUpperCase().trim();
+    const result = rm.joinRoom(code, currentPlayerId, playerName.trim());
     if (result.error) return sendError(result.error);
 
-    currentRoom = roomCode.toUpperCase().trim();
+    currentRoom = code;
     socket.join(currentRoom);
+
+    if (clientId) {
+      clientToSession.set(clientId, { roomCode: currentRoom, playerId: currentPlayerId, socketId: socket.id });
+    }
+    playerToSocket.set(currentPlayerId, socket);
 
     socket.emit('room:joined', { roomCode: currentRoom });
     broadcast(currentRoom, result.game);
+  });
+
+  // ── Rejoin after server restart ────────────────────────────────────────────
+  // Client emits room:rejoin on every connect, carrying its localStorage session.
+  // The server only acts if the room exists and the player is in it (rooms are
+  // restored from Redis on startup, so this handles the restart case).
+
+  socket.on('room:rejoin', ({ roomCode, playerId }) => {
+    if (!roomCode || !playerId) return;
+
+    const code = roomCode.toUpperCase().trim();
+    const room = rm.getRoom(code);
+    if (!room) return; // Room gone — client stays on home screen, no error needed
+
+    const player = room.players.find(p => p.id === playerId);
+    if (!player) return;
+
+    // Don't double-join if already handled by the session map at connect time
+    if (currentRoom === code && currentPlayerId === playerId) {
+      // Already re-attached via session map — just make sure socket is in the room
+      if (!socket.rooms.has(code)) socket.join(code);
+      const screenHint = screenFor(room.status);
+      socket.emit('room:rejoined', { roomCode: code, screen: screenHint });
+      socket.emit('game:state', { ...sanitise(room, playerId), myPlayerId: playerId });
+      return;
+    }
+
+    currentRoom     = code;
+    currentPlayerId = playerId;
+    socket.join(currentRoom);
+
+    if (clientId) {
+      clientToSession.set(clientId, { roomCode: currentRoom, playerId, socketId: socket.id });
+    }
+    playerToSocket.set(playerId, socket);
+
+    const screenHint = screenFor(room.status);
+    socket.emit('room:rejoined', { roomCode: currentRoom, screen: screenHint });
+    socket.emit('game:state', { ...sanitise(room, playerId), myPlayerId: playerId });
+    io.to(currentRoom).emit('game:player-reconnected', { playerId, playerName: player.name });
+
+    console.log(`[rejoin] ${player.name} rejoined ${currentRoom} (server restart path)`);
   });
 
   socket.on('room:leave', () => {
@@ -119,6 +217,9 @@ module.exports = function registerHandlers(io, socket) {
 
     if (!result.deleted) broadcast(currentRoom, result.game);
     socket.emit('room:left');
+
+    if (clientId) clientToSession.delete(clientId);
+    playerToSocket.delete(currentPlayerId);
     currentRoom = null;
   });
 
@@ -177,7 +278,7 @@ module.exports = function registerHandlers(io, socket) {
     if (result.error) return sendError(result.error);
     broadcast(currentRoom, result.game);
     if (result.game.status === STATUS.PLAYING) {
-      resetTimer(currentRoom, result.game); // start timer for next player
+      resetTimer(currentRoom, result.game);
     } else {
       clearTimer(currentRoom);
     }
@@ -196,39 +297,79 @@ module.exports = function registerHandlers(io, socket) {
     const result = rm.cancelGame(currentRoom, currentPlayerId);
     if (result.error) return sendError(result.error);
     clearTimer(currentRoom);
-    // Notify all players in the room that the game was cancelled
     io.to(currentRoom).emit('game:cancelled');
+    if (clientId) clientToSession.delete(clientId);
+    playerToSocket.delete(currentPlayerId);
     currentRoom = null;
   });
 
   // ─── Disconnect ───────────────────────────────────────────────────────────
 
   socket.on('disconnect', () => {
-    if (!currentRoom) return;
+    if (!currentRoom) {
+      playerToSocket.delete(currentPlayerId);
+      return;
+    }
 
     const game = rm.getRoom(currentRoom);
-    if (!game) return;
+    if (!game) {
+      if (clientId) clientToSession.delete(clientId);
+      playerToSocket.delete(currentPlayerId);
+      return;
+    }
 
     if (game.status === STATUS.WAITING) {
-      // Remove from lobby cleanly
+      // Lobby disconnect — remove player immediately (no grace period needed)
       const result = rm.leaveRoom(currentRoom, currentPlayerId);
       if (!result.deleted) broadcast(currentRoom, result.game);
+      if (clientId) clientToSession.delete(clientId);
+      playerToSocket.delete(currentPlayerId);
     } else {
-      // Mid-game disconnect: notify others, leave timer running
-      // If it was their turn, the timer will force a move
+      // Mid-game disconnect — hold seat for RECONNECT_GRACE_MS
+      const playerName = game.players.find(p => p.id === currentPlayerId)?.name;
+
       io.to(currentRoom).emit('game:player-disconnected', {
         playerId:   currentPlayerId,
-        playerName: game.players.find(p => p.id === currentPlayerId)?.name,
+        playerName,
       });
+
+      // Remove live socket reference but keep session so reconnect can find it
+      playerToSocket.delete(currentPlayerId);
+
+      if (clientId) {
+        const gracedRoom = currentRoom;
+        const gracedId   = currentPlayerId;
+        const timer = setTimeout(() => {
+          disconnectedTimers.delete(clientId);
+          clientToSession.delete(clientId);
+          console.log(`[grace] ${playerName} grace period expired — ${gracedRoom}`);
+          // Notify other players that this player has now truly left
+          io.to(gracedRoom).emit('game:player-left', { playerId: gracedId, playerName });
+        }, RECONNECT_GRACE_MS);
+        disconnectedTimers.set(clientId, timer);
+      }
     }
   });
 };
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+function screenFor(status) {
+  if (status === 'PLAYING')   return 'game';
+  if (status === 'ROUND_END') return 'round-end';
+  if (status === 'GAME_END')  return 'game-end';
+  return 'lobby';
+}
 
 // ─── State sanitisation ───────────────────────────────────────────────────────
 
 /**
  * Each player receives their own hand in full but sees other players'
- * hand only as a count. Public sets, draw pile size, and discard top are visible to all.
+ * hand only as a count. Public sets, draw pile size, and discard top are
+ * visible to all.
+ *
+ * myPlayerId is injected by broadcast() so the client always knows its
+ * stable game identity, even after a reconnect where socket.id changed.
  */
 function sanitise(game, viewingPlayerId) {
   return {
@@ -251,13 +392,11 @@ function sanitise(game, viewingPlayerId) {
       totalScore:  p.totalScore,
       roundScores: p.roundScores,
       handCount:   p.hand.length,
-      // Only send actual cards to the player who owns them
       hand: p.id === viewingPlayerId ? p.hand : [],
     })),
   };
 }
 
-/** A view with no hand data — for spectators or future use. */
 function publicView(game) {
   return sanitise(game, null);
 }

@@ -3,6 +3,9 @@
 // Each room maps a roomCode → game state (from engine.js).
 // The Socket.io layer calls these functions; the results are
 // broadcast to all players in the room.
+//
+// Persistence: every mutation is saved to Upstash Redis (fire-and-forget).
+// On startup, initRooms() restores any rooms that were active before a restart.
 
 const {
   createGame, addPlayer, removePlayer,
@@ -12,9 +15,25 @@ const {
   STATUS,
 } = require('../game/engine');
 
+const persistence = require('../persistence');
+
 const rooms = new Map(); // roomCode → gameState
 
-// ─── Room lifecycle ──────────────────────────────────────────────────────────
+// ─── Startup ─────────────────────────────────────────────────────────────────
+
+/**
+ * Restore rooms from Redis on server startup.
+ * Called once from index.js before the HTTP server starts listening.
+ */
+async function initRooms() {
+  const saved = await persistence.loadAllRooms();
+  const codes = Object.keys(saved);
+  if (codes.length === 0) return;
+  codes.forEach(code => rooms.set(code, saved[code]));
+  console.log(`[roomManager] Restored ${codes.length} room(s) from Redis`);
+}
+
+// ─── Room lifecycle ───────────────────────────────────────────────────────────
 
 function generateRoomCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no ambiguous chars (0/O, 1/I)
@@ -28,6 +47,7 @@ function createRoom(hostId, hostName) {
   let game = createGame(roomCode);
   game = addPlayer(game, hostId, hostName);
   rooms.set(roomCode, game);
+  persistence.saveRoom(roomCode, game);
   return { roomCode, game };
 }
 
@@ -40,6 +60,7 @@ function joinRoom(roomCode, playerId, playerName) {
   if (updated.error) return { error: updated.error };
 
   rooms.set(roomCode, updated);
+  persistence.saveRoom(roomCode, updated);
   return { game: updated };
 }
 
@@ -50,13 +71,14 @@ function leaveRoom(roomCode, playerId) {
   const updated = removePlayer(game, playerId);
   if (updated.error) return { error: updated.error };
 
-  // Delete room if empty
   if (updated.players.length === 0) {
     rooms.delete(roomCode);
+    persistence.deleteRoom(roomCode);
     return { deleted: true };
   }
 
   rooms.set(roomCode, updated);
+  persistence.saveRoom(roomCode, updated);
   return { game: updated };
 }
 
@@ -64,16 +86,17 @@ function getRoom(roomCode) {
   return rooms.get(roomCode) || null;
 }
 
-/** Host cancels the game — deletes the room entirely. Returns { ok } or { error }. */
+/** Host cancels the game — deletes the room entirely. */
 function cancelGame(roomCode, requestingPlayerId) {
   const game = rooms.get(roomCode);
   if (!game) return { error: 'Room not found' };
   if (game.players[0]?.id !== requestingPlayerId) return { error: 'Only the host can cancel the game' };
   rooms.delete(roomCode);
+  persistence.deleteRoom(roomCode);
   return { ok: true };
 }
 
-// ─── Game actions — each returns { game } or { error } ──────────────────────
+// ─── Game actions — each returns { game } or { error } ───────────────────────
 
 function _action(roomCode, fn) {
   const game = rooms.get(roomCode);
@@ -81,6 +104,7 @@ function _action(roomCode, fn) {
   const updated = fn(game);
   if (updated.error) return { error: updated.error };
   rooms.set(roomCode, updated);
+  persistence.saveRoom(roomCode, updated); // fire-and-forget
   return { game: updated };
 }
 
@@ -107,6 +131,7 @@ function playerDiscard(roomCode, playerId, cardId) {
 }
 
 module.exports = {
+  initRooms,
   createRoom, joinRoom, leaveRoom, getRoom, cancelGame,
   start, beginNextRound,
   playerDrawFromPile, playerDrawFromDiscard,

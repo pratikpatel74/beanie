@@ -7,10 +7,31 @@
 import { useEffect, useReducer, useCallback } from 'react';
 import socket from '../socket';
 
+// ─── Session persistence ──────────────────────────────────────────────────────
+// Stores { roomCode, playerId } in localStorage so we can rejoin after a
+// server restart. Cleared when the player leaves or the game is cancelled.
+
+const SESSION_KEY = 'beanie_session';
+
+function loadSession() {
+  try { return JSON.parse(localStorage.getItem(SESSION_KEY)); }
+  catch { return null; }
+}
+
+function saveSession(roomCode, playerId) {
+  localStorage.setItem(SESSION_KEY, JSON.stringify({ roomCode, playerId }));
+}
+
+function clearSession() {
+  localStorage.removeItem(SESSION_KEY);
+}
+
+// ─── Reducer ─────────────────────────────────────────────────────────────────
+
 const INITIAL = {
   screen:   'home',   // home | create | join | lobby | game | round-end | game-end
   roomCode: null,
-  myId:     null,
+  myId:     null,     // player's persistent ID within the game (may differ from socket.id after reconnect)
   game:     null,
   error:    null,
   timer:    null,     // { seconds, playerName }
@@ -27,13 +48,18 @@ function reducer(state, action) {
       return { ...state, screen: 'lobby', roomCode: action.roomCode };
     case 'ROOM_JOINED':
       return { ...state, screen: 'lobby', roomCode: action.roomCode };
+    case 'ROOM_REJOINED':
+      return { ...state, roomCode: action.roomCode, screen: action.screen || 'lobby' };
     case 'GAME_STATE': {
       const g = action.game;
       let screen = state.screen;
+      if (g.status === 'WAITING')    screen = 'lobby';
       if (g.status === 'PLAYING')    screen = 'game';
       if (g.status === 'ROUND_END')  screen = 'round-end';
       if (g.status === 'GAME_END')   screen = 'game-end';
-      return { ...state, game: g, screen, error: null };
+      // Server tells us our player ID — handles reconnect where socket.id changed
+      const myId = g.myPlayerId || state.myId;
+      return { ...state, game: g, screen, myId, error: null };
     }
     case 'ERROR':
       return { ...state, error: action.message };
@@ -57,6 +83,8 @@ function reducer(state, action) {
   }
 }
 
+// ─── Hook ─────────────────────────────────────────────────────────────────────
+
 export function useGame() {
   const [state, dispatch] = useReducer(reducer, INITIAL);
 
@@ -65,8 +93,15 @@ export function useGame() {
   useEffect(() => {
     socket.connect();
 
-    socket.on('connect',    () => dispatch({ type: 'CONNECTED', id: socket.id }));
-    socket.on('reconnect',  () => dispatch({ type: 'CONNECTED', id: socket.id }));
+    socket.on('connect', () => {
+      dispatch({ type: 'CONNECTED', id: socket.id });
+      // On every connect (first load or reconnect), attempt to rejoin the last session.
+      // The server will only act on this if the room still exists.
+      const session = loadSession();
+      if (session?.roomCode && session?.playerId) {
+        socket.emit('room:rejoin', { roomCode: session.roomCode, playerId: session.playerId });
+      }
+    });
 
     socket.on('room:created', ({ roomCode }) =>
       dispatch({ type: 'ROOM_CREATED', roomCode }));
@@ -74,18 +109,28 @@ export function useGame() {
     socket.on('room:joined', ({ roomCode }) =>
       dispatch({ type: 'ROOM_JOINED', roomCode }));
 
-    socket.on('room:left', () =>
-      dispatch({ type: 'RESET' }));
+    // Sent by server when a room:rejoin succeeds (restores screen without re-render flicker)
+    socket.on('room:rejoined', ({ roomCode, screen }) =>
+      dispatch({ type: 'ROOM_REJOINED', roomCode, screen }));
 
-    socket.on('game:state', game =>
-      dispatch({ type: 'GAME_STATE', game }));
+    socket.on('room:left', () => {
+      clearSession();
+      dispatch({ type: 'RESET' });
+    });
+
+    socket.on('game:state', game => {
+      // Persist session so we can rejoin after a server restart
+      if (game.myPlayerId && game.roomCode) {
+        saveSession(game.roomCode, game.myPlayerId);
+      }
+      dispatch({ type: 'GAME_STATE', game });
+    });
 
     socket.on('game:error', ({ message }) =>
       dispatch({ type: 'ERROR', message }));
 
-    socket.on('game:timer', ({ playerName, seconds }) => {
-      dispatch({ type: 'TIMER', playerName, seconds });
-    });
+    socket.on('game:timer', ({ playerName, seconds }) =>
+      dispatch({ type: 'TIMER', playerName, seconds }));
 
     socket.on('game:timer-expired', ({ playerName }) =>
       dispatch({ type: 'NOTICE', message: `${playerName}'s turn timed out` }));
@@ -93,8 +138,13 @@ export function useGame() {
     socket.on('game:player-disconnected', ({ playerName }) =>
       dispatch({ type: 'NOTICE', message: `${playerName} disconnected` }));
 
-    socket.on('game:cancelled', () =>
-      dispatch({ type: 'RESET' }));
+    socket.on('game:player-reconnected', ({ playerName }) =>
+      dispatch({ type: 'NOTICE', message: `${playerName} reconnected` }));
+
+    socket.on('game:cancelled', () => {
+      clearSession();
+      dispatch({ type: 'RESET' });
+    });
 
     return () => socket.removeAllListeners();
   }, []);
@@ -126,8 +176,10 @@ export function useGame() {
     joinRoom:    useCallback((roomCode, playerName) =>
       socket.emit('room:join', { roomCode, playerName }), []),
 
-    leaveRoom:   useCallback(() =>
-      socket.emit('room:leave'), []),
+    leaveRoom:   useCallback(() => {
+      clearSession();
+      socket.emit('room:leave');
+    }, []),
 
     startGame:   useCallback(() =>
       socket.emit('game:start'), []),
@@ -150,8 +202,10 @@ export function useGame() {
     nextRound:   useCallback(() =>
       socket.emit('game:next-round'), []),
 
-    exitGame:    useCallback(() =>
-      socket.emit('game:exit'), []),
+    exitGame:    useCallback(() => {
+      clearSession();
+      socket.emit('game:exit');
+    }, []),
   };
 
   // Convenience helpers derived from state

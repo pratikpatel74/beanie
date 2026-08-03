@@ -13,6 +13,7 @@ const cors       = require('cors');
 const path       = require('path');
 
 const registerHandlers = require('./socket/handlers');
+const rm               = require('./rooms/roomManager');
 
 const PORT    = process.env.PORT || 3001;
 const IS_PROD = process.env.NODE_ENV === 'production';
@@ -56,7 +57,18 @@ io.on('connection', socket => {
 });
 
 // ─── Start ───────────────────────────────────────────────────────────────────
+// Restore persisted rooms from Redis before accepting connections, so
+// room:rejoin requests work immediately after a server restart.
 
-httpServer.listen(PORT, () => {
-  console.log(`Beanie server running on port ${PORT} (${IS_PROD ? 'production' : 'development'})`);
-});
+rm.initRooms()
+  .then(() => {
+    httpServer.listen(PORT, () => {
+      console.log(`Beanie server running on port ${PORT} (${IS_PROD ? 'production' : 'development'})`);
+    });
+  })
+  .catch(err => {
+    console.error('[startup] initRooms failed — starting anyway:', err.message);
+    httpServer.listen(PORT, () => {
+      console.log(`Beanie server running on port ${PORT} (${IS_PROD ? 'production' : 'development'})`);
+    });
+  });
