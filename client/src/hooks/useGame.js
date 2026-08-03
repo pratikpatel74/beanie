@@ -141,6 +141,9 @@ export function useGame() {
     socket.on('game:player-reconnected', ({ playerName }) =>
       dispatch({ type: 'NOTICE', message: `${playerName} reconnected` }));
 
+    socket.on('game:player-left', ({ playerName }) =>
+      dispatch({ type: 'NOTICE', message: `${playerName} left the game` }));
+
     socket.on('game:cancelled', () => {
       clearSession();
       dispatch({ type: 'RESET' });
