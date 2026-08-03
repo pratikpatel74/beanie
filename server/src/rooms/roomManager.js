@@ -19,6 +19,34 @@ const persistence = require('../persistence');
 
 const rooms = new Map(); // roomCode → gameState
 
+// ─── Idle room cleanup ────────────────────────────────────────────────────────
+// Rooms that haven't been touched in IDLE_TTL_MS are deleted from memory and
+// Redis. This runs every hour. Redis itself also has a 24h TTL as a backstop.
+
+const IDLE_TTL_MS      = 24 * 60 * 60 * 1000; // 24 hours
+const CLEANUP_INTERVAL = 60 * 60 * 1000;       // check every hour
+
+// Each room gets a lastActivity timestamp updated on every mutation.
+const roomActivity = new Map(); // roomCode → Date.now()
+
+function touchRoom(roomCode) {
+  roomActivity.set(roomCode, Date.now());
+}
+
+setInterval(() => {
+  const now = Date.now();
+  let count = 0;
+  for (const [roomCode, lastActive] of roomActivity.entries()) {
+    if (now - lastActive > IDLE_TTL_MS) {
+      rooms.delete(roomCode);
+      roomActivity.delete(roomCode);
+      persistence.deleteRoom(roomCode);
+      count++;
+    }
+  }
+  if (count > 0) console.log(`[cleanup] Removed ${count} idle room(s)`);
+}, CLEANUP_INTERVAL);
+
 // ─── Startup ─────────────────────────────────────────────────────────────────
 
 /**
@@ -29,7 +57,7 @@ async function initRooms() {
   const saved = await persistence.loadAllRooms();
   const codes = Object.keys(saved);
   if (codes.length === 0) return;
-  codes.forEach(code => rooms.set(code, saved[code]));
+  codes.forEach(code => { rooms.set(code, saved[code]); touchRoom(code); });
   console.log(`[roomManager] Restored ${codes.length} room(s) from Redis`);
 }
 
@@ -47,6 +75,7 @@ function createRoom(hostId, hostName) {
   let game = createGame(roomCode);
   game = addPlayer(game, hostId, hostName);
   rooms.set(roomCode, game);
+  touchRoom(roomCode);
   persistence.saveRoom(roomCode, game);
   return { roomCode, game };
 }
@@ -60,6 +89,7 @@ function joinRoom(roomCode, playerId, playerName) {
   if (updated.error) return { error: updated.error };
 
   rooms.set(roomCode, updated);
+  touchRoom(roomCode);
   persistence.saveRoom(roomCode, updated);
   return { game: updated };
 }
@@ -104,6 +134,7 @@ function _action(roomCode, fn) {
   const updated = fn(game);
   if (updated.error) return { error: updated.error };
   rooms.set(roomCode, updated);
+  touchRoom(roomCode);
   persistence.saveRoom(roomCode, updated); // fire-and-forget
   return { game: updated };
 }
