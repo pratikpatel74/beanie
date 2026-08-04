@@ -527,6 +527,7 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
               <div
                 key={c.id}
                 className={stealCapable ? 'steal-capable-card' : undefined}
+                style={{ display: 'inline-block' }}
               >
                 <Card
                   card={c}
