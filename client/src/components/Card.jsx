@@ -11,23 +11,36 @@ export default function Card({ card, beanieRank, size = 'md', selected = false, 
   const cls = [
     'card',
     `card-${size}`,
-    isBeanie          ? 'beanie'               :
-    card.rank === 'back' ? 'back'              : 'face',
-    isRed && !isBeanie ? 'red'                 : '',
-    selected          ? 'selected'             : '',
-    disabled          ? 'card-disabled'        : '',
+    isBeanie            ? 'beanie'        :
+    card.rank === 'back' ? 'back'         : 'face',
+    isRed && !isBeanie  ? 'red'           : '',
+    selected            ? 'selected'      : '',
+    disabled            ? 'card-disabled' : '',
     className,
   ].filter(Boolean).join(' ');
 
   if (card.rank === 'back') {
-    return <div className={cls} onClick={disabled ? undefined : onClick} />;
+    return (
+      <div className={cls} onClick={disabled ? undefined : onClick}>
+        <div className="back-inner" />
+      </div>
+    );
   }
+
+  const pip   = isBeanie ? '★' : card.suit;
+  const index = isBeanie ? '★' : card.suit;
 
   return (
     <div className={cls} onClick={disabled ? undefined : onClick} title={card.id}>
-      <span className="card-rank">{card.rank}</span>
-      {isBeanie && <span className="card-star">★</span>}
-      <span className="card-suit">{card.suit}</span>
+      <div className="card-corner card-corner-tl">
+        <span className="ci-rank">{card.rank}</span>
+        <span className="ci-suit">{index}</span>
+      </div>
+      <span className="card-pip">{pip}</span>
+      <div className="card-corner card-corner-br">
+        <span className="ci-rank">{card.rank}</span>
+        <span className="ci-suit">{index}</span>
+      </div>
     </div>
   );
 }
