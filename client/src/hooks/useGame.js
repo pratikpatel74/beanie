@@ -218,8 +218,8 @@ export function useGame() {
     addToSet:    useCallback((setIndex, cardIds) =>
       socket.emit('game:add-to-set', { setIndex, cardIds }), []),
 
-    addBeanieToSet: useCallback((setIndex, beanieCardId) =>
-      socket.emit('game:add-beanie-to-set', { setIndex, beanieCardId }), []),
+    addBeanieToSet: useCallback((setIndex, beanieCardId, rankOverride = null) =>
+      socket.emit('game:add-beanie-to-set', { setIndex, beanieCardId, rankOverride }), []),
 
     stealBeanie: useCallback((setIndex, replacementCardId, beanieCardId = null) =>
       socket.emit('game:steal-beanie', { setIndex, replacementCardId, beanieCardId }), []),

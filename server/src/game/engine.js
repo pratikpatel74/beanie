@@ -9,7 +9,10 @@
 //   → (nextRound) → PLAYING → ... → GAME_END
 
 const { createDeck, shuffle, getBeanieRank } = require('./cards');
-const { validateSet, validateAddToSet }       = require('./validator');
+const { validateSet, validateAddToSet, RANK_ORDER } = require('./validator');
+
+// Reverse lookup: numeric rank value → rank string (e.g. 13 → 'K')
+const RANK_BY_VAL = Object.fromEntries(Object.entries(RANK_ORDER).map(([r, v]) => [v, r]));
 
 const STATUS = {
   WAITING:   'WAITING',
@@ -345,11 +348,15 @@ function discard(game, playerId, cardId) {
 }
 
 // ─── Add Beanie to any set ────────────────────────────────────────────────────
-// New rule: a player who has already laid a set may place a Beanie card from
-// their hand onto ANY set on the table, to get rid of it. No validation needed
-// beyond "you have laid a set" and "the card is a Beanie in your hand".
+// A player who has already laid a set may place a Beanie from their hand onto
+// ANY set on the table.
+//
+// For SET type: the Beanie is simply appended (acts as another copy of the rank).
+// For RUN type: the Beanie extends the run by one card. We validate there is room
+// at either end and store a beanieOverride so the card's effective rank is known.
+// If both ends are open, we prefer the high end.
 
-function addBeanieToSet(game, playerId, setIndex, beanieCardId) {
+function addBeanieToSet(game, playerId, setIndex, beanieCardId, rankOverride = null) {
   const check = _requirePhase(game, playerId, PHASE.ACTION);
   if (check) return err(game, check);
 
@@ -364,9 +371,67 @@ function addBeanieToSet(game, playerId, setIndex, beanieCardId) {
   const beanieCard = player.hand.find(c => c.id === beanieCardId && c.rank === game.beanieRank);
   if (!beanieCard) return err(game, 'Card is not a Beanie or not in your hand');
 
+  // Carry over existing overrides; may add one for the new card (RUN only)
+  let newBeanieOverrides = targetSet.beanieOverrides ? { ...targetSet.beanieOverrides } : {};
+
+  if (targetSet.type === 'RUN') {
+    const nonBeanies = targetSet.cards.filter(c => c.rank !== game.beanieRank);
+    if (nonBeanies.length === 0) return err(game, 'Cannot add a Beanie to a Beanie-only run');
+
+    const runSuit = nonBeanies[0].suit;
+
+    // Compute the current effective rank range of the run (accounting for overrides)
+    const overrides = targetSet.beanieOverrides || {};
+    const sortedNB  = [...nonBeanies].sort((a, b) => RANK_ORDER[a.rank] - RANK_ORDER[b.rank]);
+
+    // Gap positions between non-beanies
+    const gapVals = [];
+    for (let i = 1; i < sortedNB.length; i++) {
+      const lo = RANK_ORDER[sortedNB[i - 1].rank];
+      const hi = RANK_ORDER[sortedNB[i].rank];
+      for (let g = lo + 1; g < hi; g++) gapVals.push(g);
+    }
+
+    // Effective rank for every existing beanie card
+    let gapPos = 0;
+    let minVal  = Math.min(...sortedNB.map(c => RANK_ORDER[c.rank]));
+    let maxVal  = Math.max(...sortedNB.map(c => RANK_ORDER[c.rank]));
+
+    for (const b of targetSet.cards.filter(c => c.rank === game.beanieRank)) {
+      let val;
+      if (overrides[b.id]) {
+        val = RANK_ORDER[overrides[b.id].rank];
+      } else if (gapPos < gapVals.length) {
+        val = gapVals[gapPos++]; // gap beanie — infer position
+      } else {
+        continue; // end beanie with no override (legacy) — skip
+      }
+      minVal = Math.min(minVal, val);
+      maxVal = Math.max(maxVal, val);
+    }
+
+    const canExtendHigh = maxVal < 13; // K = 13
+    const canExtendLow  = minVal > 1;  // A = 1
+
+    if (!canExtendHigh && !canExtendLow) {
+      return err(game, 'The run already spans A to K — no room for another Beanie');
+    }
+
+    if (rankOverride) {
+      // Client told us exactly which rank — store it directly
+      newBeanieOverrides[beanieCard.id] = rankOverride;
+    } else {
+      // Auto-pick: prefer high end, fall back to low
+      const newRankVal = canExtendHigh ? maxVal + 1 : minVal - 1;
+      newBeanieOverrides[beanieCard.id] = { rank: RANK_BY_VAL[newRankVal], suit: runSuit };
+    }
+  }
+
   const newHand    = player.hand.filter(c => c.id !== beanieCardId);
   const publicSets = game.publicSets.map((s, i) =>
-    i === setIndex ? { ...s, cards: [...s.cards, beanieCard] } : s
+    i === setIndex
+      ? { ...s, cards: [...s.cards, beanieCard], beanieOverrides: newBeanieOverrides }
+      : s
   );
   const players = game.players.map(p =>
     p.id === playerId ? { ...p, hand: newHand } : p

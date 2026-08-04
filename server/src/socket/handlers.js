@@ -268,9 +268,9 @@ module.exports = function registerHandlers(io, socket) {
     if (result.game.status !== STATUS.PLAYING) clearTimer(currentRoom);
   });
 
-  socket.on('game:add-beanie-to-set', ({ setIndex, beanieCardId }) => {
+  socket.on('game:add-beanie-to-set', ({ setIndex, beanieCardId, rankOverride = null }) => {
     if (!currentRoom) return sendError('Not in a room');
-    const result = rm.playerAddBeanieToSet(currentRoom, currentPlayerId, setIndex, beanieCardId);
+    const result = rm.playerAddBeanieToSet(currentRoom, currentPlayerId, setIndex, beanieCardId, rankOverride);
     if (result.error) return sendError(result.error);
     broadcast(currentRoom, result.game);
     if (result.game.status !== STATUS.PLAYING) clearTimer(currentRoom);

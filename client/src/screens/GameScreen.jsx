@@ -186,6 +186,67 @@ function sortedRunCards(set, beanieRank) {
   return [...set.cards].sort((a, b) => effectiveIdx(a) - effectiveIdx(b));
 }
 
+// ─── Add Beanie to RUN: compute valid extension directions ───────────────────
+
+/**
+ * For a RUN set, returns which ends can be extended with a new Beanie.
+ * Returns { options: [{ label, override }] } — 1 or 2 options.
+ * Returns null for SET type (no direction needed).
+ * Returns { error: 'full' } if neither end can be extended.
+ */
+function computeAddBeanieOptions(set, beanieRank) {
+  if (set.type === 'SET') return null;
+
+  const nonBeanies = set.cards.filter(c => c.rank !== beanieRank);
+  if (nonBeanies.length === 0) return { error: 'full' };
+
+  const runSuit  = nonBeanies[0].suit;
+  const sortedNB = [...nonBeanies].sort((a, b) => RANK_ORDER.indexOf(a.rank) - RANK_ORDER.indexOf(b.rank));
+
+  // Pre-compute gap positions
+  const gapIdxs = [];
+  for (let i = 1; i < sortedNB.length; i++) {
+    const lo = RANK_ORDER.indexOf(sortedNB[i - 1].rank);
+    const hi = RANK_ORDER.indexOf(sortedNB[i].rank);
+    for (let g = lo + 1; g < hi; g++) gapIdxs.push(g);
+  }
+
+  // Effective range including existing beanies with known positions
+  const overrides = set.beanieOverrides || {};
+  let gapPos = 0;
+  let minIdx  = RANK_ORDER.indexOf(sortedNB[0].rank);
+  let maxIdx  = RANK_ORDER.indexOf(sortedNB[sortedNB.length - 1].rank);
+
+  for (const b of set.cards.filter(c => c.rank === beanieRank)) {
+    let idx;
+    if (overrides[b.id]) {
+      idx = RANK_ORDER.indexOf(overrides[b.id].rank);
+    } else if (gapPos < gapIdxs.length) {
+      idx = gapIdxs[gapPos++];
+    } else {
+      continue; // legacy end beanie with no override — skip
+    }
+    minIdx = Math.min(minIdx, idx);
+    maxIdx = Math.max(maxIdx, idx);
+  }
+
+  const canExtendHigh = maxIdx < 12; // K is index 12
+  const canExtendLow  = minIdx > 0;  // A is index 0
+
+  if (!canExtendHigh && !canExtendLow) return { error: 'full' };
+
+  const options = [];
+  if (canExtendHigh) {
+    const rank = RANK_ORDER[maxIdx + 1];
+    options.push({ label: `${rank}${runSuit}`, override: { rank, suit: runSuit } });
+  }
+  if (canExtendLow) {
+    const rank = RANK_ORDER[minIdx - 1];
+    options.push({ label: `${rank}${runSuit}`, override: { rank, suit: runSuit } });
+  }
+  return { options };
+}
+
 // ─── Beanie count in public sets ─────────────────────────────────────────────
 
 function beaniesInPlay(publicSets, beanieRank) {
@@ -197,10 +258,12 @@ function beaniesInPlay(publicSets, beanieRank) {
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export default function GameScreen({ game, myId, isMyTurn, timer, error, notice, actions }) {
-  const [selectedCards, setSelectedCards] = useState([]);
-  const [mode, setMode]                   = useState('normal');
-  const [beanieChoice, setBeanieChoice]   = useState(null);
-  // beanieChoice shape: { cardIds, options: [{ label, overrides }] }
+  const [selectedCards, setSelectedCards]     = useState([]);
+  const [mode, setMode]                       = useState('normal');
+  const [beanieChoice, setBeanieChoice]       = useState(null);
+  const [addBeanieChoice, setAddBeanieChoice] = useState(null);
+  // beanieChoice shape:    { cardIds, options: [{ label, overrides }] }
+  // addBeanieChoice shape: { setIndex, cardId, options: [{ label, override }] }
 
   const myPlayer    = game.players.find(p => p.id === myId);
   const myHand      = myPlayer?.hand || [];
@@ -277,30 +340,29 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
     return !!selectedCard && canStealBeanie(selectedCard, set, beanieCard, game.beanieRank);
   }
 
-  // True if any opponent set has a Beanie (determines whether Steal button appears —
-  // acts as an alert so players don't miss a steal opportunity, even if their hand
-  // can't currently complete it)
-  const hasOpponentBeanies = game.publicSets.some(
-    s => s.playerId !== myId && s.cards.some(c => c.rank === game.beanieRank)
-  );
-
   // True in steal mode: the currently selected hand card can swap with at least one Beanie
   const hasAnyStealableBeanie = mode === 'steal' && selectedCards.length === 1 &&
     game.publicSets.some(
       s => s.playerId !== myId && s.cards.some(c => c.rank === game.beanieRank && isStealable(s, c))
     );
 
-  // In steal mode: which hand cards can steal ANY Beanie (used to highlight them)
-  function cardCanStealSomething(handCard) {
-    return mode === 'steal' && game.publicSets.some(
+  // Returns true if handCard can steal ANY Beanie from any opponent set
+  function cardCanStealAnyBeanie(handCard) {
+    return game.publicSets.some(
       s => s.playerId !== myId && s.cards.some(
         c => c.rank === game.beanieRank && canStealBeanie(handCard, s, c, game.beanieRank)
       )
     );
   }
 
-  // True in steal mode: at least one hand card can steal (used to tailor instructions)
-  const hasSomeStealableHandCard = mode === 'steal' && myHand.some(cardCanStealSomething);
+  // In steal mode: used to add gold ring to eligible hand cards
+  function cardCanStealSomething(handCard) {
+    return mode === 'steal' && cardCanStealAnyBeanie(handCard);
+  }
+
+  // True when at least one hand card can actually steal an opponent's Beanie.
+  // Used for both: button visibility AND steal mode instruction text.
+  const hasSomeStealableHandCard = myHand.some(cardCanStealAnyBeanie);
 
   // True when a single Beanie card from hand is selected — triggers addBeanieToSet UX
   const isAddingBeanie = selectedCards.length === 1 &&
@@ -402,7 +464,10 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
                   <div className="player-sets-scroll">
                     {group.entries.map(({ set, si }) => {
                       const isOwnSet      = set.playerId === myId;
-                      const isAddable     = myHasSet && isMyTurn && inAction && mode !== 'steal' && selectedCards.length > 0;
+                      // For addBeanieToSet: compute whether this set can accept a Beanie
+                      const beanieExt     = isAddingBeanie ? computeAddBeanieOptions(set, game.beanieRank) : null;
+                      const beanieAddable = !isAddingBeanie || beanieExt === null || (beanieExt.options && beanieExt.options.length > 0);
+                      const isAddable     = myHasSet && isMyTurn && inAction && mode !== 'steal' && selectedCards.length > 0 && (!isAddingBeanie || beanieAddable);
                       const isStealTarget = mode === 'steal' && !isOwnSet && isMyTurn && inAction;
                       const boxClass = `set-box${isAddable ? ' addable' : ''}${isStealTarget ? ' steal-target' : ''}`;
                       return (
@@ -438,11 +503,22 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
                               style={isAddingBeanie ? { background: 'var(--gold)', color: '#1a1200' } : {}}
                               onClick={() => {
                                 if (isAddingBeanie) {
-                                  actions.addBeanieToSet(si, selectedCards[0]);
+                                  if (beanieExt === null) {
+                                    // SET type — no direction needed
+                                    actions.addBeanieToSet(si, selectedCards[0], null);
+                                    clearSelection();
+                                  } else if (beanieExt.options.length === 1) {
+                                    // Only one valid direction — auto-place
+                                    actions.addBeanieToSet(si, selectedCards[0], beanieExt.options[0].override);
+                                    clearSelection();
+                                  } else {
+                                    // Two valid directions — ask player
+                                    setAddBeanieChoice({ setIndex: si, cardId: selectedCards[0], options: beanieExt.options });
+                                  }
                                 } else {
                                   actions.addToSet(si, selectedCards);
+                                  clearSelection();
                                 }
-                                clearSelection();
                               }}
                             >{isAddingBeanie ? '★' : '+'}</button>
                           )}
@@ -583,8 +659,8 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
                     </button>
                   </div>
                 )}
-                {/* Steal Beanie — visible whenever opponent has beanies and player has laid a set */}
-                {myHasSet && hasOpponentBeanies && (
+                {/* Steal Beanie — only visible when player has a card that can actually steal */}
+                {myHasSet && hasSomeStealableHandCard && (
                   <div style={{ textAlign: 'center', marginTop: selectedCards.length > 0 ? 6 : 0 }}>
                     <button
                       className="btn-sm btn-sm-gold"
@@ -600,6 +676,38 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
         </div>
       ) : (
         <div className="not-your-turn">{currentPlayer?.name}'s turn</div>
+      )}
+
+      {/* Add Beanie to RUN — direction picker */}
+      {addBeanieChoice && (
+        <div className="beanie-choice-backdrop">
+          <div className="beanie-choice-sheet">
+            <div className="beanie-choice-title">Which rank does the Beanie become?</div>
+            <div className="beanie-choice-sub">Choose how to extend the run</div>
+            <div className="beanie-choice-btns">
+              {addBeanieChoice.options.map((opt, i) => (
+                <button
+                  key={i}
+                  className="btn-sm btn-sm-secondary"
+                  onClick={() => {
+                    actions.addBeanieToSet(addBeanieChoice.setIndex, addBeanieChoice.cardId, opt.override);
+                    setAddBeanieChoice(null);
+                    clearSelection();
+                  }}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            <button
+              className="btn-sm btn-sm-secondary"
+              style={{ opacity: 0.5, marginTop: 4 }}
+              onClick={() => setAddBeanieChoice(null)}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
       )}
 
       {/* Beanie run-arrangement picker */}

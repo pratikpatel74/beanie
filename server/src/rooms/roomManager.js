@@ -154,8 +154,8 @@ function playerLayDownSet(roomCode, playerId, cardIds, beanieOverrides = {}) {
 function playerAddCardsToSet(roomCode, playerId, setIndex, cardIds) {
   return _action(roomCode, g => addCardsToSet(g, playerId, setIndex, cardIds));
 }
-function playerAddBeanieToSet(roomCode, playerId, setIndex, beanieCardId) {
-  return _action(roomCode, g => addBeanieToSet(g, playerId, setIndex, beanieCardId));
+function playerAddBeanieToSet(roomCode, playerId, setIndex, beanieCardId, rankOverride = null) {
+  return _action(roomCode, g => addBeanieToSet(g, playerId, setIndex, beanieCardId, rankOverride));
 }
 function playerStealBeanie(roomCode, playerId, setIndex, replacementCardId, beanieCardId = null) {
   return _action(roomCode, g => stealBeanie(g, playerId, setIndex, replacementCardId, beanieCardId));
