@@ -3,6 +3,7 @@ import Card, { EmptyCard } from '../components/Card';
 
 const PLAYER_COLOURS = ['var(--p1)', 'var(--p2)', 'var(--p3)', 'var(--p4)'];
 const RANK_ORDER = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+const SUIT_ORDER = ['♠','♥','♦','♣'];
 
 // ─── Run / Beanie analysis helpers ───────────────────────────────────────────
 
@@ -297,11 +298,19 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
   const [mode, setMode]                       = useState('normal');
   const [beanieChoice, setBeanieChoice]       = useState(null);
   const [addBeanieChoice, setAddBeanieChoice] = useState(null);
+  const [sortMode, setSortMode]               = useState('deal');
   // beanieChoice shape:    { cardIds, options: [{ label, overrides }] }
   // addBeanieChoice shape: { setIndex, cardId, options: [{ label, override }] }
 
   const myPlayer    = game.players.find(p => p.id === myId);
   const myHand      = myPlayer?.hand || [];
+  const sortedHand  = sortMode === 'rank'
+    ? [...myHand].sort((a, b) => {
+        const ri = RANK_ORDER.indexOf(a.rank) - RANK_ORDER.indexOf(b.rank);
+        if (ri !== 0) return ri;
+        return SUIT_ORDER.indexOf(a.suit) - SUIT_ORDER.indexOf(b.suit);
+      })
+    : myHand;
   const myHasSet    = myPlayer?.hasLaidSet || false;
   const inDraw      = game.phase === 'DRAW';
   const inAction    = game.phase === 'ACTION';
@@ -629,12 +638,21 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
 
       {/* Your hand */}
       <div className="hand-area">
-        <div className="hand-label">
-          Your hand ({myHand.length} card{myHand.length !== 1 ? 's' : ''})
-          {selectedCards.length > 0 && ` · ${selectedCards.length} selected`}
+        <div className="hand-label" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span>
+            Your hand ({myHand.length} card{myHand.length !== 1 ? 's' : ''})
+            {selectedCards.length > 0 && ` · ${selectedCards.length} selected`}
+          </span>
+          <button
+            className="btn-sm btn-sm-secondary"
+            style={{ fontSize: 10, padding: '3px 8px', opacity: sortMode === 'rank' ? 1 : 0.5 }}
+            onClick={() => setSortMode(m => m === 'deal' ? 'rank' : 'deal')}
+          >
+            {sortMode === 'rank' ? 'Sorted ↕' : 'Sort ↕'}
+          </button>
         </div>
         <div className="hand-scroll">
-          {myHand.map(c => (
+          {sortedHand.map(c => (
             <Card
               key={c.id}
               card={c}
