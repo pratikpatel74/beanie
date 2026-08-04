@@ -446,6 +446,9 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
         )}
       </div>
 
+      {/* Left column — in landscape this becomes the left panel */}
+      <div className="ls-left">
+
       {/* Player chips */}
       <div className="player-chips">
         {game.players.map((p, i) => (
@@ -579,6 +582,11 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
         })()}
       </div>
 
+      </div>{/* /ls-left */}
+
+      {/* Right column — in landscape this becomes the piles panel */}
+      <div className="ls-right">
+
       {/* Draw / Discard piles — highlighted draw zone when it's your turn to draw */}
       {isMyTurn && inDraw ? (
         <div className="draw-zone">
@@ -636,6 +644,8 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
         </div>
       )}
 
+      </div>{/* /ls-right */}
+
       {/* Your hand */}
       <div className="hand-area">
         <div className="hand-label" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -669,6 +679,9 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
           ))}
         </div>
       </div>
+
+      {/* Bottom bar — in landscape this spans full width below the hand */}
+      <div className="ls-bottom">
 
       {/* Draw vote notice — visible to all when someone has proposed ending the round */}
       {(game.drawVotes || []).length > 0 && (
@@ -763,6 +776,8 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
       ) : (
         <div className="not-your-turn">{currentPlayer?.name}'s turn</div>
       )}
+
+      </div>{/* /ls-bottom */}
 
       {/* Add Beanie to RUN — direction picker */}
       {addBeanieChoice && (

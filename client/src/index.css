@@ -469,6 +469,11 @@ html, body, #root {
   padding: 6px 12px; margin: 0 0 4px;
 }
 
+/* ── Landscape wrappers — transparent in portrait, columns in landscape ──────── */
+/* display:contents makes ls-* invisible to flex layout — children become direct  */
+/* flex items of .game-screen, preserving the exact portrait stacking order.      */
+.ls-left, .ls-right, .ls-bottom { display: contents; }
+
 /* ── CARDS ─────────────────────────────────────────────────────────────────── */
 .card {
   border-radius: 7px;
@@ -757,4 +762,142 @@ html, body, #root {
   border: 2px solid var(--gold);
   animation: steal-ring 1s ease-in-out infinite;
   pointer-events: none;
+}
+
+/* ── LANDSCAPE PHONE (min iPhone 14 = 390px height in landscape) ─────────────── */
+/*   Triggers on any phone-sized screen rotated landscape.                        */
+/*   iPads are excluded because their landscape height exceeds 500px.             */
+@media (orientation: landscape) and (max-height: 500px) {
+
+  /* Remove portrait max-width cap; use full screen width */
+  .app {
+    max-width: 100%;
+    /* Respect dynamic island / notch safe areas */
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Game screen: 4-row × 2-col grid
+     ┌─────────────────┬────────────┐
+     │  topbar (span2) │            │
+     ├─────────────────┼────────────┤
+     │  left           │  right     │
+     │  (chips+sets)   │  (piles)   │
+     ├─────────────────┴────────────┤
+     │  hand (span2)               │
+     ├─────────────────────────────┤
+     │  bottom (span2 — actions)   │
+     └─────────────────────────────┘
+  */
+  .game-screen {
+    display: grid;
+    grid-template-columns: 1fr 130px;
+    grid-template-rows: auto 1fr auto auto;
+    grid-template-areas:
+      "topbar topbar"
+      "left   right"
+      "hand   hand"
+      "bottom bottom";
+    gap: 5px;
+    padding: 4px 6px 4px;
+  }
+
+  /* Grid area assignments */
+  .game-topbar { grid-area: topbar; }
+  .hand-area   { grid-area: hand; }
+
+  /* ls-left: left column — chips + beanie bar + public area */
+  .ls-left {
+    grid-area: left;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* ls-right: right column — piles */
+  .ls-right {
+    grid-area: right;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  /* ls-bottom: full-width bottom bar — actions */
+  .ls-bottom {
+    grid-area: bottom;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  /* ── Compact top bar ── */
+  .game-topbar { gap: 6px; }
+  .round-badge { padding: 3px 8px; font-size: 10px; }
+  .timer-badge { padding: 3px 8px; font-size: 10px; min-width: 50px; }
+  .btn-exit    { padding: 4px 10px; font-size: 11px; }
+
+  /* ── Compact player chips ── */
+  .player-chips { gap: 4px; }
+  .pchip        { padding: 4px 4px; }
+  .pchip-name   { font-size: 9px; }
+  .pchip-score  { font-size: 11px; }
+
+  /* ── Compact beanie bar ── */
+  .beanie-bar       { padding: 4px 8px; gap: 6px; }
+  .beanie-bar-label { display: none; } /* hide "Beanie this round" to save space */
+  .beanie-bar-val   { font-size: 11px; }
+
+  /* ── Notices ── */
+  .notice-toast { margin: 0; padding: 6px 10px; font-size: 11px; }
+  .error-toast  { margin: 0 !important; padding: 6px 10px; font-size: 11px; }
+
+  /* ── Public area fills left column ── */
+  .ls-left .public-area { flex: 1; min-height: 0; }
+  .public-area-label    { font-size: 9px; margin-bottom: 3px; }
+  .player-sets-header   { font-size: 9px; }
+  .set-add-btn          { height: 30px; font-size: 15px; }
+
+  /* ── Piles column: stack vertically ── */
+  .ls-right .pile-row {
+    flex-direction: column;
+    gap: 5px;
+  }
+  .ls-right .pile-arrow { font-size: 13px; }
+  .ls-right .pile-label { font-size: 9px; }
+
+  /* Draw zone in right column */
+  .ls-right .draw-zone { padding: 6px 6px 5px; width: 100%; }
+  .ls-right .draw-zone-label { font-size: 9px; margin-bottom: 4px; }
+  .ls-right .draw-zone .pile-row { flex-direction: column; gap: 4px; }
+  .ls-right .draw-zone .pile-arrow { font-size: 10px; }
+
+  /* ── Hand: slightly smaller cards to save vertical space ── */
+  .hand-label { font-size: 9px; margin-bottom: 3px; }
+  .hand-scroll { padding: 8px 6px 2px; }
+  /* Downsize xl cards to ~md proportions in landscape */
+  .hand-scroll .card-xl {
+    width: 50px;
+    height: 70px;
+  }
+  .hand-scroll .card-xl .card-corner { padding: 3px 4px; }
+  .hand-scroll .card-xl .ci-rank     { font-size: 10px; }
+  .hand-scroll .card-xl .ci-suit     { font-size: 7px; }
+  .hand-scroll .card-xl .card-pip    { font-size: 22px; }
+  .hand-scroll .card-xl.beanie .card-pip { font-size: 17px; }
+  /* Smaller lift for selected cards in compact hand */
+  .hand-scroll .card.selected { transform: translateY(-7px); }
+
+  /* ── Bottom action area ── */
+  .ls-bottom .draw-vote-bar { padding: 3px 10px; font-size: 10px; margin: 0; }
+  .action-area { flex-shrink: 0; }
+  .turn-banner { padding: 4px 8px; font-size: 10px; }
+  .ls-bottom .not-your-turn { font-size: 10px; padding: 3px 0; }
+  .btn-sm { padding: 7px 13px; font-size: 12px; }
+
 }
