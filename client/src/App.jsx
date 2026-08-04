@@ -1,4 +1,5 @@
 import './index.css';
+import ErrorBoundary      from './components/ErrorBoundary';
 import { useGame }        from './hooks/useGame';
 import HomeScreen        from './screens/HomeScreen';
 import CreateScreen      from './screens/CreateScreen';
@@ -7,12 +8,14 @@ import LobbyScreen       from './screens/LobbyScreen';
 import GameScreen        from './screens/GameScreen';
 import RoundEndScreen    from './screens/RoundEndScreen';
 import GameEndScreen     from './screens/GameEndScreen';
+import HowToPlayScreen   from './screens/HowToPlayScreen';
 
 export default function App() {
   const { state, actions, myPlayer, isMyTurn } = useGame();
   const { screen, roomCode, myId, game, error, timer, notice } = state;
 
   return (
+    <ErrorBoundary>
     <div className="app">
       {screen === 'home' && (
         <HomeScreen actions={actions} />
@@ -44,6 +47,10 @@ export default function App() {
       {screen === 'game-end' && game && (
         <GameEndScreen game={game} myId={myId} actions={actions} />
       )}
+      {screen === 'howtoplay' && (
+        <HowToPlayScreen actions={actions} />
+      )}
     </div>
+    </ErrorBoundary>
   );
 }

@@ -211,9 +211,14 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
   const isHost      = game.players[0]?.id === myId;
 
   function toggleCard(cardId) {
-    setSelectedCards(prev =>
-      prev.includes(cardId) ? prev.filter(id => id !== cardId) : [...prev, cardId]
-    );
+    if (mode === 'steal') {
+      // In steal mode only one replacement card can be selected at a time
+      setSelectedCards(prev => prev.includes(cardId) ? [] : [cardId]);
+    } else {
+      setSelectedCards(prev =>
+        prev.includes(cardId) ? prev.filter(id => id !== cardId) : [...prev, cardId]
+      );
+    }
   }
 
   function clearSelection() {
@@ -272,10 +277,20 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
     return !!selectedCard && canStealBeanie(selectedCard, set, beanieCard, game.beanieRank);
   }
 
-  const hasAnyStealableBeanie = game.publicSets.some(
-    (s, si) => s.playerId !== myId &&
-      s.cards.some(c => c.rank === game.beanieRank && isStealable(s, c))
+  // True if any opponent set has a Beanie (determines whether Steal button appears)
+  const hasOpponentBeanies = game.publicSets.some(
+    s => s.playerId !== myId && s.cards.some(c => c.rank === game.beanieRank)
   );
+
+  // True in steal mode: the currently selected hand card can swap with at least one Beanie
+  const hasAnyStealableBeanie = mode === 'steal' && selectedCards.length === 1 &&
+    game.publicSets.some(
+      s => s.playerId !== myId && s.cards.some(c => c.rank === game.beanieRank && isStealable(s, c))
+    );
+
+  // True when a single Beanie card from hand is selected — triggers addBeanieToSet UX
+  const isAddingBeanie = selectedCards.length === 1 &&
+    myHand.find(c => c.id === selectedCards[0])?.rank === game.beanieRank;
 
   // ─── Discard ───────────────────────────────────────────────────────────────
 
@@ -345,91 +360,145 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
       {notice && <div className="notice-toast">{notice}</div>}
       {error  && <div className="error-toast" style={{ margin: 0 }}>{error}</div>}
 
-      {/* Public sets */}
-      <div className="public-area scroll">
+      {/* Public sets — grouped per player, each row scrolls horizontally */}
+      <div className="public-area">
         <div className="public-area-label">Sets on table</div>
         {game.publicSets.length === 0 ? (
           <div className="set-empty">No sets yet</div>
-        ) : (
-          game.publicSets.map((set, si) => {
-            const owner      = game.players.find(p => p.id === set.playerId);
-            const ownerIdx   = game.players.indexOf(owner);
-            const isOwnSet   = set.playerId === myId;
-            const isAddable  = myHasSet && isMyTurn && inAction && mode !== 'steal';
-            const isStealTarget = mode === 'steal' && !isOwnSet && isMyTurn && inAction;
+        ) : (() => {
+          // Group sets by player, preserving original indices for server calls
+          const indexed = game.publicSets.map((set, si) => ({ set, si }));
+          const groups = game.players
+            .map((p, pi) => ({
+              player: p, playerIdx: pi,
+              entries: indexed.filter(({ set }) => set.playerId === p.id),
+            }))
+            .filter(g => g.entries.length > 0);
+
+          return groups.map((group, gi) => {
+            const isOwnGroup = group.player.id === myId;
             return (
-              <div key={si} className={`public-set-row${isStealTarget ? ' steal-target' : ''}`}>
-                <span className="set-owner-tag" style={{ color: PLAYER_COLOURS[ownerIdx] }}>
-                  {isOwnSet ? 'Me' : owner?.name?.[0]}
-                </span>
-                {sortedRunCards(set, game.beanieRank).map(c => {
-                  // Compute Beanie badge for RUN sets
-                  let beanieLabel = null;
-                  if (c.rank === game.beanieRank && set.type === 'RUN') {
-                    if (set.beanieOverrides?.[c.id]) {
-                      const o = set.beanieOverrides[c.id];
-                      beanieLabel = `${o.rank}${o.suit}`;
-                    } else {
-                      beanieLabel = computeGapLabel(c, set.cards, game.beanieRank);
-                    }
-                  }
-                  const isBeanie = c.rank === game.beanieRank;
-                  const isStealableBeanie = isStealTarget && isBeanie && isStealable(set, c);
-                  return (
-                    <div key={c.id} style={{ position: 'relative', display: 'inline-block' }}>
-                      <Card
-                        card={c}
-                        beanieRank={game.beanieRank}
-                        size="sm"
-                        onClick={
-                          isStealableBeanie
-                            ? () => handleStealBeanie(si, c.id)
-                            : isAddable && selectedCards.length > 0
-                              ? () => { actions.addToSet(si, selectedCards); clearSelection(); }
-                              : undefined
-                        }
-                      />
-                      {beanieLabel && <span className="beanie-badge">{beanieLabel}</span>}
-                      {isStealableBeanie && <span className="steal-pulse" />}
-                    </div>
-                  );
-                })}
-                {isAddable && selectedCards.length > 0 && (
-                  <span style={{ fontSize: 10, color: 'var(--accl)', marginLeft: 4 }}>tap to add</span>
-                )}
+              <div key={group.player.id}>
+                {gi > 0 && <div className="player-sets-divider" />}
+                <div className="player-sets-group">
+                  <div className="player-sets-header">
+                    <span className="player-sets-dot" style={{ background: PLAYER_COLOURS[group.playerIdx] }} />
+                    {isOwnGroup ? 'You' : group.player.name}
+                  </div>
+                  <div className="player-sets-scroll">
+                    {group.entries.map(({ set, si }) => {
+                      const isOwnSet      = set.playerId === myId;
+                      const isAddable     = myHasSet && isMyTurn && inAction && mode !== 'steal' && selectedCards.length > 0;
+                      const isStealTarget = mode === 'steal' && !isOwnSet && isMyTurn && inAction;
+                      const boxClass = `set-box${isAddable ? ' addable' : ''}${isStealTarget ? ' steal-target' : ''}`;
+                      return (
+                        <div key={si} className={boxClass}>
+                          {sortedRunCards(set, game.beanieRank).map(c => {
+                            let beanieLabel = null;
+                            if (c.rank === game.beanieRank && set.type === 'RUN') {
+                              if (set.beanieOverrides?.[c.id]) {
+                                const o = set.beanieOverrides[c.id];
+                                beanieLabel = `${o.rank}${o.suit}`;
+                              } else {
+                                beanieLabel = computeGapLabel(c, set.cards, game.beanieRank);
+                              }
+                            }
+                            const isBeanie = c.rank === game.beanieRank;
+                            const isStealableBeanie = isStealTarget && isBeanie && isStealable(set, c);
+                            return (
+                              <div key={c.id} style={{ position: 'relative', display: 'inline-block' }}>
+                                <Card
+                                  card={c}
+                                  beanieRank={game.beanieRank}
+                                  size="sm"
+                                  onClick={isStealableBeanie ? () => handleStealBeanie(si, c.id) : undefined}
+                                />
+                                {beanieLabel && <span className="beanie-badge">{beanieLabel}</span>}
+                                {isStealableBeanie && <span className="steal-pulse" />}
+                              </div>
+                            );
+                          })}
+                          {isAddable && (
+                            <button
+                              className="set-add-btn"
+                              style={isAddingBeanie ? { background: 'var(--gold)', color: '#1a1200' } : {}}
+                              onClick={() => {
+                                if (isAddingBeanie) {
+                                  actions.addBeanieToSet(si, selectedCards[0]);
+                                } else {
+                                  actions.addToSet(si, selectedCards);
+                                }
+                                clearSelection();
+                              }}
+                            >{isAddingBeanie ? '★' : '+'}</button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
             );
-          })
-        )}
+          });
+        })()}
       </div>
 
-      {/* Draw / Discard piles */}
-      <div className="pile-row">
-        <div className="pile-wrap">
-          <Card
-            card={{ id: 'back', rank: 'back', suit: '' }}
-            beanieRank={null}
-            size="md"
-            onClick={isMyTurn && inDraw ? actions.drawFromPile : undefined}
-            disabled={!isMyTurn || !inDraw}
-          />
-          <div className="pile-label">Draw ({game.drawPileCount})</div>
-        </div>
-        <div className="pile-arrow">→</div>
-        <div className="pile-wrap">
-          {game.discardTop
-            ? <Card
-                card={game.discardTop}
-                beanieRank={game.beanieRank}
+      {/* Draw / Discard piles — highlighted draw zone when it's your turn to draw */}
+      {isMyTurn && inDraw ? (
+        <div className="draw-zone">
+          <div className="draw-zone-label">✦ Draw a card to begin your turn</div>
+          <div className="pile-row">
+            <div className="pile-wrap">
+              <Card
+                card={{ id: 'back', rank: 'back', suit: '' }}
+                beanieRank={null}
                 size="md"
-                onClick={isMyTurn && inDraw ? actions.drawFromDiscard : undefined}
-                disabled={!isMyTurn || !inDraw}
+                onClick={actions.drawFromPile}
               />
-            : <EmptyCard size="md" />
-          }
-          <div className="pile-label">Discard</div>
+              <div className="pile-label">Draw ({game.drawPileCount})</div>
+            </div>
+            <div className="pile-arrow">or</div>
+            <div className="pile-wrap">
+              {game.discardTop
+                ? <Card
+                    card={game.discardTop}
+                    beanieRank={game.beanieRank}
+                    size="md"
+                    onClick={actions.drawFromDiscard}
+                  />
+                : <EmptyCard size="md" />
+              }
+              <div className="pile-label">Discard</div>
+            </div>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="pile-row">
+          <div className="pile-wrap">
+            <Card
+              card={{ id: 'back', rank: 'back', suit: '' }}
+              beanieRank={null}
+              size="md"
+              disabled
+            />
+            <div className="pile-label">Draw ({game.drawPileCount})</div>
+          </div>
+          <div className="pile-arrow">→</div>
+          <div className="pile-wrap">
+            {game.discardTop
+              ? <Card
+                  card={game.discardTop}
+                  beanieRank={game.beanieRank}
+                  size="md"
+                  onClick={isMyTurn && inDraw ? actions.drawFromDiscard : undefined}
+                  disabled={!isMyTurn || !inDraw}
+                />
+              : <EmptyCard size="md" />
+            }
+            <div className="pile-label">Discard</div>
+          </div>
+        </div>
+      )}
 
       {/* Your hand */}
       <div className="hand-area">
@@ -443,7 +512,7 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
               key={c.id}
               card={c}
               beanieRank={game.beanieRank}
-              size="lg"
+              size="xl"
               selected={selectedCards.includes(c.id)}
               onClick={isMyTurn && inAction ? () => toggleCard(c.id) : undefined}
               disabled={!isMyTurn || !inAction}
@@ -454,46 +523,62 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
 
       {/* Action buttons */}
       {isMyTurn ? (
-        <div>
-          {inDraw && (
-            <div className="turn-banner">Your turn — draw a card to begin</div>
-          )}
-          {inAction && selectedCards.length === 0 && (
-            <div className="turn-banner">
-              {!game.roundFirstTurnDone
-                ? 'You have 8 cards — lay a set or discard one to start the pile'
-                : 'Select cards from your hand to play or discard'}
-            </div>
-          )}
-          {inAction && mode === 'steal' && (
-            <div className="action-row" style={{ flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-              <div style={{ fontSize: 12, color: 'var(--gold)' }}>Tap a Beanie on the table to steal it</div>
-              <button className="btn-sm btn-sm-secondary" onClick={() => { clearSelection(); }}>
-                Cancel
-              </button>
-            </div>
-          )}
-          {inAction && mode !== 'steal' && selectedCards.length > 0 && (
-            <div className="action-row">
-              {selectedCards.length >= 3 && (
-                <button className="btn-sm btn-sm-primary" onClick={handleLaySet}>
-                  Lay set ({selectedCards.length})
+        <div className="action-area">
+          {inAction && (
+            mode === 'steal' ? (
+              /* Steal mode: select replacement card first, then tap pulsing Beanie */
+              <div className="action-row" style={{ flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+                <div style={{ fontSize: 12, color: 'var(--gold)', textAlign: 'center' }}>
+                  {selectedCards.length === 0
+                    ? 'Select your replacement card from your hand'
+                    : hasAnyStealableBeanie
+                      ? 'Tap a pulsing ★ Beanie on the table to steal it'
+                      : "That card can't replace any Beanie — try another"}
+                </div>
+                <button className="btn-sm btn-sm-secondary" onClick={clearSelection}>
+                  Cancel
                 </button>
-              )}
-              {selectedCards.length === 1 && myHasSet && hasAnyStealableBeanie && (
-                <button className="btn-sm btn-sm-gold" onClick={() => setMode('steal')}>
-                  Steal Beanie
-                </button>
-              )}
-              {selectedCards.length === 1 && (
-                <button className="btn-sm btn-sm-danger" onClick={handleDiscard}>
-                  Discard
-                </button>
-              )}
-              <button className="btn-sm btn-sm-secondary" onClick={clearSelection}>
-                Clear
-              </button>
-            </div>
+              </div>
+            ) : (
+              /* Normal action mode */
+              <>
+                {selectedCards.length === 0 && (
+                  <div className="turn-banner">
+                    {!game.roundFirstTurnDone
+                      ? 'You have 8 cards — lay a set or discard one to start the pile'
+                      : 'Select cards from your hand to play or discard'}
+                  </div>
+                )}
+                {selectedCards.length > 0 && (
+                  <div className="action-row">
+                    {selectedCards.length >= 3 && (
+                      <button className="btn-sm btn-sm-primary" onClick={handleLaySet}>
+                        Lay set ({selectedCards.length})
+                      </button>
+                    )}
+                    {selectedCards.length === 1 && !isAddingBeanie && (
+                      <button className="btn-sm btn-sm-danger" onClick={handleDiscard}>
+                        Discard
+                      </button>
+                    )}
+                    <button className="btn-sm btn-sm-secondary" onClick={clearSelection}>
+                      Clear
+                    </button>
+                  </div>
+                )}
+                {/* Steal Beanie — visible whenever opponent has beanies and player has laid a set */}
+                {myHasSet && hasOpponentBeanies && (
+                  <div style={{ textAlign: 'center', marginTop: selectedCards.length > 0 ? 6 : 0 }}>
+                    <button
+                      className="btn-sm btn-sm-gold"
+                      onClick={() => { clearSelection(); setMode('steal'); }}
+                    >
+                      Steal Beanie ★
+                    </button>
+                  </div>
+                )}
+              </>
+            )
           )}
         </div>
       ) : (
