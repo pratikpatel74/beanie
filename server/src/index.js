@@ -11,6 +11,7 @@ const http       = require('http');
 const { Server } = require('socket.io');
 const cors       = require('cors');
 const path       = require('path');
+const fs         = require('fs');
 
 const registerHandlers = require('./socket/handlers');
 const rm               = require('./rooms/roomManager');
@@ -21,8 +22,13 @@ const IS_PROD = process.env.NODE_ENV === 'production';
 // Built client lives at ../../client/dist relative to this file
 const CLIENT_DIST = path.join(__dirname, '..', '..', 'client', 'dist');
 
-// Marketing landing page (served for www.* requests)
-const LANDING_HTML = path.join(__dirname, '..', 'public', 'landing.html');
+// Marketing landing page (served for www.* requests) — read once at startup
+const LANDING_HTML_PATH = path.join(__dirname, '..', 'public', 'landing.html');
+const LANDING_HTML = fs.existsSync(LANDING_HTML_PATH)
+  ? fs.readFileSync(LANDING_HTML_PATH, 'utf8')
+  : null;
+if (LANDING_HTML) console.log('[landing] landing.html loaded OK');
+else console.warn('[landing] landing.html not found at', LANDING_HTML_PATH);
 
 // ─── Express app ─────────────────────────────────────────────────────────────
 
@@ -39,8 +45,8 @@ app.get('/health', (_req, res) => res.json({ status: 'ok', time: new Date().toIS
 if (IS_PROD) {
   // Landing page for www.playbeanie.com and www.playbeanie.co.uk
   app.get('*', (req, res, next) => {
-    if ((req.hostname || '').startsWith('www.')) {
-      return res.sendFile(LANDING_HTML);
+    if ((req.hostname || '').startsWith('www.') && LANDING_HTML) {
+      return res.type('html').send(LANDING_HTML);
     }
     next();
   });
