@@ -1,8 +1,10 @@
 const PLAYER_COLOURS = ['var(--p1)', 'var(--p2)', 'var(--p3)', 'var(--p4)'];
+const BEANIE_RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 
 export default function RoundEndScreen({ game, myId, actions }) {
+  // Sort by total score ascending (lower = better)
   const players = [...game.players].sort((a, b) => a.totalScore - b.totalScore);
-  const lastRoundIdx = (game.players[0]?.roundScores?.length || 1) - 1;
+  const roundsPlayed = game.players[0]?.roundScores?.length || 0;
 
   return (
     <div className="screen">
@@ -27,44 +29,58 @@ export default function RoundEndScreen({ game, myId, actions }) {
 
         <div className="section-label">Scores after round {game.round}</div>
 
-        <table className="score-table">
-          <thead>
-            <tr>
-              <th>Player</th>
-              <th>This round</th>
-              <th>Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {players.map((p, i) => {
-              const origIdx = game.players.indexOf(game.players.find(gp => gp.id === p.id));
-              const thisRound = p.roundScores[lastRoundIdx] ?? 0;
-              return (
-                <tr key={p.id}>
-                  <td>
-                    <div
-                      style={{
-                        width: 8, height: 8, borderRadius: '50%',
-                        background: PLAYER_COLOURS[origIdx],
-                        flexShrink: 0,
-                      }}
-                    />
-                    {p.id === myId ? `${p.name} (you)` : p.name}
-                  </td>
-                  <td className={`score-round-cell${thisRound === 0 && game.roundWinner ? ' score-this-round' : ''}`}>
-                    {thisRound === 0 && game.roundWinner ? '0 🏆' : `+${thisRound}`}
-                  </td>
-                  <td className="total-col">{p.totalScore}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        {/* Horizontally scrollable so all round columns fit on mobile */}
+        <div style={{ overflowX: 'auto', width: '100%' }}>
+          <table className="score-table" style={{ minWidth: roundsPlayed > 4 ? `${180 + roundsPlayed * 36}px` : undefined }}>
+            <thead>
+              <tr>
+                <th style={{ textAlign: 'left' }}>Player</th>
+                {Array.from({ length: roundsPlayed }, (_, i) => (
+                  <th key={i} style={{ textAlign: 'center', fontSize: 11, padding: '4px 4px' }}>
+                    R{i + 1}
+                  </th>
+                ))}
+                <th style={{ textAlign: 'right' }}>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {players.map(p => {
+                const origIdx = game.players.findIndex(gp => gp.id === p.id);
+                return (
+                  <tr key={p.id}>
+                    <td style={{ whiteSpace: 'nowrap' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <div style={{
+                          width: 8, height: 8, borderRadius: '50%',
+                          background: PLAYER_COLOURS[origIdx], flexShrink: 0,
+                        }} />
+                        {p.id === myId ? `${p.name} (you)` : p.name}
+                      </div>
+                    </td>
+                    {p.roundScores.map((score, i) => {
+                      const isWin = score === 0 && game.roundWinner;
+                      return (
+                        <td
+                          key={i}
+                          className={isWin && i === roundsPlayed - 1 ? 'score-round-cell score-this-round' : 'score-round-cell'}
+                          style={{ textAlign: 'center', fontSize: 12, padding: '4px 4px' }}
+                        >
+                          {isWin ? '0🏆' : `+${score}`}
+                        </td>
+                      );
+                    })}
+                    <td className="total-col">{p.totalScore}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
 
         {game.round < 13 && (
           <div style={{ fontSize: 12, color: 'var(--text2)', textAlign: 'center' }}>
             Next round: <strong style={{ color: 'var(--gold)' }}>
-              {['A','2','3','4','5','6','7','8','9','10','J','Q','K'][game.round]}s
+              {BEANIE_RANKS[game.round]}s
             </strong> are wild
           </div>
         )}
