@@ -91,7 +91,7 @@ export default function HowToPlayScreen({ actions }) {
             </div>
           </div>
           <div className="htp-tip">
-            💡 On the very first turn of a round you start with 8 cards instead of 7.
+            💡 A random player is chosen to go first each round. That player starts with <strong>8 cards</strong>; everyone else starts with <strong>7</strong>. The extra card counts as their draw for that turn, so they go straight to the Play/Discard step.
           </div>
         </section>
 
@@ -222,7 +222,39 @@ export default function HowToPlayScreen({ actions }) {
             <div className="htp-add-btn">+</div>
           </div>
           <div className="htp-tip">
-            💡 For Runs: your card must continue the sequence at either end. You cannot add a Beanie to a run once its positions are set.
+            💡 For Runs: your card must continue the sequence at either end. A Match can hold at most 4 cards (one per suit) — the ★ button is hidden when a set is full.
+          </div>
+        </section>
+
+        <div className="htp-divider" />
+
+        {/* ── Adding a Beanie to a Set ── */}
+        <section className="htp-section">
+          <div className="htp-section-header">
+            <span className="htp-icon">★</span>
+            <h3>Adding a Beanie to a Set</h3>
+          </div>
+          <p className="htp-body">
+            Once you've laid a set, you can place a Beanie from your hand onto <strong>any set on the table</strong> — yours or an opponent's — to extend it. Select just the Beanie card and tap the <span className="htp-btn-inline" style={{ background: 'var(--gold)', color: '#1a1200' }}>★</span> button on a set.
+          </p>
+          <div className="htp-steps">
+            <div className="htp-step">
+              <div className="htp-step-num">M</div>
+              <div>
+                <div className="htp-step-title">Match</div>
+                <div className="htp-step-body">The Beanie is added as another card of that rank. A Match can hold at most 4 cards — one per suit — so the ★ button is hidden when all 4 are down.</div>
+              </div>
+            </div>
+            <div className="htp-step">
+              <div className="htp-step-num">R</div>
+              <div>
+                <div className="htp-step-title">Run</div>
+                <div className="htp-step-body">The Beanie extends the run by one card. If only one end is open you're placed automatically. If both ends are open, you'll be asked which rank the Beanie becomes.</div>
+              </div>
+            </div>
+          </div>
+          <div className="htp-tip">
+            💡 Placing a Beanie on an opponent's run locks it in and makes their set harder to complete — a useful tactical move.
           </div>
         </section>
 
@@ -235,20 +267,20 @@ export default function HowToPlayScreen({ actions }) {
             <h3>Stealing a Beanie</h3>
           </div>
           <p className="htp-body">
-            If you hold the real card that a Beanie is substituting for, you can steal the Beanie and use it yourself.
+            If you hold the real card that a Beanie is substituting for, you can steal the Beanie and use it yourself. The <strong>Steal Beanie ★</strong> button only appears when you actually have a card capable of making a valid swap.
           </p>
           <div className="htp-steps">
             <div className="htp-step">
               <div className="htp-step-num">1</div>
-              <div className="htp-step-body">Select the replacement card from your hand.</div>
+              <div className="htp-step-body">Tap <strong>Steal Beanie ★</strong> — your eligible hand cards will glow with a <span style={{ color: 'var(--gold)' }}>gold ring</span>.</div>
             </div>
             <div className="htp-step">
               <div className="htp-step-num">2</div>
-              <div className="htp-step-body">Tap <strong>Steal Beanie</strong> — eligible Beanies on the table will pulse.</div>
+              <div className="htp-step-body">Tap a gold card from your hand to select it as the replacement.</div>
             </div>
             <div className="htp-step">
               <div className="htp-step-num">3</div>
-              <div className="htp-step-body">Tap a pulsing Beanie to swap it. The Beanie comes to your hand; your card replaces it in the set.</div>
+              <div className="htp-step-body">Tap a pulsing ★ Beanie on the table to complete the swap. The Beanie comes to your hand; your card takes its place.</div>
             </div>
           </div>
           <div className="htp-set-pill htp-set-pill-steal">
@@ -266,6 +298,49 @@ export default function HowToPlayScreen({ actions }) {
 
         <div className="htp-divider" />
 
+        {/* ── Draw Pile Empty ── */}
+        <section className="htp-section">
+          <div className="htp-section-header">
+            <span className="htp-icon">🔀</span>
+            <h3>Draw Pile Runs Out</h3>
+          </div>
+          <p className="htp-body">
+            If the draw pile is empty when it's your turn to draw, the discard pile is automatically <strong>reshuffled</strong> (keeping the top card face-up) and becomes the new draw pile. The game continues without interruption.
+          </p>
+        </section>
+
+        <div className="htp-divider" />
+
+        {/* ── Declare Draw ── */}
+        <section className="htp-section">
+          <div className="htp-section-header">
+            <span className="htp-icon">🤝</span>
+            <h3>Ending a Stalemate</h3>
+          </div>
+          <p className="htp-body">
+            If no one can make progress — no one can lay sets or get rid of their cards — any player can propose ending the round early.
+          </p>
+          <div className="htp-steps">
+            <div className="htp-step">
+              <div className="htp-step-num">1</div>
+              <div className="htp-step-body">During your action phase, tap <strong>End Round</strong> at the bottom of the screen to cast your vote.</div>
+            </div>
+            <div className="htp-step">
+              <div className="htp-step-num">2</div>
+              <div className="htp-step-body">Other players see a notice and can agree on their own turn by tapping <strong>Agree to End Round</strong>.</div>
+            </div>
+            <div className="htp-step">
+              <div className="htp-step-num">3</div>
+              <div className="htp-step-body">When <strong>all players agree</strong>, the round ends as a draw — every player scores penalty points for their remaining hand. Nobody scores 0.</div>
+            </div>
+          </div>
+          <div className="htp-tip">
+            💡 Changed your mind? Tap <strong>Cancel End Round vote</strong> to withdraw before everyone agrees.
+          </div>
+        </section>
+
+        <div className="htp-divider" />
+
         {/* ── Scoring ── */}
         <section className="htp-section">
           <div className="htp-section-header">
@@ -273,7 +348,7 @@ export default function HowToPlayScreen({ actions }) {
             <h3>Scoring</h3>
           </div>
           <p className="htp-body">
-            When a round ends, every player scores penalty points for cards still in their hand. The round winner scores 0.
+            When a round ends, every player scores penalty points for cards still in their hand. The round winner scores 0. In a <strong>drawn round</strong> (all players agreed to end early), everyone scores their hand — nobody gets 0.
           </p>
           <div className="htp-score-table">
             <div className="htp-score-row htp-score-head">
@@ -311,9 +386,11 @@ export default function HowToPlayScreen({ actions }) {
           <ul className="htp-tips-list">
             <li>Lay sets early so you can add to the table and steal Beanies.</li>
             <li>Watch what others are building — steal a Beanie before they extend the run.</li>
-            <li>Holding a Beanie is expensive (10 pts). Use it or steal something with it.</li>
+            <li>Holding a Beanie is expensive (10 pts). Use it, place it on a set, or steal something with it.</li>
+            <li>You can discard a Beanie if you really need to — but it's usually costly.</li>
             <li>Taking from the discard pile gives everyone a clue to what you're building — pick carefully.</li>
             <li>In later rounds (J, Q, K) the Beanies are high-value cards, so stealing pays off even more.</li>
+            <li>If you're stuck and can't win, propose End Round to limit everyone's penalty points — don't let the round drag on forever.</li>
           </ul>
         </section>
 
