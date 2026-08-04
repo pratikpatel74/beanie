@@ -88,7 +88,7 @@ module.exports = function registerHandlers(io, socket) {
         target.emit('game:state', { ...sanitise(game, player.id), myPlayerId: player.id });
       }
     });
-    socket.to(roomCode).emit('game:state:public', publicView(game));
+    io.to(roomCode).emit('game:state:public', publicView(game));
   }
 
   /** Start (or restart) the turn timer for the current player. */

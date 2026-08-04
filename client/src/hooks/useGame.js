@@ -13,6 +13,9 @@ import socket from '../socket';
 
 const SESSION_KEY = 'beanie_session';
 
+// Module-level: tracks last game status so we can detect missed broadcasts
+let _lastKnownStatus = null;
+
 function loadSession() {
   try { return JSON.parse(localStorage.getItem(SESSION_KEY)); }
   catch { return null; }
@@ -123,7 +126,21 @@ export function useGame() {
       if (game.myPlayerId && game.roomCode) {
         saveSession(game.roomCode, game.myPlayerId);
       }
+      _lastKnownStatus = game.status || null;
       dispatch({ type: 'GAME_STATE', game });
+    });
+
+    // Public state is broadcast to the whole room after every action.
+    // If the status has changed but we haven't received our private game:state,
+    // we missed a broadcast — trigger a rejoin to auto-sync.
+    socket.on('game:state:public', publicGame => {
+      if (!publicGame?.status || !_lastKnownStatus) return;
+      if (publicGame.status !== _lastKnownStatus) {
+        const session = loadSession();
+        if (session?.roomCode && session?.playerId) {
+          socket.emit('room:rejoin', { roomCode: session.roomCode, playerId: session.playerId });
+        }
+      }
     });
 
     socket.on('game:error', ({ message }) =>
