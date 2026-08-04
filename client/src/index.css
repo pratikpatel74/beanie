@@ -393,6 +393,14 @@ html, body, #root {
 /* Steal mode — highlight target sets */
 .public-set-row.steal-target { background: rgba(240,180,41,0.06); border-radius: 8px; }
 
+/* Gold ring on hand cards that can steal a Beanie (shown in steal mode) */
+.steal-capable-card {
+  border-radius: 8px;
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  box-shadow: 0 0 10px rgba(240,180,41,0.35);
+}
+
 /* Pulse ring on stealable Beanie cards */
 .steal-pulse {
   position: absolute; inset: -3px; border-radius: 6px;

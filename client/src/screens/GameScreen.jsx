@@ -277,7 +277,9 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
     return !!selectedCard && canStealBeanie(selectedCard, set, beanieCard, game.beanieRank);
   }
 
-  // True if any opponent set has a Beanie (determines whether Steal button appears)
+  // True if any opponent set has a Beanie (determines whether Steal button appears —
+  // acts as an alert so players don't miss a steal opportunity, even if their hand
+  // can't currently complete it)
   const hasOpponentBeanies = game.publicSets.some(
     s => s.playerId !== myId && s.cards.some(c => c.rank === game.beanieRank)
   );
@@ -287,6 +289,18 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
     game.publicSets.some(
       s => s.playerId !== myId && s.cards.some(c => c.rank === game.beanieRank && isStealable(s, c))
     );
+
+  // In steal mode: which hand cards can steal ANY Beanie (used to highlight them)
+  function cardCanStealSomething(handCard) {
+    return mode === 'steal' && game.publicSets.some(
+      s => s.playerId !== myId && s.cards.some(
+        c => c.rank === game.beanieRank && canStealBeanie(handCard, s, c, game.beanieRank)
+      )
+    );
+  }
+
+  // True in steal mode: at least one hand card can steal (used to tailor instructions)
+  const hasSomeStealableHandCard = mode === 'steal' && myHand.some(cardCanStealSomething);
 
   // True when a single Beanie card from hand is selected — triggers addBeanieToSet UX
   const isAddingBeanie = selectedCards.length === 1 &&
@@ -507,17 +521,24 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
           {selectedCards.length > 0 && ` · ${selectedCards.length} selected`}
         </div>
         <div className="hand-scroll">
-          {myHand.map(c => (
-            <Card
-              key={c.id}
-              card={c}
-              beanieRank={game.beanieRank}
-              size="xl"
-              selected={selectedCards.includes(c.id)}
-              onClick={isMyTurn && inAction ? () => toggleCard(c.id) : undefined}
-              disabled={!isMyTurn || !inAction}
-            />
-          ))}
+          {myHand.map(c => {
+            const stealCapable = cardCanStealSomething(c);
+            return (
+              <div
+                key={c.id}
+                className={stealCapable ? 'steal-capable-card' : undefined}
+              >
+                <Card
+                  card={c}
+                  beanieRank={game.beanieRank}
+                  size="xl"
+                  selected={selectedCards.includes(c.id)}
+                  onClick={isMyTurn && inAction ? () => toggleCard(c.id) : undefined}
+                  disabled={!isMyTurn || !inAction}
+                />
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -530,7 +551,9 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
               <div className="action-row" style={{ flexDirection: 'column', alignItems: 'center', gap: 6 }}>
                 <div style={{ fontSize: 12, color: 'var(--gold)', textAlign: 'center' }}>
                   {selectedCards.length === 0
-                    ? 'Select your replacement card from your hand'
+                    ? hasSomeStealableHandCard
+                      ? '✦ Tap a gold card from your hand to use as replacement'
+                      : "None of your current cards can replace a Beanie"
                     : hasAnyStealableBeanie
                       ? 'Tap a pulsing ★ Beanie on the table to steal it'
                       : "That card can't replace any Beanie — try another"}
