@@ -58,8 +58,22 @@ async function initRooms() {
   const saved = await persistence.loadAllRooms();
   const codes = Object.keys(saved);
   if (codes.length === 0) return;
-  codes.forEach(code => { rooms.set(code, saved[code]); touchRoom(code); });
-  console.log(`[roomManager] Restored ${codes.length} room(s) from Redis`);
+
+  let restored = 0;
+  codes.forEach(code => {
+    const room = saved[code];
+    // Don't restore completed games — they can't be resumed and may carry stale state.
+    // Purge them from Redis too so they don't accumulate.
+    if (room.status === STATUS.GAME_END) {
+      persistence.deleteRoom(code);
+      return;
+    }
+    rooms.set(code, room);
+    touchRoom(code);
+    restored++;
+  });
+
+  console.log(`[roomManager] Restored ${restored} room(s) from Redis (skipped ${codes.length - restored} completed)`);
 }
 
 // ─── Room lifecycle ───────────────────────────────────────────────────────────
