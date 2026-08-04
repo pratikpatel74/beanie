@@ -2,7 +2,7 @@
 
 const RED_SUITS = ['♥', '♦'];
 
-export default function Card({ card, beanieRank, size = 'md', selected = false, onClick, disabled = false }) {
+export default function Card({ card, beanieRank, size = 'md', selected = false, onClick, disabled = false, className = '' }) {
   if (!card) return null;
 
   const isBeanie = card.rank === beanieRank;
@@ -16,6 +16,7 @@ export default function Card({ card, beanieRank, size = 'md', selected = false, 
     isRed && !isBeanie ? 'red'                 : '',
     selected          ? 'selected'             : '',
     disabled          ? 'card-disabled'        : '',
+    className,
   ].filter(Boolean).join(' ');
 
   if (card.rank === 'back') {

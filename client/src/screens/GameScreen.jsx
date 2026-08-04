@@ -521,25 +521,18 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
           {selectedCards.length > 0 && ` · ${selectedCards.length} selected`}
         </div>
         <div className="hand-scroll">
-          {myHand.map(c => {
-            const stealCapable = cardCanStealSomething(c);
-            return (
-              <div
-                key={c.id}
-                className={stealCapable ? 'steal-capable-card' : undefined}
-                style={{ display: 'inline-block' }}
-              >
-                <Card
-                  card={c}
-                  beanieRank={game.beanieRank}
-                  size="xl"
-                  selected={selectedCards.includes(c.id)}
-                  onClick={isMyTurn && inAction ? () => toggleCard(c.id) : undefined}
-                  disabled={!isMyTurn || !inAction}
-                />
-              </div>
-            );
-          })}
+          {myHand.map(c => (
+            <Card
+              key={c.id}
+              card={c}
+              beanieRank={game.beanieRank}
+              size="xl"
+              selected={selectedCards.includes(c.id)}
+              onClick={isMyTurn && inAction ? () => toggleCard(c.id) : undefined}
+              disabled={!isMyTurn || !inAction}
+              className={cardCanStealSomething(c) ? 'steal-capable-card' : ''}
+            />
+          ))}
         </div>
       </div>
 

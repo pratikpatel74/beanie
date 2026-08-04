@@ -394,9 +394,7 @@ html, body, #root {
 .public-set-row.steal-target { background: rgba(240,180,41,0.06); border-radius: 8px; }
 
 /* Gold ring on hand cards that can steal a Beanie (shown in steal mode) */
-.steal-capable-card {
-  display: inline-block;
-  border-radius: 8px;
+.hand-scroll .card.steal-capable-card {
   outline: 2px solid var(--gold);
   outline-offset: 2px;
   box-shadow: 0 0 10px rgba(240,180,41,0.35);
