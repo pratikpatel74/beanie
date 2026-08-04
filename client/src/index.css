@@ -232,7 +232,7 @@ html, body, #root {
 .game-topbar { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .btn-exit {
   background: transparent; border: 1px solid rgba(255,80,80,0.5); color: #ff6b6b;
-  border-radius: 8px; padding: 4px 10px; font-size: 12px; cursor: pointer;
+  border-radius: 8px; padding: 7px 14px; font-size: 13px; font-weight: 600; cursor: pointer;
   flex-shrink: 0;
 }
 .btn-exit:active { background: rgba(255,80,80,0.15); }
@@ -442,6 +442,26 @@ html, body, #root {
   text-align: center; flex-shrink: 0;
 }
 .not-your-turn { font-size: 11px; color: var(--text3); text-align: center; }
+
+/* Sort toggle — segmented control next to hand label */
+.sort-toggle {
+  display: flex;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.15);
+  flex-shrink: 0;
+}
+.sort-seg {
+  padding: 4px 9px;
+  font-size: 11px; font-weight: 600;
+  color: rgba(255,255,255,0.35);
+  cursor: pointer;
+  user-select: none;
+}
+.sort-seg-active {
+  background: rgba(124,111,255,0.3);
+  color: #A89BFF;
+}
 
 .draw-vote-bar {
   font-size: 11px; color: var(--text2); text-align: center;

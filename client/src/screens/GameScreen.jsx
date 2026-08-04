@@ -643,13 +643,16 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
             Your hand ({myHand.length} card{myHand.length !== 1 ? 's' : ''})
             {selectedCards.length > 0 && ` · ${selectedCards.length} selected`}
           </span>
-          <button
-            className="btn-sm btn-sm-secondary"
-            style={{ fontSize: 10, padding: '3px 8px', opacity: sortMode === 'rank' ? 1 : 0.5 }}
-            onClick={() => setSortMode(m => m === 'deal' ? 'rank' : 'deal')}
-          >
-            {sortMode === 'rank' ? 'Sorted ↕' : 'Sort ↕'}
-          </button>
+          <div className="sort-toggle">
+            <span
+              className={`sort-seg${sortMode === 'deal' ? ' sort-seg-active' : ''}`}
+              onClick={() => setSortMode('deal')}
+            >Deal</span>
+            <span
+              className={`sort-seg${sortMode === 'rank' ? ' sort-seg-active' : ''}`}
+              onClick={() => setSortMode('rank')}
+            >A→K</span>
+          </div>
         </div>
         <div className="hand-scroll">
           {sortedHand.map(c => (
