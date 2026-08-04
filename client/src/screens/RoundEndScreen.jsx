@@ -11,11 +11,19 @@ export default function RoundEndScreen({ game, myId, actions }) {
       </div>
 
       <div className="round-end-inner scroll">
-        <div className="winner-banner">
-          <div className="crown">🏆</div>
-          <div className="wins">{game.roundWinner} wins this round!</div>
-          <div className="sub">Scored 0 points</div>
-        </div>
+        {game.roundWinner ? (
+          <div className="winner-banner">
+            <div className="crown">🏆</div>
+            <div className="wins">{game.roundWinner} wins this round!</div>
+            <div className="sub">Scored 0 points</div>
+          </div>
+        ) : (
+          <div className="winner-banner">
+            <div className="crown">🤝</div>
+            <div className="wins">Round drawn</div>
+            <div className="sub">All players scored penalty points</div>
+          </div>
+        )}
 
         <div className="section-label">Scores after round {game.round}</div>
 
@@ -43,8 +51,8 @@ export default function RoundEndScreen({ game, myId, actions }) {
                     />
                     {p.id === myId ? `${p.name} (you)` : p.name}
                   </td>
-                  <td className={`score-round-cell${thisRound === 0 ? ' score-this-round' : ''}`}>
-                    {thisRound === 0 ? '0 🏆' : `+${thisRound}`}
+                  <td className={`score-round-cell${thisRound === 0 && game.roundWinner ? ' score-this-round' : ''}`}>
+                    {thisRound === 0 && game.roundWinner ? '0 🏆' : `+${thisRound}`}
                   </td>
                   <td className="total-col">{p.totalScore}</td>
                 </tr>

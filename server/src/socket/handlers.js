@@ -103,19 +103,30 @@ module.exports = function registerHandlers(io, socket) {
       let g = rm.getRoom(roomCode);
       if (!g || g.status !== STATUS.PLAYING) return;
 
-      const cp = g.players[g.currentPlayerIndex];
+      let cp = g.players[g.currentPlayerIndex];
       if (!cp) return;
 
-      if (g.phase === PHASE.DRAW && g.drawPile.length > 0) {
+      // If player is in DRAW phase, try to force-draw for them
+      if (g.phase === PHASE.DRAW) {
         const drawn = rm.playerDrawFromPile(roomCode, cp.id);
-        if (!drawn.error) g = drawn.game;
+        if (!drawn.error) {
+          g = drawn.game;
+        } else {
+          // Race condition: player already drew (or pile empty after reshuffle attempt).
+          // Re-read the live game state so we can attempt the forced discard.
+          const fresh = rm.getRoom(roomCode);
+          if (!fresh || fresh.status !== STATUS.PLAYING) return;
+          g  = fresh;
+          cp = g.players[g.currentPlayerIndex];
+          if (!cp) return;
+        }
       }
 
-      if (g.phase === PHASE.ACTION && cp.hand.length > 0) {
-        const forced = rm.playerDiscard(
-          roomCode, cp.id,
-          g.players.find(p => p.id === cp.id).hand[0].id
-        );
+      // Force a discard if the current player is now in ACTION phase
+      if (g.phase === PHASE.ACTION) {
+        const cpHand = g.players.find(p => p.id === cp.id)?.hand || [];
+        if (cpHand.length === 0) return;
+        const forced = rm.playerDiscard(roomCode, cp.id, cpHand[0].id);
         if (!forced.error) {
           broadcast(roomCode, forced.game);
           resetTimer(roomCode, forced.game);
@@ -304,6 +315,14 @@ module.exports = function registerHandlers(io, socket) {
     resetTimer(currentRoom, result.game);
   });
 
+  socket.on('game:declare-draw', () => {
+    if (!currentRoom) return sendError('Not in a room');
+    const result = rm.playerDeclareDraw(currentRoom, currentPlayerId);
+    if (result.error) return sendError(result.error);
+    broadcast(currentRoom, result.game);
+    if (result.game.status !== STATUS.PLAYING) clearTimer(currentRoom);
+  });
+
   socket.on('game:exit', () => {
     if (!currentRoom) return sendError('Not in a room');
     const result = rm.cancelGame(currentRoom, currentPlayerId);
@@ -397,6 +416,7 @@ function sanitise(game, viewingPlayerId) {
     publicSets:          game.publicSets,
     drawPileCount:       game.drawPile.length,
     discardTop:          game.discardPile[game.discardPile.length - 1] || null,
+    drawVotes:           game.drawVotes || [],
     players: game.players.map(p => ({
       id:          p.id,
       name:        p.name,

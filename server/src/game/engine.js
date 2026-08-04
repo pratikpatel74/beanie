@@ -133,6 +133,7 @@ function _startRound(game) {
     publicSets:          [],
     roundFirstTurnDone:  false,
     roundWinner:         null,
+    drawVotes:           [],  // tracks players who have voted to end the round in a draw
     // Player 1 already holds 8 cards (their "draw"), so start in ACTION phase
     phase:               PHASE.ACTION,
   });
@@ -144,14 +145,23 @@ function drawFromPile(game, playerId) {
   const check = _requirePhase(game, playerId, PHASE.DRAW);
   if (check) return err(game, check);
 
-  if (game.drawPile.length === 0) {
-    return err(game, 'Draw pile is empty — wait for discard pile to flip');
+  let { drawPile, discardPile } = game;
+
+  // If draw pile is empty, reshuffle the discard pile (keep the top card face-up)
+  if (drawPile.length === 0) {
+    if (discardPile.length <= 1) {
+      return err(game, 'No cards left to draw — consider declaring a draw');
+    }
+    const top = discardPile[discardPile.length - 1];
+    drawPile   = shuffle([...discardPile.slice(0, -1)]);
+    discardPile = [top];
+    console.log(`[engine] Draw pile empty — reshuffled ${drawPile.length} discard cards`);
   }
 
-  const [card, ...drawPile] = game.drawPile;
+  const [card, ...newDrawPile] = drawPile;
   const players = _addCardToHand(game.players, playerId, card);
 
-  return ok({ ...game, drawPile, players, phase: PHASE.ACTION });
+  return ok({ ...game, drawPile: newDrawPile, discardPile, players, phase: PHASE.ACTION });
 }
 
 function drawFromDiscard(game, playerId) {
@@ -315,11 +325,12 @@ function discard(game, playerId, cardId) {
   // Place card on discard pile
   discardPile = [...discardPile, card];
 
-  // If draw pile is empty, flip the discard pile (minus top card) without reshuffling
+  // If draw pile is empty, reshuffle the discard pile (keep the top card face-up)
   if (drawPile.length === 0 && discardPile.length > 1) {
     const top  = discardPile[discardPile.length - 1];
-    drawPile   = discardPile.slice(0, -1).reverse(); // flip order, do not shuffle
+    drawPile   = shuffle([...discardPile.slice(0, -1)]);
     discardPile = [top];
+    console.log(`[engine] Draw pile empty after discard — reshuffled ${drawPile.length} cards`);
   }
 
   const players = game.players.map(p =>
@@ -447,6 +458,46 @@ function addBeanieToSet(game, playerId, setIndex, beanieCardId, rankOverride = n
   return _checkWin({ ...game, players, publicSets }, playerId);
 }
 
+// ─── Declare Draw — all players vote to end the round with penalty scoring ────
+
+/**
+ * A player votes to end the round as a draw.
+ * When every player has voted, _endRoundDraw is called.
+ * Players can call this again to withdraw their vote.
+ */
+function declareDraw(game, playerId) {
+  if (game.status !== STATUS.PLAYING) return err(game, 'Game is not in progress');
+
+  const drawVotes = (game.drawVotes || []).includes(playerId)
+    ? (game.drawVotes || []).filter(id => id !== playerId)  // toggle off
+    : [...(game.drawVotes || []), playerId];                // toggle on
+
+  const updated = { ...game, drawVotes };
+
+  // End the round when every player agrees
+  if (drawVotes.length >= game.players.length) {
+    return _endRoundDraw(updated);
+  }
+
+  return ok(updated);
+}
+
+function _endRoundDraw(game) {
+  // No winner — every player scores penalty points for their remaining hand cards
+  const players = game.players.map(p => {
+    const roundScore = _scoreHand(p.hand, game.beanieRank);
+    return {
+      ...p,
+      totalScore:  p.totalScore + roundScore,
+      roundScores: [...p.roundScores, roundScore],
+    };
+  });
+
+  const newStatus = game.round >= TOTAL_ROUNDS ? STATUS.GAME_END : STATUS.ROUND_END;
+
+  return ok({ ...game, players, status: newStatus, roundWinner: null, drawVotes: [] });
+}
+
 // ─── Win / round end ─────────────────────────────────────────────────────────
 
 function _checkWin(game, playerId) {
@@ -539,4 +590,5 @@ module.exports = {
   addBeanieToSet,
   stealBeanie,
   discard,
+  declareDraw,
 };

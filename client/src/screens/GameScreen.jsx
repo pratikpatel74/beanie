@@ -649,6 +649,18 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
         </div>
       </div>
 
+      {/* Draw vote notice — visible to all when someone has proposed ending the round */}
+      {(game.drawVotes || []).length > 0 && (
+        <div className="draw-vote-bar">
+          {(game.drawVotes || [])
+            .map(id => game.players.find(p => p.id === id)?.name || '?')
+            .join(', ')}{' '}
+          {(game.drawVotes || []).length === 1 ? 'has' : 'have'} proposed ending this round
+          {(game.drawVotes || []).length < game.players.length &&
+            ` (${game.drawVotes.length}/${game.players.length} agreed)`}
+        </div>
+      )}
+
       {/* Action buttons */}
       {isMyTurn ? (
         <div className="action-area">
@@ -704,6 +716,22 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
                       onClick={() => { clearSelection(); setMode('steal'); }}
                     >
                       Steal Beanie ★
+                    </button>
+                  </div>
+                )}
+                {/* End Round — propose or agree to a draw */}
+                {game.roundFirstTurnDone && (
+                  <div style={{ textAlign: 'center', marginTop: 6 }}>
+                    <button
+                      className="btn-sm btn-sm-secondary"
+                      style={{ opacity: 0.65, fontSize: 11 }}
+                      onClick={actions.declareDraw}
+                    >
+                      {(game.drawVotes || []).includes(myId)
+                        ? 'Cancel End Round vote'
+                        : (game.drawVotes || []).length > 0
+                          ? `Agree to End Round (${game.drawVotes.length}/${game.players.length})`
+                          : 'End Round'}
                     </button>
                   </div>
                 )}

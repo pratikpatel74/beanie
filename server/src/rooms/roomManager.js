@@ -12,6 +12,7 @@ const {
   startGame, nextRound,
   drawFromPile, drawFromDiscard,
   layDownSet, addCardsToSet, addBeanieToSet, stealBeanie, discard,
+  declareDraw,
   STATUS,
 } = require('../game/engine');
 
@@ -164,11 +165,15 @@ function playerDiscard(roomCode, playerId, cardId) {
   return _action(roomCode, g => discard(g, playerId, cardId));
 }
 
+function playerDeclareDraw(roomCode, playerId) {
+  return _action(roomCode, g => declareDraw(g, playerId));
+}
+
 module.exports = {
   initRooms,
   createRoom, joinRoom, leaveRoom, getRoom, cancelGame,
   start, beginNextRound,
   playerDrawFromPile, playerDrawFromDiscard,
   playerLayDownSet, playerAddCardsToSet, playerAddBeanieToSet,
-  playerStealBeanie, playerDiscard,
+  playerStealBeanie, playerDiscard, playerDeclareDraw,
 };

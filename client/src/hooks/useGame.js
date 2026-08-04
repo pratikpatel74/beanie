@@ -227,6 +227,9 @@ export function useGame() {
     discard:     useCallback(cardId =>
       socket.emit('game:discard', { cardId }), []),
 
+    declareDraw: useCallback(() =>
+      socket.emit('game:declare-draw'), []),
+
     nextRound:   useCallback(() =>
       socket.emit('game:next-round'), []),
 

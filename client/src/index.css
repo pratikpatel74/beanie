@@ -443,6 +443,12 @@ html, body, #root {
 }
 .not-your-turn { font-size: 11px; color: var(--text3); text-align: center; }
 
+.draw-vote-bar {
+  font-size: 11px; color: var(--text2); text-align: center;
+  background: rgba(255,255,255,0.05); border-radius: 8px;
+  padding: 6px 12px; margin: 0 0 4px;
+}
+
 /* ── CARDS ─────────────────────────────────────────────────────────────────── */
 .card {
   border-radius: 5px;
