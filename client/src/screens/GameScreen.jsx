@@ -195,7 +195,10 @@ function sortedRunCards(set, beanieRank) {
  * Returns { error: 'full' } if neither end can be extended.
  */
 function computeAddBeanieOptions(set, beanieRank) {
-  if (set.type === 'SET') return null;
+  if (set.type === 'SET') {
+    // Only 4 suits exist — once all 4 cards are down, no room for another
+    return set.cards.length >= 4 ? { error: 'full' } : null;
+  }
 
   const nonBeanies = set.cards.filter(c => c.rank !== beanieRank);
   if (nonBeanies.length === 0) return { error: 'full' };

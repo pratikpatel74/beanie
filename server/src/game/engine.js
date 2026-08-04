@@ -374,6 +374,13 @@ function addBeanieToSet(game, playerId, setIndex, beanieCardId, rankOverride = n
   // Carry over existing overrides; may add one for the new card (RUN only)
   let newBeanieOverrides = targetSet.beanieOverrides ? { ...targetSet.beanieOverrides } : {};
 
+  if (targetSet.type === 'SET') {
+    // A SET can only hold 4 cards (one per suit) — reject if full
+    if (targetSet.cards.length >= 4) {
+      return err(game, 'All four cards of that rank are already in this set');
+    }
+  }
+
   if (targetSet.type === 'RUN') {
     const nonBeanies = targetSet.cards.filter(c => c.rank !== game.beanieRank);
     if (nonBeanies.length === 0) return err(game, 'Cannot add a Beanie to a Beanie-only run');
