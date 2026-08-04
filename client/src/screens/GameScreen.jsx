@@ -186,6 +186,38 @@ function sortedRunCards(set, beanieRank) {
   return [...set.cards].sort((a, b) => effectiveIdx(a) - effectiveIdx(b));
 }
 
+// ─── Can selected cards be added to a set? ───────────────────────────────────
+
+/**
+ * Quick client-side check: do the selected cards fit the given set?
+ * Prevents the + button appearing on mismatched sets.
+ * The server still does full validation — this just hides obviously wrong buttons.
+ *
+ * SET type: every non-Beanie selected card must match the set's rank.
+ * RUN type: every non-Beanie selected card must match the run's suit.
+ */
+function canAddCardsToSet(cardIds, set, hand, beanieRank) {
+  const cards = cardIds.map(id => hand.find(c => c.id === id)).filter(Boolean);
+  if (cards.length === 0) return false;
+
+  const setNonBeanies = set.cards.filter(c => c.rank !== beanieRank);
+  if (setNonBeanies.length === 0) return true; // all-Beanie set — let server decide
+
+  if (set.type === 'SET') {
+    const setRank = setNonBeanies[0].rank;
+    // All selected cards must be Beanies or share the set's rank
+    return cards.every(c => c.rank === beanieRank || c.rank === setRank);
+  }
+
+  if (set.type === 'RUN') {
+    const runSuit = setNonBeanies[0].suit;
+    // All selected cards must be Beanies or share the run's suit
+    return cards.every(c => c.rank === beanieRank || c.suit === runSuit);
+  }
+
+  return true;
+}
+
 // ─── Add Beanie to RUN: compute valid extension directions ───────────────────
 
 /**
@@ -470,7 +502,9 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
                       // For addBeanieToSet: compute whether this set can accept a Beanie
                       const beanieExt     = isAddingBeanie ? computeAddBeanieOptions(set, game.beanieRank) : null;
                       const beanieAddable = !isAddingBeanie || beanieExt === null || (beanieExt.options && beanieExt.options.length > 0);
-                      const isAddable     = myHasSet && isMyTurn && inAction && mode !== 'steal' && selectedCards.length > 0 && (!isAddingBeanie || beanieAddable);
+                      // For regular add: check selected cards actually fit this set
+                      const cardsAddable  = isAddingBeanie || canAddCardsToSet(selectedCards, set, myHand, game.beanieRank);
+                      const isAddable     = myHasSet && isMyTurn && inAction && mode !== 'steal' && selectedCards.length > 0 && beanieAddable && cardsAddable;
                       const isStealTarget = mode === 'steal' && !isOwnSet && isMyTurn && inAction;
                       const boxClass = `set-box${isAddable ? ' addable' : ''}${isStealTarget ? ' steal-target' : ''}`;
                       return (
@@ -652,7 +686,7 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
                         Lay set ({selectedCards.length})
                       </button>
                     )}
-                    {selectedCards.length === 1 && !isAddingBeanie && (
+                    {selectedCards.length === 1 && (
                       <button className="btn-sm btn-sm-danger" onClick={handleDiscard}>
                         Discard
                       </button>
