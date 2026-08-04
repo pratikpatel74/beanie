@@ -21,6 +21,9 @@ const IS_PROD = process.env.NODE_ENV === 'production';
 // Built client lives at ../../client/dist relative to this file
 const CLIENT_DIST = path.join(__dirname, '..', '..', 'client', 'dist');
 
+// Marketing landing page (served for www.* requests)
+const LANDING_HTML = path.join(__dirname, '..', 'public', 'landing.html');
+
 // ─── Express app ─────────────────────────────────────────────────────────────
 
 const app = express();
@@ -34,6 +37,14 @@ app.get('/health', (_req, res) => res.json({ status: 'ok', time: new Date().toIS
 
 // Serve built React app in production
 if (IS_PROD) {
+  // Landing page for www.playbeanie.com and www.playbeanie.co.uk
+  app.get('*', (req, res, next) => {
+    if ((req.hostname || '').startsWith('www.')) {
+      return res.sendFile(LANDING_HTML);
+    }
+    next();
+  });
+
   app.use(express.static(CLIENT_DIST));
   // SPA fallback — all non-API routes return index.html
   app.get('*', (_req, res) => res.sendFile(path.join(CLIENT_DIST, 'index.html')));

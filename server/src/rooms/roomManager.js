@@ -11,7 +11,7 @@ const {
   createGame, addPlayer, removePlayer,
   startGame, nextRound,
   drawFromPile, drawFromDiscard,
-  layDownSet, addCardsToSet, stealBeanie, discard,
+  layDownSet, addCardsToSet, addBeanieToSet, stealBeanie, discard,
   STATUS,
 } = require('../game/engine');
 
@@ -154,6 +154,9 @@ function playerLayDownSet(roomCode, playerId, cardIds, beanieOverrides = {}) {
 function playerAddCardsToSet(roomCode, playerId, setIndex, cardIds) {
   return _action(roomCode, g => addCardsToSet(g, playerId, setIndex, cardIds));
 }
+function playerAddBeanieToSet(roomCode, playerId, setIndex, beanieCardId) {
+  return _action(roomCode, g => addBeanieToSet(g, playerId, setIndex, beanieCardId));
+}
 function playerStealBeanie(roomCode, playerId, setIndex, replacementCardId, beanieCardId = null) {
   return _action(roomCode, g => stealBeanie(g, playerId, setIndex, replacementCardId, beanieCardId));
 }
@@ -166,6 +169,6 @@ module.exports = {
   createRoom, joinRoom, leaveRoom, getRoom, cancelGame,
   start, beginNextRound,
   playerDrawFromPile, playerDrawFromDiscard,
-  playerLayDownSet, playerAddCardsToSet,
+  playerLayDownSet, playerAddCardsToSet, playerAddBeanieToSet,
   playerStealBeanie, playerDiscard,
 };

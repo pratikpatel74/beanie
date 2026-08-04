@@ -149,6 +149,11 @@ export function useGame() {
       dispatch({ type: 'RESET' });
     });
 
+    // Server sends this when room:rejoin finds no room (e.g. host left while we were away)
+    socket.on('room:session-expired', () => {
+      clearSession();
+    });
+
     return () => socket.removeAllListeners();
   }, []);
 
@@ -195,6 +200,9 @@ export function useGame() {
 
     addToSet:    useCallback((setIndex, cardIds) =>
       socket.emit('game:add-to-set', { setIndex, cardIds }), []),
+
+    addBeanieToSet: useCallback((setIndex, beanieCardId) =>
+      socket.emit('game:add-beanie-to-set', { setIndex, beanieCardId }), []),
 
     stealBeanie: useCallback((setIndex, replacementCardId, beanieCardId = null) =>
       socket.emit('game:steal-beanie', { setIndex, replacementCardId, beanieCardId }), []),

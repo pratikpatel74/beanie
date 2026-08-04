@@ -344,6 +344,37 @@ function discard(game, playerId, cardId) {
   });
 }
 
+// ─── Add Beanie to any set ────────────────────────────────────────────────────
+// New rule: a player who has already laid a set may place a Beanie card from
+// their hand onto ANY set on the table, to get rid of it. No validation needed
+// beyond "you have laid a set" and "the card is a Beanie in your hand".
+
+function addBeanieToSet(game, playerId, setIndex, beanieCardId) {
+  const check = _requirePhase(game, playerId, PHASE.ACTION);
+  if (check) return err(game, check);
+
+  const player = _getPlayer(game, playerId);
+  if (!player.hasLaidSet) {
+    return err(game, 'You must have at least one set on the table first');
+  }
+
+  const targetSet = game.publicSets[setIndex];
+  if (!targetSet) return err(game, 'Set not found');
+
+  const beanieCard = player.hand.find(c => c.id === beanieCardId && c.rank === game.beanieRank);
+  if (!beanieCard) return err(game, 'Card is not a Beanie or not in your hand');
+
+  const newHand    = player.hand.filter(c => c.id !== beanieCardId);
+  const publicSets = game.publicSets.map((s, i) =>
+    i === setIndex ? { ...s, cards: [...s.cards, beanieCard] } : s
+  );
+  const players = game.players.map(p =>
+    p.id === playerId ? { ...p, hand: newHand } : p
+  );
+
+  return _checkWin({ ...game, players, publicSets }, playerId);
+}
+
 // ─── Win / round end ─────────────────────────────────────────────────────────
 
 function _checkWin(game, playerId) {
@@ -433,6 +464,7 @@ module.exports = {
   drawFromDiscard,
   layDownSet,
   addCardsToSet,
+  addBeanieToSet,
   stealBeanie,
   discard,
 };

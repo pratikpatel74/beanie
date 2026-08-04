@@ -178,7 +178,11 @@ module.exports = function registerHandlers(io, socket) {
 
     const code = roomCode.toUpperCase().trim();
     const room = rm.getRoom(code);
-    if (!room) return; // Room gone — client stays on home screen, no error needed
+    if (!room) {
+      // Room gone (e.g. host cancelled while player was away) — tell client to clear stale session
+      socket.emit('room:session-expired');
+      return;
+    }
 
     const player = room.players.find(p => p.id === playerId);
     if (!player) return;
@@ -259,6 +263,14 @@ module.exports = function registerHandlers(io, socket) {
   socket.on('game:add-to-set', ({ setIndex, cardIds }) => {
     if (!currentRoom) return sendError('Not in a room');
     const result = rm.playerAddCardsToSet(currentRoom, currentPlayerId, setIndex, cardIds);
+    if (result.error) return sendError(result.error);
+    broadcast(currentRoom, result.game);
+    if (result.game.status !== STATUS.PLAYING) clearTimer(currentRoom);
+  });
+
+  socket.on('game:add-beanie-to-set', ({ setIndex, beanieCardId }) => {
+    if (!currentRoom) return sendError('Not in a room');
+    const result = rm.playerAddBeanieToSet(currentRoom, currentPlayerId, setIndex, beanieCardId);
     if (result.error) return sendError(result.error);
     broadcast(currentRoom, result.game);
     if (result.game.status !== STATUS.PLAYING) clearTimer(currentRoom);
