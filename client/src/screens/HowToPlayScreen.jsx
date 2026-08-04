@@ -93,6 +93,9 @@ export default function HowToPlayScreen({ actions }) {
           <div className="htp-tip">
             💡 A random player is chosen to go first each round. That player starts with <strong>8 cards</strong>; everyone else starts with <strong>7</strong>. The extra card counts as their draw for that turn, so they go straight to the Play/Discard step.
           </div>
+          <div className="htp-tip" style={{ marginTop: 8 }}>
+            💡 Use the <strong>Deal / A→K</strong> toggle above your hand to sort your cards by rank — useful for spotting runs. Tap <strong>Deal</strong> to return to the original draw order.
+          </div>
         </section>
 
         <div className="htp-divider" />
@@ -391,6 +394,7 @@ export default function HowToPlayScreen({ actions }) {
             <li>Taking from the discard pile gives everyone a clue to what you're building — pick carefully.</li>
             <li>In later rounds (J, Q, K) the Beanies are high-value cards, so stealing pays off even more.</li>
             <li>If you're stuck and can't win, propose End Round to limit everyone's penalty points — don't let the round drag on forever.</li>
+            <li>Sort your hand with the <strong>A→K</strong> toggle to quickly spot potential runs and matches.</li>
           </ul>
         </section>
 

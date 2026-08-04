@@ -62,12 +62,25 @@ async function initRooms() {
   let restored = 0;
   codes.forEach(code => {
     const room = saved[code];
+
     // Don't restore completed games — they can't be resumed and may carry stale state.
-    // Purge them from Redis too so they don't accumulate.
     if (room.status === STATUS.GAME_END) {
       persistence.deleteRoom(code);
       return;
     }
+
+    // Detect corrupted PLAYING rooms: the old timer-race bug could leave multiple
+    // players with 8+ cards. Legitimately only one player (the current one) can
+    // ever hold 8 cards at a time. Purge any room where this invariant is violated.
+    if (room.status === STATUS.PLAYING) {
+      const tooMany = (room.players || []).filter(p => (p.hand || []).length >= 8);
+      if (tooMany.length > 1) {
+        console.log(`[roomManager] Purging corrupted room ${code} (${tooMany.length} players with 8+ cards)`);
+        persistence.deleteRoom(code);
+        return;
+      }
+    }
+
     rooms.set(code, room);
     touchRoom(code);
     restored++;
