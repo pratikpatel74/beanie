@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
-export default function JoinScreen({ error, actions }) {
-  const [code, setCode] = useState('');
+export default function JoinScreen({ error, actions, initialCode }) {
+  const [code, setCode] = useState(initialCode || '');
 
   function handleJoin() {
     if (code.length < 4) return;

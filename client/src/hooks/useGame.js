@@ -24,6 +24,19 @@ function savePlayerName(name) {
   catch {}
 }
 
+// Read ?join=XXXX from URL and immediately clean the URL so it doesn't persist
+function getInviteCode() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('join');
+    if (code && /^[A-Z0-9]{4}$/i.test(code)) {
+      window.history.replaceState({}, '', window.location.pathname);
+      return code.toUpperCase();
+    }
+  } catch {}
+  return null;
+}
+
 // Module-level: tracks last game status so we can detect missed broadcasts
 let _lastKnownStatus = null;
 
@@ -43,26 +56,31 @@ function clearSession() {
 // ─── Reducer ─────────────────────────────────────────────────────────────────
 
 const INITIAL = {
-  screen:     'home',  // name | home | create | join | lobby | game | round-end | game-end
-  playerName: '',
-  roomCode:   null,
-  myId:       null,    // player's persistent ID within the game (may differ from socket.id after reconnect)
-  game:       null,
-  error:      null,
-  timer:      null,    // { seconds, playerName }
-  notice:     null,    // transient notification (disconnect, timer expired, etc.)
+  screen:        'home',  // name | home | create | join | lobby | game | round-end | game-end
+  playerName:    '',
+  inviteCode:    null,    // set from ?join=XXXX URL param; cleared once used
+  connected:     false,
+  everConnected: false,
+  roomCode:      null,
+  myId:          null,    // player's persistent ID within the game (may differ from socket.id after reconnect)
+  game:          null,
+  error:         null,
+  timer:         null,    // { seconds, playerName }
+  notice:        null,    // transient notification (disconnect, timer expired, etc.)
 };
 
 function reducer(state, action) {
   switch (action.type) {
     case 'CONNECTED':
-      return { ...state, myId: action.id };
+      return { ...state, myId: action.id, connected: true, everConnected: true };
+    case 'DISCONNECTED':
+      return { ...state, connected: false };
     case 'SET_SCREEN':
       return { ...state, screen: action.screen, error: null };
     case 'ROOM_CREATED':
       return { ...state, screen: 'lobby', roomCode: action.roomCode };
     case 'ROOM_JOINED':
-      return { ...state, screen: 'lobby', roomCode: action.roomCode };
+      return { ...state, screen: 'lobby', roomCode: action.roomCode, inviteCode: null };
     case 'ROOM_REJOINED':
       return { ...state, roomCode: action.roomCode, screen: action.screen || 'lobby' };
     case 'GAME_STATE': {
@@ -92,7 +110,7 @@ function reducer(state, action) {
     case 'CLEAR_NOTICE':
       return { ...state, notice: null };
     case 'SET_NAME':
-      return { ...state, playerName: action.name, screen: 'home' };
+      return { ...state, playerName: action.name, screen: state.inviteCode ? 'join' : 'home' };
     case 'RESET':
       return { ...INITIAL, playerName: state.playerName, myId: state.myId };
     default:
@@ -103,17 +121,23 @@ function reducer(state, action) {
 // ─── Hook ─────────────────────────────────────────────────────────────────────
 
 export function useGame() {
-  const storedName = loadPlayerName();
+  const storedName  = loadPlayerName();
+  const inviteCode  = getInviteCode();
   const [state, dispatch] = useReducer(reducer, {
     ...INITIAL,
     playerName: storedName,
-    screen: storedName ? 'home' : 'name',
+    inviteCode,
+    screen: storedName
+      ? (inviteCode ? 'join' : 'home')
+      : 'name',
   });
 
   // ─── Socket connection & event listeners ──────────────────────────────────
 
   useEffect(() => {
     socket.connect();
+
+    socket.on('disconnect', () => dispatch({ type: 'DISCONNECTED' }));
 
     socket.on('connect', () => {
       dispatch({ type: 'CONNECTED', id: socket.id });

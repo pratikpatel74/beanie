@@ -18,6 +18,16 @@ export default function App() {
   return (
     <ErrorBoundary>
     <div className="app">
+      {/* Reconnecting overlay — only shown after first successful connect */}
+      {!state.connected && state.everConnected && (
+        <div className="reconnect-overlay">
+          <div className="reconnect-box">
+            <div className="reconnect-spinner" />
+            <span>Reconnecting…</span>
+          </div>
+        </div>
+      )}
+
       {screen === 'name' && (
         <NameScreen actions={actions} isEditing={!!state.playerName} />
       )}
@@ -28,7 +38,7 @@ export default function App() {
         <CreateScreen error={error} actions={actions} />
       )}
       {screen === 'join' && (
-        <JoinScreen error={error} actions={actions} />
+        <JoinScreen error={error} actions={actions} initialCode={state.inviteCode} />
       )}
       {screen === 'lobby' && (
         <LobbyScreen

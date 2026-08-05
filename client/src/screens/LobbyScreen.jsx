@@ -1,12 +1,29 @@
+import { useState } from 'react';
+
 const PLAYER_COLOURS = ['var(--p1)', 'var(--p2)', 'var(--p3)', 'var(--p4)'];
 
 export default function LobbyScreen({ game, roomCode, myId, error, actions }) {
   const players  = game?.players || [];
   const isHost   = players[0]?.id === myId;
   const canStart = players.length >= 2;
+  const [copied, setCopied] = useState(false);
 
-  function copyCode() {
-    navigator.clipboard?.writeText(roomCode).catch(() => {});
+  async function handleShare() {
+    const url  = `${window.location.origin}?join=${roomCode}`;
+    const text = `Join my Beanie game! Room code: ${roomCode}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'Beanie', text, url });
+      } catch {}
+    } else {
+      // Fallback: copy link to clipboard
+      try {
+        await navigator.clipboard.writeText(url);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch {}
+    }
   }
 
   return (
@@ -19,10 +36,12 @@ export default function LobbyScreen({ game, roomCode, myId, error, actions }) {
       {error && <div className="error-toast">{error}</div>}
 
       <div className="lobby-inner scroll">
-        <div className="room-code-box" onClick={copyCode} title="Tap to copy">
+        <div className="room-code-box">
           <div className="room-code-label">Room code</div>
           <div className="room-code">{roomCode}</div>
-          <div className="room-code-hint">Share with friends · tap to copy</div>
+          <button className="share-btn" onClick={handleShare}>
+            {copied ? '✓ Link copied!' : '⬆ Invite friends'}
+          </button>
         </div>
 
         <div className="section-label">Players ({players.length}/4)</div>
