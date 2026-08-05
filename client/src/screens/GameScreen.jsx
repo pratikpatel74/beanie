@@ -702,12 +702,16 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
             className={`pchip${game.currentPlayerIndex === i ? ' active' : ''}`}
             style={game.currentPlayerIndex === i ? { borderColor: PLAYER_COLOURS[i] } : {}}
           >
-            <div className="pchip-name">{p.id === myId ? 'You' : p.name}</div>
-            <div className="pchip-score">{p.totalScore}</div>
-            {p.id !== myId && game.status === 'PLAYING' && (
-              <div className="pchip-cards">{p.handCount ?? '?'}c</div>
-            )}
-            <div className="pchip-dot" style={{ background: PLAYER_COLOURS[i] }} />
+            <div className="pchip-left">
+              <div className="pchip-dot" style={{ background: PLAYER_COLOURS[i] }} />
+              <div className="pchip-name">{p.id === myId ? 'You' : p.name}</div>
+            </div>
+            <div className="pchip-right">
+              <div className="pchip-score">{p.totalScore}</div>
+              {p.id !== myId && game.status === 'PLAYING' && (
+                <div className="pchip-cards">{p.handCount ?? '?'}c</div>
+              )}
+            </div>
           </div>
         ))}
       </div>
@@ -865,29 +869,25 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
           </div>
         </div>
       ) : (
-        <div className="pile-row">
-          <div className="pile-wrap">
-            <Card
-              card={{ id: 'back', rank: 'back', suit: '' }}
-              beanieRank={null}
-              size="md"
-              disabled
-            />
-            <div className="pile-label">Draw ({game.drawPileCount})</div>
+        <div className="pile-compact">
+          <div className="pile-compact-half">
+            <div className="pile-compact-back" />
+            <div className="pile-compact-info">
+              <div className="pile-compact-num">{game.drawPileCount}</div>
+              <div className="pile-compact-sub">Draw pile</div>
+            </div>
           </div>
-          <div className="pile-arrow">→</div>
-          <div className="pile-wrap">
+          <div className="pile-compact-sep" />
+          <div className="pile-compact-half">
             {game.discardTop
-              ? <Card
-                  card={game.discardTop}
-                  beanieRank={game.beanieRank}
-                  size="md"
-                  onClick={isMyTurn && inDraw ? actions.drawFromDiscard : undefined}
-                  disabled={!isMyTurn || !inDraw}
-                />
-              : <EmptyCard size="md" />
-            }
-            <div className="pile-label">Discard</div>
+              ? <Card card={game.discardTop} beanieRank={game.beanieRank} size="sm" disabled />
+              : <EmptyCard size="sm" />}
+            <div className="pile-compact-info">
+              <div className="pile-compact-num">
+                {game.discardTop ? `${game.discardTop.rank}${game.discardTop.suit}` : '—'}
+              </div>
+              <div className="pile-compact-sub">Top of discard</div>
+            </div>
           </div>
         </div>
       )}

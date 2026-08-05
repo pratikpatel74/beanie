@@ -483,16 +483,18 @@ html, body, #root {
 
 .player-chips { display: flex; gap: 6px; }
 .pchip {
-  flex: 1; border-radius: 10px; padding: 7px 6px;
+  flex: 1; border-radius: 10px; padding: 6px 8px;
   background: rgba(255,255,255,0.06);
   border: 1.5px solid transparent;
-  text-align: center;
+  display: flex; align-items: center; justify-content: space-between; gap: 4px;
 }
 .pchip.active { background: rgba(124,111,255,0.12); }
+.pchip-left  { display: flex; align-items: center; gap: 4px; min-width: 0; flex: 1; }
+.pchip-right { text-align: right; flex-shrink: 0; }
 .pchip-name  { font-size: 10px; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.pchip-score { font-size: 13px; font-weight: 700; }
-.pchip-cards { font-size: 9px; color: var(--text3); margin-top: 1px; }
-.pchip-dot   { width: 6px; height: 6px; border-radius: 50%; margin: 3px auto 0; }
+.pchip-score { font-size: 13px; font-weight: 700; line-height: 1.1; }
+.pchip-cards { font-size: 9px; color: var(--text3); line-height: 1; }
+.pchip-dot   { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
 
 .beanie-bar {
   background: var(--goldbg); border: 1px solid var(--goldbdr);
@@ -565,6 +567,32 @@ html, body, #root {
   flex-shrink: 0;
 }
 .pile-wrap { text-align: center; }
+
+/* Collapsed pile pill (shown when not in draw phase) */
+.pile-compact {
+  display: flex; align-items: center; gap: 0;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px; overflow: hidden;
+  flex-shrink: 0; align-self: center;
+}
+.pile-compact-half {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 10px;
+}
+.pile-compact-half:first-child { padding-right: 8px; }
+.pile-compact-half:last-child  { padding-left: 8px; }
+.pile-compact-sep {
+  width: 1px; background: rgba(255,255,255,0.1); align-self: stretch;
+}
+.pile-compact-back {
+  width: 22px; height: 30px; border-radius: 4px;
+  background: linear-gradient(135deg, #3b3580 0%, #1e1c4a 100%);
+  border: 1px solid rgba(255,255,255,0.15); flex-shrink: 0;
+}
+.pile-compact-info { text-align: left; }
+.pile-compact-num  { font-size: 12px; font-weight: 700; line-height: 1; }
+.pile-compact-sub  { font-size: 9px; color: var(--text3); margin-top: 1px; }
 .pile-label { font-size: 10px; color: var(--text3); margin-top: 3px; }
 .pile-arrow { font-size: 20px; color: rgba(255,255,255,0.2); line-height: 1; }
 
@@ -1085,7 +1113,7 @@ html, body, #root {
 
   /* ── Compact player chips ── */
   .player-chips { gap: 4px; }
-  .pchip        { padding: 4px 4px; }
+  .pchip        { padding: 4px 6px; gap: 3px; }
   .pchip-name   { font-size: 9px; }
   .pchip-score  { font-size: 11px; }
   .pchip-cards  { font-size: 8px; }
