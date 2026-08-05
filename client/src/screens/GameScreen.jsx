@@ -469,6 +469,7 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
   /** Animate selected cards lifting to table, then fire server action */
   function animateThenLay(cardIds, overrides) {
     playShimmer(muted);
+    try { navigator.vibrate?.([8, 30, 10]); } catch {}
     setLayingCardIds(cardIds);
     const snap = [...cardIds];
     setTimeout(() => {
@@ -477,11 +478,16 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
     }, 380);
   }
 
-  // Round end sound: fanfare for a winner, soft draw tone for a draw
+  // Round end sound + haptic: fanfare for a winner, soft draw tone for a draw
   useEffect(() => {
     if (game.status === 'ROUND_END' && prevStatusRef.current === 'PLAYING') {
-      if (game.roundWinner) playFanfare(muted);
-      else                  playDraw(muted);
+      if (game.roundWinner) {
+        playFanfare(muted);
+        try { navigator.vibrate?.([50, 40, 80]); } catch {}
+      } else {
+        playDraw(muted);
+        try { navigator.vibrate?.(30); } catch {}
+      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [game.status]);
@@ -616,8 +622,8 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
     const cardId = selectedCards[0];
     setDiscardingCardId(cardId);
     clearSelection();
-    // Thwack at 120ms (lands as the card "hits" the pile)
-    setTimeout(() => playThwack(muted), 120);
+    // Thwack + haptic at 120ms (lands as the card "hits" the pile)
+    setTimeout(() => { playThwack(muted); try { navigator.vibrate?.(18); } catch {} }, 120);
     // Fire server after animation completes
     setTimeout(() => {
       actions.discard(cardId);
@@ -700,6 +706,9 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
           >
             <div className="pchip-name">{p.id === myId ? 'You' : p.name}</div>
             <div className="pchip-score">{p.totalScore}</div>
+            {p.id !== myId && game.status === 'PLAYING' && (
+              <div className="pchip-cards">{p.hand?.length ?? '?'}c</div>
+            )}
             <div className="pchip-dot" style={{ background: PLAYER_COLOURS[i] }} />
           </div>
         ))}

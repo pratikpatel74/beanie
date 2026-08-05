@@ -3,25 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Beanie — Wild card changes every round</title>
-  <meta name="description" content="Free multiplayer card game for 2–4 players. No download, no sign-up — share a code and play instantly in any browser." />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23F0B429'/%3E%3Ctext x='16' y='23' text-anchor='middle' font-size='21' font-family='sans-serif' fill='%230d1f1a'%3E%E2%98%85%3C/text%3E%3C/svg%3E" />
-
-  <!-- Open Graph / link previews -->
-  <meta property="og:type"        content="website" />
-  <meta property="og:url"         content="https://www.playbeanie.com" />
-  <meta property="og:site_name"   content="Beanie" />
-  <meta property="og:title"       content="Beanie — Wild card changes every round" />
-  <meta property="og:description" content="Free multiplayer card game for 2–4 players. No download, no sign-up — share a code and play instantly in any browser." />
-  <meta property="og:image"       content="https://www.playbeanie.com/og-image.png" />
-  <meta property="og:image:width"  content="1200" />
-  <meta property="og:image:height" content="630" />
-
-  <!-- Twitter / X card -->
-  <meta name="twitter:card"        content="summary_large_image" />
-  <meta name="twitter:title"       content="Beanie — Wild card changes every round" />
-  <meta name="twitter:description" content="Free multiplayer card game for 2–4 players. No download, no sign-up — share a code and play instantly in any browser." />
-  <meta name="twitter:image"       content="https://www.playbeanie.com/og-image.png" />
+  <title>Beanie — The Card Game Where the Wild Card Changes Every Round</title>
+  <meta name="description" content="Beanie is a rummy-style multiplayer card game for 2–4 players. No download needed — just visit playbeanie.com and share a 4-letter room code." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -572,9 +555,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
     }
-    .step-icon svg { width: 36px; height: 36px; flex-shrink: 0; }
+    .step-icon svg { width: 28px; height: 28px; }
     .step-icon-spade  { color: var(--purple); }
     .step-icon-star   { color: var(--gold); }
     .step-icon-heart  { color: var(--red); }
@@ -714,135 +696,14 @@
       color: var(--text);
     }
 
-
-    /* ─── KO-FI BUTTON ───────────────────────────────────────────── */
-    .kofi-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      background: rgba(255, 94, 91, 0.12);
-      color: #ff7c7a;
-      border: 1px solid rgba(255, 94, 91, 0.3);
-      border-radius: 8px;
-      padding: 8px 16px;
-      font-family: var(--font);
-      font-size: 0.85rem;
-      font-weight: 600;
-      text-decoration: none;
-      transition: background 0.18s, border-color 0.18s, color 0.18s;
-      white-space: nowrap;
-    }
-    .kofi-btn:hover {
-      background: rgba(255, 94, 91, 0.22);
-      border-color: rgba(255, 94, 91, 0.55);
-      color: #ff9896;
-    }
-    .kofi-btn svg { flex-shrink: 0; }
-
-    /* ─── PHONE HERO ─────────────────────────────────────────────── */
-    .phone-hero-wrapper {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: relative;
-      height: 340px;
-    }
-
-    .phone-hero-frame { width: 168px; position: relative; }
-
-    .phone-outer {
-      background: #111;
-      border-radius: 28px;
-      border: 2.5px solid #222;
-      padding: 10px 7px;
-      box-shadow: 0 24px 64px rgba(0,0,0,0.7), inset 0 0 0 1px rgba(255,255,255,0.06);
-    }
-
-    .phone-notch {
-      width: 52px; height: 8px;
-      background: #111; border-radius: 0 0 8px 8px;
-      margin: 0 auto 6px;
-    }
-
-    .phone-screen { background: #0b1a15; border-radius: 18px; overflow: hidden; }
-
-    .ph-top { background: #142d25; padding: 7px 9px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.06); }
-    .ph-room { font-size: 9px; font-weight: 800; color: var(--gold); letter-spacing: 2px; }
-    .ph-rnd  { font-size: 8px; color: #5a8a7a; }
-    .ph-players { display: flex; gap: 4px; padding: 6px 8px; }
-    .ph-p { flex: 1; background: rgba(255,255,255,0.04); border-radius: 6px; padding: 4px 5px; }
-    .ph-p.active { background: rgba(124,111,255,0.15); border: 1px solid rgba(124,111,255,0.3); }
-    .ph-pn { font-size: 7px; font-weight: 700; color: #8aada1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .ph-p.active .ph-pn { color: #c0b8ff; }
-    .ph-ps { font-size: 9px; font-weight: 800; color: #f0f4f2; }
-    .ph-beanie { background: rgba(240,180,41,0.08); border-top: 1px solid rgba(240,180,41,0.15); border-bottom: 1px solid rgba(240,180,41,0.15); padding: 4px 9px; display: flex; align-items: center; gap: 5px; }
-    .ph-bstar { font-size: 10px; color: var(--gold); }
-    .ph-btxt  { font-size: 7px; color: var(--gold); font-weight: 700; }
-    .ph-bval  { font-size: 7px; color: #c8a040; margin-left: auto; }
-    .ph-table { display: flex; justify-content: center; gap: 5px; padding: 10px 8px 4px; }
-    .ph-card  { width: 28px; height: 40px; border-radius: 4px; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.4); font-size: 8px; font-weight: 800; }
-    .ph-suit  { font-size: 13px; line-height: 1; }
-    .ph-card.red   { color: #d0021b; }
-    .ph-card.black { color: #111; }
-    .ph-card.wild  { background: #1c1408; border: 1.5px solid var(--gold); color: var(--gold); animation: ph-float 3s ease-in-out infinite; }
-    @keyframes ph-float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
-    .ph-dlbl   { font-size: 7px; color: #5a8a7a; text-align: center; padding-bottom: 4px; }
-    .ph-hlabel { font-size: 7px; color: #8aada1; text-align: center; padding: 0 8px 4px; font-weight: 600; }
-    .ph-hand   { display: flex; justify-content: center; gap: 3px; padding: 0 8px 8px; }
-    .ph-hcard  { width: 22px; height: 32px; border-radius: 3px; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 7px; font-weight: 800; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
-    .ph-hcard.red   { color: #d0021b; }
-    .ph-hcard.black { color: #111; }
-    .ph-hcard.sel   { border: 1.5px solid var(--purple); transform: translateY(-4px); }
-    .ph-actions { display: flex; gap: 4px; padding: 0 8px 8px; }
-    .ph-abtn { flex: 1; background: rgba(124,111,255,0.15); border: 1px solid rgba(124,111,255,0.35); border-radius: 5px; padding: 5px 0; font-size: 7px; font-weight: 700; color: #a89fff; text-align: center; }
-    .ph-abtn.disc { background: rgba(232,84,128,0.12); border-color: rgba(232,84,128,0.3); color: #e87aa0; }
-
-    .phone-hero-wrapper .glow-ring {
-      position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-      width: 220px; height: 60px;
-      background: radial-gradient(ellipse, rgba(124, 111, 255, 0.2) 0%, transparent 70%);
-      border-radius: 50%; pointer-events: none;
-    }
-
-    /* ─── FAQ ────────────────────────────────────────────────────── */
-    .faq {
-      padding: 100px 0;
-      border-top: 1px solid var(--border);
-    }
-
-    .faq-list {
-      max-width: 680px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .faq-item {
-      background: var(--bg-surface);
-      border: 1px solid var(--border);
-      border-radius: var(--card-radius);
-      padding: 24px 28px;
-      transition: border-color 0.2s;
-    }
-    .faq-item:hover { border-color: rgba(124,111,255,0.3); }
-
-    .faq-q { font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 8px; }
-    .faq-a { font-size: 0.93rem; color: var(--text-muted); line-height: 1.68; margin: 0; }
-    .faq-a a { color: var(--gold); text-decoration: none; }
-    .faq-a a:hover { text-decoration: underline; }
-
     /* ─── RESPONSIVE ─────────────────────────────────────────────── */
     @media (max-width: 900px) {
       .hero-inner {
         grid-template-columns: 1fr;
         gap: 48px;
       }
-      .phone-hero-wrapper {
-        height: 320px;
-      }
-      .room-badge {
-        display: none;
+      .card-fan-wrapper {
+        height: 280px;
       }
       .feature-grid {
         grid-template-columns: 1fr;
@@ -898,59 +759,40 @@
           <p class="hero-url" style="margin-top:16px;">Or visit <a href="https://play.playbeanie.com">playbeanie.com</a></p>
         </div>
 
-        <div class="phone-hero-wrapper reveal" style="transition-delay:0.15s;">
-          <div class="phone-hero-frame">
-            <div class="phone-outer">
-              <div class="phone-notch"></div>
-              <div class="phone-screen">
-                <div class="ph-top">
-                  <div class="ph-room">KQJT</div>
-                  <div class="ph-rnd">Round 5 of 13</div>
-                </div>
-                <div class="ph-players">
-                  <div class="ph-p active">
-                    <div class="ph-pn">You</div>
-                    <div class="ph-ps">12</div>
-                  </div>
-                  <div class="ph-p">
-                    <div class="ph-pn">Sarah</div>
-                    <div class="ph-ps">34</div>
-                  </div>
-                  <div class="ph-p">
-                    <div class="ph-pn">Jake</div>
-                    <div class="ph-ps">28</div>
-                  </div>
-                </div>
-                <div class="ph-beanie">
-                  <div class="ph-bstar">★</div>
-                  <div class="ph-btxt">Beanie this round</div>
-                  <div class="ph-bval">7s are wild</div>
-                </div>
-                <div class="ph-table">
-                  <div class="ph-card red"><div class="ph-suit">♥</div>A</div>
-                  <div class="ph-card black"><div class="ph-suit">♠</div>K</div>
-                  <div class="ph-card red"><div class="ph-suit">♦</div>Q</div>
-                  <div class="ph-card wild"><div class="ph-suit">★</div></div>
-                </div>
-                <div class="ph-dlbl">Discard pile</div>
-                <div class="ph-hlabel">Your hand (7 cards)</div>
-                <div class="ph-hand">
-                  <div class="ph-hcard red">3♥</div>
-                  <div class="ph-hcard black sel">J♠</div>
-                  <div class="ph-hcard red">7♦</div>
-                  <div class="ph-hcard black">9♣</div>
-                  <div class="ph-hcard red">Q♥</div>
-                  <div class="ph-hcard black">2♠</div>
-                  <div class="ph-hcard red">5♦</div>
-                </div>
-                <div class="ph-actions">
-                  <div class="ph-abtn">Draw</div>
-                  <div class="ph-abtn disc">Discard</div>
-                </div>
-              </div>
+        <div class="card-fan-wrapper reveal" style="transition-delay:0.15s;">
+          <div class="card-fan">
+            <!-- Back cards fan -->
+            <div class="play-card c1" style="background:#1e4d3b; border-color:rgba(255,255,255,0.08);">
+              <div class="rank-top" style="color:rgba(255,255,255,0.3)">A</div>
+              <div class="suit-center" style="color:rgba(255,255,255,0.15)">♣</div>
+              <div class="rank-bottom" style="color:rgba(255,255,255,0.3)">A</div>
+            </div>
+            <div class="play-card c2">
+              <div class="rank-top card-red">7</div>
+              <div class="suit-center card-red">♥</div>
+              <div class="rank-bottom card-red">7</div>
+            </div>
+            <div class="play-card c3">
+              <div class="rank-top card-black">J</div>
+              <div class="suit-center card-black">♠</div>
+              <div class="rank-bottom card-black">J</div>
+            </div>
+            <div class="play-card c4">
+              <div class="rank-top card-red">9</div>
+              <div class="suit-center card-red">♦</div>
+              <div class="rank-bottom card-red">9</div>
+            </div>
+            <!-- Beanie wild card — front and centre -->
+            <div class="play-card beanie-card c3" style="left:50%;">
+              <div class="rank-top" style="color:var(--gold)">★</div>
+              <div class="suit-center" style="font-size:2.2rem;">★</div>
+              <div class="rank-bottom" style="color:var(--gold)">★</div>
+              <div class="beanie-label" style="position:absolute;bottom:10px;left:0;right:0;text-align:center;">BEANIE</div>
             </div>
           </div>
           <div class="glow-ring"></div>
+
+          <!-- Room code badge -->
           <div class="room-badge">
             Room code
             <span class="code">KQJT</span>
@@ -1073,29 +915,6 @@
     </div>
   </section>
 
-  <!-- ─── FAQ ──────────────────────────────────────────────────────── -->
-  <section class="faq">
-    <div class="container">
-      <p class="section-label reveal">FAQ</p>
-      <h2 class="section-title reveal">Common questions</h2>
-
-      <div class="faq-list">
-        <div class="faq-item reveal">
-          <div class="faq-q">Do I need an account?</div>
-          <p class="faq-a">No. Open the link, enter a name, and you're in. No sign-up, no email, no password — ever.</p>
-        </div>
-        <div class="faq-item reveal" style="transition-delay:0.07s;">
-          <div class="faq-q">How many players?</div>
-          <p class="faq-a">Beanie supports 2 to 4 players per game. You need at least two to start a room.</p>
-        </div>
-        <div class="faq-item reveal" style="transition-delay:0.14s;">
-          <div class="faq-q">Is it free?</div>
-          <p class="faq-a">Yes — completely free to play in any browser. No ads, no in-app purchases. If you enjoy it, <a href="https://ko-fi.com/beaniepod" target="_blank" rel="noopener">buy us a coffee</a> to help keep the servers running.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- ─── CTA BAND ──────────────────────────────────────────────────── -->
   <section class="cta-band">
     <div class="container">
@@ -1122,12 +941,6 @@
           </span>
         </div>
       </div>
-        <p style="margin-top:20px; font-size:0.82rem; color:var(--text-muted);">
-          Enjoying Beanie? <a href="https://ko-fi.com/beaniepod" target="_blank" rel="noopener" class="kofi-btn" style="font-size:0.82rem; padding:5px 12px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20 3H4a1 1 0 0 0-1 1v9a8 8 0 0 0 8 8 8 8 0 0 0 8-8V7h1a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-4 10a4 4 0 0 1-8 0V7h8v6zm4-8h-1V5h1v1z"/></svg>
-            Buy us a coffee
-          </a>
-        </p>
     </div>
   </section>
 
@@ -1138,10 +951,6 @@
         <a href="https://play.playbeanie.com" class="footer-logo" aria-label="Beanie">
           <span class="footer-logo-icon">★</span>
           <span class="footer-logo-text">Beanie</span>
-        </a>
-        <a href="https://ko-fi.com/beaniepod" target="_blank" rel="noopener" class="kofi-btn">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20 3H4a1 1 0 0 0-1 1v9a8 8 0 0 0 8 8 8 8 0 0 0 8-8V7h1a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-4 10a4 4 0 0 1-8 0V7h8v6zm4-8h-1V5h1v1z"/></svg>
-          Support Beanie
         </a>
         <p class="footer-copy">
           © Beanie 2026 ·

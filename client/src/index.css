@@ -317,7 +317,8 @@ html, body, #root {
   border: 1px solid var(--border);
 }
 .room-code-label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-.room-code       { font-size: 36px; font-weight: 900; color: var(--gold); letter-spacing: 8px; margin-bottom: 12px; }
+.room-code       { font-size: 36px; font-weight: 900; color: var(--gold); letter-spacing: 8px; margin-bottom: 4px; }
+.room-code-hint  { font-size: 10px; color: var(--text3); letter-spacing: 0.5px; margin-bottom: 10px; transition: color 0.2s; }
 .share-btn {
   width: 100%; padding: 11px; border-radius: 10px;
   background: var(--acc); border: none; color: #fff;
@@ -467,9 +468,9 @@ html, body, #root {
 }
 .btn-exit:active { background: rgba(255,80,80,0.15); }
 .round-badge {
-  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(240,180,41,0.1); border: 1px solid rgba(240,180,41,0.3);
   border-radius: 20px; padding: 5px 12px;
-  font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.85);
+  font-size: 12px; font-weight: 700; color: var(--gold);
 }
 .timer-badge {
   background: var(--goldbg); border: 1px solid var(--goldbdr);
@@ -490,6 +491,7 @@ html, body, #root {
 .pchip.active { background: rgba(124,111,255,0.12); }
 .pchip-name  { font-size: 10px; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pchip-score { font-size: 13px; font-weight: 700; }
+.pchip-cards { font-size: 9px; color: var(--text3); margin-top: 1px; }
 .pchip-dot   { width: 6px; height: 6px; border-radius: 50%; margin: 3px auto 0; }
 
 .beanie-bar {
@@ -1086,6 +1088,7 @@ html, body, #root {
   .pchip        { padding: 4px 4px; }
   .pchip-name   { font-size: 9px; }
   .pchip-score  { font-size: 11px; }
+  .pchip-cards  { font-size: 8px; }
 
   /* ── Compact beanie bar ── */
   .beanie-bar       { padding: 4px 8px; gap: 6px; }

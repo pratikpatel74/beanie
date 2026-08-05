@@ -6,7 +6,16 @@ export default function LobbyScreen({ game, roomCode, myId, error, actions }) {
   const players  = game?.players || [];
   const isHost   = players[0]?.id === myId;
   const canStart = players.length >= 2;
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied]         = useState(false);
+  const [codeCopied, setCodeCopied] = useState(false);
+
+  async function handleCopyCode() {
+    try {
+      await navigator.clipboard.writeText(roomCode);
+      setCodeCopied(true);
+      setTimeout(() => setCodeCopied(false), 2000);
+    } catch {}
+  }
 
   async function handleShare() {
     const url  = `${window.location.origin}?join=${roomCode}`;
@@ -38,7 +47,10 @@ export default function LobbyScreen({ game, roomCode, myId, error, actions }) {
       <div className="lobby-inner scroll">
         <div className="room-code-box">
           <div className="room-code-label">Room code</div>
-          <div className="room-code">{roomCode}</div>
+          <div className="room-code" onClick={handleCopyCode} style={{ cursor: 'pointer' }} title="Tap to copy">
+            {roomCode}
+          </div>
+          <div className="room-code-hint">{codeCopied ? '✓ Copied!' : 'Tap to copy'}</div>
           <button className="share-btn" onClick={handleShare}>
             {copied ? (
               <>
