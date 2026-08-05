@@ -556,7 +556,9 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      overflow: hidden;
     }
+    .step-icon svg { width: 36px; height: 36px; flex-shrink: 0; }
     .step-icon-spade  { color: var(--purple); }
     .step-icon-star   { color: var(--gold); }
     .step-icon-heart  { color: var(--red); }
@@ -766,7 +768,8 @@
     .ph-suit  { font-size: 13px; line-height: 1; }
     .ph-card.red   { color: #d0021b; }
     .ph-card.black { color: #111; }
-    .ph-card.wild  { background: #1c1408; border: 1.5px solid var(--gold); color: var(--gold); animation: float-card 3.5s ease-in-out infinite; }
+    .ph-card.wild  { background: #1c1408; border: 1.5px solid var(--gold); color: var(--gold); animation: ph-float 3s ease-in-out infinite; }
+    @keyframes ph-float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
     .ph-dlbl   { font-size: 7px; color: #5a8a7a; text-align: center; padding-bottom: 4px; }
     .ph-hlabel { font-size: 7px; color: #8aada1; text-align: center; padding: 0 8px 4px; font-weight: 600; }
     .ph-hand   { display: flex; justify-content: center; gap: 3px; padding: 0 8px 8px; }
