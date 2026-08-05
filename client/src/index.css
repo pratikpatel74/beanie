@@ -311,7 +311,41 @@ html, body, #root {
   display: flex; flex-direction: column;
   gap: 8px; padding: 10px 14px 14px;
   overflow: hidden;
+  position: relative;
 }
+
+/* Exit confirmation modal */
+.exit-modal-overlay {
+  position: absolute; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.72);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.exit-modal {
+  background: var(--surf); border: 1px solid var(--border);
+  border-radius: 20px; padding: 28px 24px 20px;
+  width: 100%; max-width: 320px;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  text-align: center;
+}
+.exit-modal-icon { font-size: 36px; line-height: 1; margin-bottom: 4px; }
+.exit-modal-title { font-size: 18px; font-weight: 700; color: var(--text); }
+.exit-modal-body { font-size: 13px; color: var(--text2); line-height: 1.5; margin-bottom: 8px; }
+.exit-modal-actions { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+.exit-modal-confirm {
+  padding: 14px; border-radius: 12px; border: none;
+  background: var(--danger); color: #fff;
+  font-size: 15px; font-weight: 700; cursor: pointer;
+  transition: opacity 0.15s;
+}
+.exit-modal-confirm:active { opacity: 0.8; }
+.exit-modal-cancel {
+  padding: 12px; border-radius: 12px;
+  background: var(--surf2); border: 1px solid var(--border);
+  color: var(--text2); font-size: 14px; font-weight: 600; cursor: pointer;
+  transition: background 0.15s;
+}
+.exit-modal-cancel:active { background: var(--border); }
 
 .game-topbar { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .btn-exit {

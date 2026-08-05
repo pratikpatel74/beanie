@@ -299,6 +299,7 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
   const [beanieChoice, setBeanieChoice]       = useState(null);
   const [addBeanieChoice, setAddBeanieChoice] = useState(null);
   const [sortMode, setSortMode]               = useState('deal');
+  const [showExitModal, setShowExitModal]     = useState(false);
   // beanieChoice shape:    { cardIds, options: [{ label, overrides }] }
   // addBeanieChoice shape: { setIndex, cardId, options: [{ label, override }] }
 
@@ -426,6 +427,27 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
   return (
     <div className="game-screen">
 
+      {/* Exit confirmation modal */}
+      {showExitModal && (
+        <div className="exit-modal-overlay" onClick={() => setShowExitModal(false)}>
+          <div className="exit-modal" onClick={e => e.stopPropagation()}>
+            <div className="exit-modal-icon">🚪</div>
+            <div className="exit-modal-title">End the game?</div>
+            <div className="exit-modal-body">
+              This will cancel the game for all players.<br/>Scores will not be saved.
+            </div>
+            <div className="exit-modal-actions">
+              <button className="exit-modal-confirm" onClick={actions.exitGame}>
+                End game
+              </button>
+              <button className="exit-modal-cancel" onClick={() => setShowExitModal(false)}>
+                Keep playing
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Top bar */}
       <div className="game-topbar">
         <div className="round-badge">Round {game.round} of 13</div>
@@ -435,12 +457,7 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
           <div className="timer-badge">⏱ {timer.seconds}s</div>
         ) : null}
         {isHost && (
-          <button
-            className="btn-exit"
-            onClick={() => {
-              if (window.confirm('Cancel the game? Scores will not be saved.')) actions.exitGame();
-            }}
-          >
+          <button className="btn-exit" onClick={() => setShowExitModal(true)}>
             Exit
           </button>
         )}
