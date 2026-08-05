@@ -337,9 +337,10 @@ function discard(game, playerId, cardId) {
     p.id === playerId ? { ...p, hand: newHand } : p
   );
 
-  // Check win using the original roundFirstTurnDone value.
-  // This ensures player 1 cannot win on their very first discard (first turn of the round).
-  const gameForWinCheck = { ...game, players, drawPile, discardPile };
+  // Check win. A discard is itself the "first turn done" action, so we always
+  // pass roundFirstTurnDone: true — the previous value may still be false on
+  // turn 1 of a round, which would otherwise incorrectly suppress the win.
+  const gameForWinCheck = { ...game, players, drawPile, discardPile, roundFirstTurnDone: true };
   const winCheck = _checkWin(gameForWinCheck, playerId);
   if (winCheck.status === STATUS.ROUND_END || winCheck.status === STATUS.GAME_END) {
     return { ...winCheck, roundFirstTurnDone: true };
