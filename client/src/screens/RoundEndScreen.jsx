@@ -28,14 +28,18 @@ export default function RoundEndScreen({ game, myId, actions }) {
             <div className="sub">Scored 0 points</div>
           </div>
         ) : (
-          <div className="winner-banner">
-            <div className="crown">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--text2)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M8 6l4-4 4 4M12 2v10M8 18l4 4 4-4M12 22V12"/>
+          <div className="draw-banner">
+            <div className="draw-icon">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--acc)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="3" x2="12" y2="21"/>
+                <path d="M8 21h8"/>
+                <polyline points="5 7 12 3 19 7"/>
+                <path d="M3 11l2-4 2 4a2 2 0 0 1-4 0z"/>
+                <path d="M17 11l2-4 2 4a2 2 0 0 1-4 0z"/>
               </svg>
             </div>
-            <div className="wins">Round drawn</div>
-            <div className="sub">All players scored penalty points</div>
+            <div className="draw-title">Round drawn</div>
+            <div className="draw-sub">No winner this round — everyone takes penalty points</div>
           </div>
         )}
 

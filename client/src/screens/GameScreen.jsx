@@ -67,6 +67,23 @@ function playTick(muted) {
   } catch {}
 }
 
+/** Soft descending two-note interval on round draw — neutral, conclusive */
+function playDraw(muted) {
+  if (muted) return;
+  try {
+    const ctx = _audio(); const now = ctx.currentTime;
+    [523, 392].forEach((freq, i) => {
+      const osc = ctx.createOscillator(); osc.type = 'sine'; osc.frequency.value = freq;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0, now + i * 0.09);
+      g.gain.linearRampToValueAtTime(0.2, now + i * 0.09 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.09 + 0.45);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(now + i * 0.09); osc.stop(now + i * 0.09 + 0.5);
+    });
+  } catch {}
+}
+
 /** Rising 3-note fanfare + sustained chord on round win */
 function playFanfare(muted) {
   if (muted) return;
@@ -460,10 +477,11 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
     }, 380);
   }
 
-  // Round-win fanfare: fires for all players when round ends
+  // Round end sound: fanfare for a winner, soft draw tone for a draw
   useEffect(() => {
     if (game.status === 'ROUND_END' && prevStatusRef.current === 'PLAYING') {
-      playFanfare(muted);
+      if (game.roundWinner) playFanfare(muted);
+      else                  playDraw(muted);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [game.status]);
