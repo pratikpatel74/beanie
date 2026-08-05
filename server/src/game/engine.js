@@ -43,7 +43,7 @@ function createGame(roomCode) {
     firstPlayerIndex:    0,
     phase:               PHASE.DRAW,
     publicSets:          [],   // [{ playerId, cards, type }]
-    roundFirstTurnDone:  false, // prevents winning on very first turn of a round
+    roundFirstTurnDone:  false, // legacy — superseded by per-player firstTurnDone
     roundWinner:         null,
     error:               null,
   };
@@ -114,7 +114,7 @@ function _startRound(game) {
     const count    = isFirst ? 8 : 7;
     const hand     = deck.slice(cursor, cursor + count);
     cursor        += count;
-    return { ...p, hand, hasLaidSet: false };
+    return { ...p, hand, hasLaidSet: false, firstTurnDone: false };
   });
 
   // Remaining cards → draw pile.
@@ -201,9 +201,9 @@ function layDownSet(game, playerId, cardIds, beanieOverrides = {}) {
   const newHand    = player.hand.filter(c => !cardIds.includes(c.id));
   const publicSets = [...game.publicSets, { playerId, cards, type: result.type, beanieOverrides }];
 
-  // Block going out on the very first turn of the round
+  // No player can go out on their very first turn of a round — must discard first
   const playerSetsAfter = publicSets.filter(s => s.playerId === playerId);
-  if (!game.roundFirstTurnDone && playerSetsAfter.length >= 2 && newHand.length === 0) {
+  if (!player.firstTurnDone && playerSetsAfter.length >= 2 && newHand.length === 0) {
     return err(game, "You can't go out on your first turn — keep at least one card to discard first");
   }
 
@@ -237,9 +237,9 @@ function addCardsToSet(game, playerId, setIndex, cardIds) {
     i === setIndex ? { ...s, cards: [...targetSet.cards, ...newCards] } : s
   );
 
-  // Block going out on the very first turn of the round
+  // No player can go out on their very first turn of a round — must discard first
   const playerSetsAfter = publicSets.filter(s => s.playerId === playerId);
-  if (!game.roundFirstTurnDone && playerSetsAfter.length >= 2 && newHand.length === 0) {
+  if (!player.firstTurnDone && playerSetsAfter.length >= 2 && newHand.length === 0) {
     return err(game, "You can't go out on your first turn — keep at least one card to discard first");
   }
 
@@ -333,17 +333,16 @@ function discard(game, playerId, cardId) {
     console.log(`[engine] Draw pile empty after discard — reshuffled ${drawPile.length} cards`);
   }
 
+  // Mark this player as having completed their first turn — from this point on
+  // they are allowed to go out (the "no win on first turn" rule is lifted for them).
   const players = game.players.map(p =>
-    p.id === playerId ? { ...p, hand: newHand } : p
+    p.id === playerId ? { ...p, hand: newHand, firstTurnDone: true } : p
   );
 
-  // Check win. A discard is itself the "first turn done" action, so we always
-  // pass roundFirstTurnDone: true — the previous value may still be false on
-  // turn 1 of a round, which would otherwise incorrectly suppress the win.
-  const gameForWinCheck = { ...game, players, drawPile, discardPile, roundFirstTurnDone: true };
+  const gameForWinCheck = { ...game, players, drawPile, discardPile };
   const winCheck = _checkWin(gameForWinCheck, playerId);
   if (winCheck.status === STATUS.ROUND_END || winCheck.status === STATUS.GAME_END) {
-    return { ...winCheck, roundFirstTurnDone: true };
+    return winCheck;
   }
 
   const nextPlayerIndex = (game.currentPlayerIndex + 1) % game.players.length;
@@ -355,7 +354,6 @@ function discard(game, playerId, cardId) {
     discardPile,
     currentPlayerIndex:  nextPlayerIndex,
     phase:               PHASE.DRAW,
-    roundFirstTurnDone:  true,
   });
 }
 
@@ -507,7 +505,7 @@ function _checkWin(game, playerId) {
 
   const twoSetsDown  = playerSets.length >= 2;
   const handEmpty    = player.hand.length === 0;
-  const notFirstTurn = game.roundFirstTurnDone;
+  const notFirstTurn = player.firstTurnDone; // per-player: must have discarded at least once this round
 
   if (twoSetsDown && handEmpty && notFirstTurn) {
     return _endRound(game, playerId);
