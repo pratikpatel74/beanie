@@ -1,5 +1,54 @@
 import './index.css';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+
+// ─── Round-end audio (module-level so AudioContext persists) ──────────────────
+let _appActx = null;
+function _appAudio() {
+  if (!_appActx) _appActx = new (window.AudioContext || window.webkitAudioContext)();
+  if (_appActx.state === 'suspended') _appActx.resume();
+  return _appActx;
+}
+function _isMuted() {
+  try { return localStorage.getItem('beanie_muted') === 'true'; } catch { return false; }
+}
+function playRoundFanfare() {
+  if (_isMuted()) return;
+  try {
+    const ctx = _appAudio(); const now = ctx.currentTime;
+    [523, 659, 784].forEach((freq, i) => {
+      const osc = ctx.createOscillator(); osc.type = 'triangle'; osc.frequency.value = freq;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0, now + i * 0.07);
+      g.gain.linearRampToValueAtTime(0.22, now + i * 0.07 + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.07 + 0.18);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(now + i * 0.07); osc.stop(now + i * 0.07 + 0.2);
+    });
+    [523, 659, 784, 1047].forEach((freq, i) => {
+      const osc = ctx.createOscillator(); osc.type = 'sine'; osc.frequency.value = freq;
+      const g = ctx.createGain(); const t = now + 0.21;
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(i === 0 ? 0.22 : 0.16, t + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.7);
+      osc.connect(g); g.connect(ctx.destination); osc.start(t); osc.stop(t + 0.75);
+    });
+  } catch {}
+}
+function playRoundDraw() {
+  if (_isMuted()) return;
+  try {
+    const ctx = _appAudio(); const now = ctx.currentTime;
+    [523, 392].forEach((freq, i) => {
+      const osc = ctx.createOscillator(); osc.type = 'sine'; osc.frequency.value = freq;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0, now + i * 0.09);
+      g.gain.linearRampToValueAtTime(0.2, now + i * 0.09 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.09 + 0.45);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(now + i * 0.09); osc.stop(now + i * 0.09 + 0.5);
+    });
+  } catch {}
+}
 import ErrorBoundary      from './components/ErrorBoundary';
 import { useGame }        from './hooks/useGame';
 import NameScreen        from './screens/NameScreen';
@@ -17,13 +66,22 @@ export default function App() {
   const { screen, roomCode, myId, game, error, timer, notice } = state;
 
   const [showWinCelebration, setShowWinCelebration] = useState(false);
+  const prevScreenRef = useRef(null);
 
   useEffect(() => {
-    if (screen === 'round-end' && game?.roundWinner && myPlayer?.name === game.roundWinner) {
-      setShowWinCelebration(true);
-    } else {
+    const justArrived = screen === 'round-end' && prevScreenRef.current !== 'round-end';
+    if (justArrived) {
+      if (game?.roundWinner) {
+        playRoundFanfare();
+        setShowWinCelebration(myPlayer?.name === game.roundWinner);
+      } else {
+        playRoundDraw();
+        setShowWinCelebration(false);
+      }
+    } else if (screen !== 'round-end') {
       setShowWinCelebration(false);
     }
+    prevScreenRef.current = screen;
   }, [screen, game?.roundWinner, myPlayer?.name]);
 
   return (

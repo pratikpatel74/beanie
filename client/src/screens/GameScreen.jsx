@@ -478,14 +478,12 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
     }, 380);
   }
 
-  // Round end sound + haptic: fanfare for a winner, soft draw tone for a draw
+  // Round end haptic only — sound is handled in App.jsx (GameScreen unmounts before ROUND_END renders)
   useEffect(() => {
     if (game.status === 'ROUND_END' && prevStatusRef.current === 'PLAYING') {
       if (game.roundWinner) {
-        playFanfare(muted);
         try { navigator.vibrate?.([50, 40, 80]); } catch {}
       } else {
-        playDraw(muted);
         try { navigator.vibrate?.(30); } catch {}
       }
     }
