@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Beanie — The Card Game Where the Wild Card Changes Every Round</title>
+  <meta name="description" content="Beanie is a rummy-style multiplayer card game for 2–4 players. No download needed — just visit playbeanie.com and share a 4-letter room code." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-deep:       #0d1f1a;
+      --bg-surface:    #1a2e28;
+      --bg-elevated:   #243b33;
+      --gold:          #F0B429;
+      --gold-light:    #FFD166;
+      --purple:        #7C6FFF;
+      --purple-hover:  #6558e8;
+      --red:           #E85480;
+      --text:          #f0f4f2;
+      --text-muted:    #8aada1;
+      --border:        rgba(255,255,255,0.08);
+      --card-radius:   14px;
+      --btn-radius:    8px;
+      --font:          'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-color: var(--bg-deep);
+      color: var(--text);
+      font-family: var(--font);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ─── UTILITY ────────────────────────────────────────────────── */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--purple);
+      color: #fff;
+      font-family: var(--font);
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 14px 28px;
+      border-radius: var(--btn-radius);
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.18s, transform 0.12s, box-shadow 0.18s;
+      box-shadow: 0 4px 20px rgba(124, 111, 255, 0.35);
+      white-space: nowrap;
+    }
+    .btn-primary:hover {
+      background: var(--purple-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 28px rgba(124, 111, 255, 0.5);
+    }
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: var(--font);
+      font-size: 0.9rem;
+      font-weight: 500;
+      padding: 12px 20px;
+      border-radius: var(--btn-radius);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      text-decoration: none;
+      transition: color 0.18s, border-color 0.18s;
+    }
+    .btn-ghost:hover {
+      color: var(--text);
+      border-color: rgba(255,255,255,0.2);
+    }
+
+    /* ─── SCROLL REVEAL ──────────────────────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.55s ease, transform 0.55s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ─── HEADER / NAV ───────────────────────────────────────────── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(13, 31, 26, 0.85);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 0;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 38px;
+      height: 38px;
+      background: var(--gold);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+      box-shadow: 0 0 0 0 rgba(240, 180, 41, 0.4);
+      animation: pulse-gold 2.8s ease-in-out infinite;
+    }
+
+    @keyframes pulse-gold {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(240, 180, 41, 0.4); }
+      50%       { box-shadow: 0 0 0 8px rgba(240, 180, 41, 0); }
+    }
+
+    .logo-text {
+      font-size: 1.45rem;
+      font-weight: 900;
+      color: var(--text);
+      letter-spacing: -0.5px;
+    }
+
+    /* ─── HERO ───────────────────────────────────────────────────── */
+    .hero {
+      padding: 90px 0 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -180px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 900px;
+      height: 600px;
+      background: radial-gradient(ellipse at center, rgba(124, 111, 255, 0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+
+    .hero-content .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(240, 180, 41, 0.12);
+      color: var(--gold);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 100px;
+      border: 1px solid rgba(240, 180, 41, 0.25);
+      margin-bottom: 24px;
+    }
+
+    .hero-content h1 {
+      font-size: clamp(2rem, 4.5vw, 3.1rem);
+      font-weight: 900;
+      line-height: 1.15;
+      letter-spacing: -1px;
+      margin-bottom: 22px;
+      color: var(--text);
+    }
+
+    .hero-content h1 em {
+      font-style: normal;
+      color: var(--gold);
+    }
+
+    .hero-content p {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      margin-bottom: 36px;
+      max-width: 460px;
+      line-height: 1.7;
+    }
+
+    .hero-cta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .hero-url {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+    }
+    .hero-url a {
+      color: var(--text-muted);
+      text-decoration: underline;
+      text-decoration-color: rgba(138, 173, 161, 0.4);
+      transition: color 0.15s;
+    }
+    .hero-url a:hover {
+      color: var(--text);
+    }
+
+    /* ─── CARD FAN VISUAL ────────────────────────────────────────── */
+    .card-fan-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      height: 340px;
+    }
+
+    .card-fan {
+      position: relative;
+      width: 220px;
+      height: 310px;
+    }
+
+    .play-card {
+      position: absolute;
+      width: 110px;
+      height: 160px;
+      border-radius: 10px;
+      background: #fff;
+      border: 1.5px solid rgba(0,0,0,0.08);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.3rem;
+      bottom: 0;
+      left: 50%;
+      transform-origin: bottom center;
+      transition: transform 0.3s ease;
+    }
+
+    .play-card .rank-top {
+      position: absolute;
+      top: 8px;
+      left: 10px;
+      font-size: 1rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .play-card .rank-bottom {
+      position: absolute;
+      bottom: 8px;
+      right: 10px;
+      font-size: 1rem;
+      font-weight: 800;
+      line-height: 1;
+      transform: rotate(180deg);
+    }
+    .play-card .suit-center {
+      font-size: 2rem;
+    }
+
+    .card-red   { color: #d0021b; }
+    .card-black { color: #111; }
+
+    /* Card 1 — far left */
+    .c1 { transform: translateX(-50%) rotate(-28deg); z-index: 1; }
+    /* Card 2 */
+    .c2 { transform: translateX(-50%) rotate(-14deg); z-index: 2; }
+    /* Card 3 — centre */
+    .c3 { transform: translateX(-50%) rotate(0deg); z-index: 3; }
+    /* Card 4 */
+    .c4 { transform: translateX(-50%) rotate(14deg); z-index: 2; }
+    /* Card 5 — far right */
+    .c5 { transform: translateX(-50%) rotate(28deg); z-index: 1; }
+
+    /* The Beanie wild card — gold themed, on top */
+    .play-card.beanie-card {
+      background: linear-gradient(135deg, #2d200a 0%, #1c1408 100%);
+      border: 2px solid var(--gold);
+      color: var(--gold);
+      z-index: 10;
+      transform: translateX(-50%) translateY(-28px) rotate(0deg) scale(1.08);
+      box-shadow: 0 0 0 4px rgba(240,180,41,0.18), 0 16px 48px rgba(0,0,0,0.6);
+      animation: float-card 3.5s ease-in-out infinite;
+    }
+    .play-card.beanie-card .beanie-label {
+      font-size: 0.55rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-top: 2px;
+    }
+
+    @keyframes float-card {
+      0%, 100% { transform: translateX(-50%) translateY(-28px) rotate(0deg) scale(1.08); }
+      50%       { transform: translateX(-50%) translateY(-40px) rotate(0deg) scale(1.08); }
+    }
+
+    .card-fan-wrapper .glow-ring {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 200px;
+      height: 60px;
+      background: radial-gradient(ellipse, rgba(240, 180, 41, 0.2) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    /* room code badge */
+    .room-badge {
+      position: absolute;
+      top: 10px;
+      right: 0px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+    .room-badge .code {
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: var(--gold);
+      letter-spacing: 4px;
+      display: block;
+      margin-top: 4px;
+    }
+
+    /* ─── HOW IT WORKS ───────────────────────────────────────────── */
+    .how {
+      padding: 100px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .section-label {
+      text-align: center;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: clamp(1.7rem, 3.5vw, 2.3rem);
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      margin-bottom: 14px;
+    }
+
+    .section-sub {
+      text-align: center;
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      max-width: 520px;
+      margin: 0 auto 64px;
+      line-height: 1.7;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      position: relative;
+    }
+
+    .steps::before {
+      content: '';
+      position: absolute;
+      top: 36px;
+      left: calc(16.67% + 20px);
+      right: calc(16.67% + 20px);
+      height: 1px;
+      background: linear-gradient(to right, var(--border), rgba(124,111,255,0.3), var(--border));
+      pointer-events: none;
+    }
+
+    .step {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--card-radius);
+      padding: 32px 28px;
+      text-align: center;
+      position: relative;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .step:hover {
+      border-color: rgba(124,111,255,0.3);
+      transform: translateY(-3px);
+    }
+
+    .step-num {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--bg-elevated);
+      border: 2px solid var(--purple);
+      color: var(--purple);
+      font-size: 1rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .step-icon {
+      font-size: 1.8rem;
+      margin-bottom: 14px;
+    }
+
+    .step h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+
+    .step p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    /* ─── FEATURES ───────────────────────────────────────────────── */
+    .features {
+      padding: 100px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .feature-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--card-radius);
+      padding: 34px 32px;
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    }
+    .feature-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+    }
+
+    .feature-card.accent-gold {
+      border-color: rgba(240, 180, 41, 0.25);
+      background: linear-gradient(135deg, rgba(240, 180, 41, 0.06) 0%, var(--bg-surface) 60%);
+    }
+    .feature-card.accent-gold:hover {
+      border-color: rgba(240, 180, 41, 0.45);
+    }
+
+    .feature-card.accent-purple {
+      border-color: rgba(124, 111, 255, 0.25);
+      background: linear-gradient(135deg, rgba(124, 111, 255, 0.06) 0%, var(--bg-surface) 60%);
+    }
+    .feature-card.accent-purple:hover {
+      border-color: rgba(124, 111, 255, 0.45);
+    }
+
+    .feature-card.accent-red {
+      border-color: rgba(232, 84, 128, 0.2);
+      background: linear-gradient(135deg, rgba(232, 84, 128, 0.05) 0%, var(--bg-surface) 60%);
+    }
+    .feature-card.accent-red:hover {
+      border-color: rgba(232, 84, 128, 0.4);
+    }
+
+    .feature-card.accent-teal {
+      border-color: rgba(100, 220, 180, 0.2);
+      background: linear-gradient(135deg, rgba(100, 220, 180, 0.05) 0%, var(--bg-surface) 60%);
+    }
+    .feature-card.accent-teal:hover {
+      border-color: rgba(100, 220, 180, 0.4);
+    }
+
+    /* Feature icon container — replaces raw emoji */
+    .feature-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      flex-shrink: 0;
+    }
+    .feature-icon svg { width: 26px; height: 26px; }
+    .feature-icon-gold   { background: rgba(240,180,41,0.14);  color: var(--gold); }
+    .feature-icon-red    { background: rgba(232,84,128,0.14);  color: var(--red); }
+    .feature-icon-teal   { background: rgba(100,220,180,0.13); color: #5fd4aa; }
+    .feature-icon-purple { background: rgba(124,111,255,0.14); color: var(--purple); }
+
+    /* Step icon */
+    .step-icon {
+      font-size: 1.6rem;
+      margin-bottom: 14px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .step-icon-spade  { color: var(--purple); }
+    .step-icon-star   { color: var(--gold); }
+    .step-icon-heart  { color: var(--red); }
+
+    /* Platform pill icons */
+    .platform-pill svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+    .feature-card h3 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+      color: var(--text);
+      letter-spacing: -0.2px;
+    }
+
+    .feature-card p {
+      font-size: 0.93rem;
+      color: var(--text-muted);
+      line-height: 1.68;
+    }
+
+    /* ─── CTA BAND ───────────────────────────────────────────────── */
+    .cta-band {
+      padding: 100px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .cta-box {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 64px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-box::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 400px;
+      background: radial-gradient(ellipse, rgba(124, 111, 255, 0.1) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .cta-box h2 {
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      margin-bottom: 14px;
+    }
+
+    .cta-box p {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      max-width: 480px;
+      margin: 0 auto 36px;
+      line-height: 1.7;
+    }
+
+    .cta-box .btn-primary {
+      font-size: 1.1rem;
+      padding: 16px 36px;
+    }
+
+    .platforms {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 24px;
+      margin-top: 28px;
+      flex-wrap: wrap;
+    }
+
+    .platform-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-muted);
+      font-size: 0.83rem;
+      font-weight: 500;
+    }
+
+    /* ─── FOOTER ─────────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 0;
+    }
+
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .footer-logo-icon {
+      width: 28px;
+      height: 28px;
+      background: var(--gold);
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+    }
+
+    .footer-logo-text {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .footer-copy {
+      font-size: 0.83rem;
+      color: var(--text-muted);
+    }
+
+    .footer-copy a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .footer-copy a:hover {
+      color: var(--text);
+    }
+
+    /* ─── RESPONSIVE ─────────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .hero-inner {
+        grid-template-columns: 1fr;
+        gap: 48px;
+      }
+      .card-fan-wrapper {
+        height: 280px;
+      }
+      .feature-grid {
+        grid-template-columns: 1fr;
+      }
+      .steps {
+        grid-template-columns: 1fr;
+      }
+      .steps::before {
+        display: none;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .hero { padding: 60px 0 60px; }
+      .how, .features, .cta-band { padding: 72px 0; }
+      .hero-content h1 { font-size: 2rem; }
+      .cta-box { padding: 44px 24px; }
+      .footer-inner { flex-direction: column; align-items: flex-start; gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── HEADER ──────────────────────────────────────────────────── -->
+  <header>
+    <div class="container">
+      <nav>
+        <a href="https://play.playbeanie.com" class="logo" aria-label="Beanie home">
+          <span class="logo-icon">★</span>
+          <span class="logo-text">Beanie</span>
+        </a>
+        <a href="https://play.playbeanie.com" class="btn-primary">
+          Play Now
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ─── HERO ─────────────────────────────────────────────────────── -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-inner">
+
+        <div class="hero-content reveal">
+          <span class="eyebrow">★ Free to play · No download needed</span>
+          <h1>The card game where the <em>wild card changes</em> every round.</h1>
+          <p>Beanie is a rummy-style multiplayer card game for 2–4 players. Create a room, share a 4-letter code, and play instantly in your browser — on any phone or desktop.</p>
+          <div class="hero-cta">
+            <a href="https://play.playbeanie.com" class="btn-primary">
+              Play Now — it's free
+            </a>
+          </div>
+          <p class="hero-url" style="margin-top:16px;">Or visit <a href="https://play.playbeanie.com">playbeanie.com</a></p>
+        </div>
+
+        <div class="card-fan-wrapper reveal" style="transition-delay:0.15s;">
+          <div class="card-fan">
+            <!-- Back cards fan -->
+            <div class="play-card c1" style="background:#1e4d3b; border-color:rgba(255,255,255,0.08);">
+              <div class="rank-top" style="color:rgba(255,255,255,0.3)">A</div>
+              <div class="suit-center" style="color:rgba(255,255,255,0.15)">♣</div>
+              <div class="rank-bottom" style="color:rgba(255,255,255,0.3)">A</div>
+            </div>
+            <div class="play-card c2">
+              <div class="rank-top card-red">7</div>
+              <div class="suit-center card-red">♥</div>
+              <div class="rank-bottom card-red">7</div>
+            </div>
+            <div class="play-card c3">
+              <div class="rank-top card-black">J</div>
+              <div class="suit-center card-black">♠</div>
+              <div class="rank-bottom card-black">J</div>
+            </div>
+            <div class="play-card c4">
+              <div class="rank-top card-red">9</div>
+              <div class="suit-center card-red">♦</div>
+              <div class="rank-bottom card-red">9</div>
+            </div>
+            <!-- Beanie wild card — front and centre -->
+            <div class="play-card beanie-card c3" style="left:50%;">
+              <div class="rank-top" style="color:var(--gold)">★</div>
+              <div class="suit-center" style="font-size:2.2rem;">★</div>
+              <div class="rank-bottom" style="color:var(--gold)">★</div>
+              <div class="beanie-label" style="position:absolute;bottom:10px;left:0;right:0;text-align:center;">BEANIE</div>
+            </div>
+          </div>
+          <div class="glow-ring"></div>
+
+          <!-- Room code badge -->
+          <div class="room-badge">
+            Room code
+            <span class="code">KQJT</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── HOW IT WORKS ──────────────────────────────────────────────── -->
+  <section class="how">
+    <div class="container">
+      <p class="section-label reveal">How to play</p>
+      <h2 class="section-title reveal">Up and running in 30 seconds</h2>
+      <p class="section-sub reveal">No accounts, no app store, no faff. Three steps and you're mid-game.</p>
+
+      <div class="steps">
+
+        <div class="step reveal" style="transition-delay:0.05s;">
+          <div class="step-num">1</div>
+          <div class="step-icon step-icon-purple">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+              <polyline points="16 6 12 2 8 6"/>
+              <line x1="12" y1="2" x2="12" y2="15"/>
+            </svg>
+          </div>
+          <h3>Create a room &amp; share the code</h3>
+          <p>Head to playbeanie.com, create a room and send the 4-letter code to your friends. They join instantly — no sign-up required.</p>
+        </div>
+
+        <div class="step reveal" style="transition-delay:0.12s;">
+          <div class="step-num">2</div>
+          <div class="step-icon step-icon-star">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2l2.118 6.524h6.861l-5.55 4.032 2.118 6.524L12 15.048l-5.547 4.032 2.118-6.524L3 8.524h6.882L12 2z"/>
+            </svg>
+          </div>
+          <h3>Draw, lay sets, steal Beanies</h3>
+          <p>Form runs and three-of-a-kinds. Use the Beanie wild card as any card you like — and snatch it back from opponents when you hold the real thing.</p>
+        </div>
+
+        <div class="step reveal" style="transition-delay:0.19s;">
+          <div class="step-num">3</div>
+          <div class="step-icon step-icon-heart">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 21.593c-.293-.237-6.61-5.386-8.535-7.538C1.548 11.79 1.5 8.65 3.7 6.757a5.27 5.27 0 0 1 7.297.54L12 8.362l1.003-1.065a5.27 5.27 0 0 1 7.297-.54c2.2 1.893 2.152 5.033.235 7.298C18.61 16.207 12.293 21.356 12 21.593z"/>
+            </svg>
+          </div>
+          <h3>Lowest score after 13 rounds wins</h3>
+          <p>Empty your hand first to score zero. Everyone else scores for cards left behind. The wild card rank climbs each round — 3s through Aces.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FEATURES ─────────────────────────────────────────────────── -->
+  <section class="features">
+    <div class="container">
+      <p class="section-label reveal">Why Beanie</p>
+      <h2 class="section-title reveal">Every round feels different</h2>
+      <p class="section-sub reveal">Small rules, big twists. Beanie is easy to learn and impossible to get bored of.</p>
+
+      <div class="feature-grid">
+
+        <div class="feature-card accent-gold reveal" style="transition-delay:0.05s;">
+          <div class="feature-icon feature-icon-gold">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72Z"/>
+              <path d="m14 7 3 3"/>
+              <path d="M5 6v4"/>
+              <path d="M19 14v4"/>
+              <path d="M10 2v2"/>
+              <path d="M7 8H3"/>
+              <path d="M21 16h-4"/>
+              <path d="M11 3H9"/>
+            </svg>
+          </div>
+          <h3>The Beanie changes every round</h3>
+          <p>Round one the wild card is 3s. Round two it's 4s. All the way up through 13 rounds to Aces. The same hand that wins one round can crumble the next — you can never get too comfortable.</p>
+        </div>
+
+        <div class="feature-card accent-red reveal" style="transition-delay:0.12s;">
+          <div class="feature-icon feature-icon-red">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m16 3 4 4-4 4"/>
+              <path d="M20 7H4"/>
+              <path d="m8 21-4-4 4-4"/>
+              <path d="M4 17h16"/>
+            </svg>
+          </div>
+          <h3>Steal the Beanie</h3>
+          <p>Spot an opponent using a Beanie wild card as a stand-in in their set? If you hold the real card it's covering for, you can steal the Beanie right out of their set and take it into your own hand. Watch the table turn in an instant.</p>
+        </div>
+
+        <div class="feature-card accent-teal reveal" style="transition-delay:0.19s;">
+          <div class="feature-icon feature-icon-teal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="14" height="20" x="5" y="2" rx="2" ry="2"/>
+              <path d="M12 18h.01"/>
+            </svg>
+          </div>
+          <h3>Play anywhere, on anything</h3>
+          <p>Beanie runs entirely in your browser. No app store, no download, no account. Tap the link on your phone, share the 4-letter room code, and you're playing in seconds — wherever you are.</p>
+        </div>
+
+        <div class="feature-card accent-purple reveal" style="transition-delay:0.26s;">
+          <div class="feature-icon feature-icon-purple">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>
+            </svg>
+          </div>
+          <h3>Quick rounds, big swings</h3>
+          <p>Each round is short and punchy. One perfectly timed steal or a lucky draw can swing the whole leaderboard. Whether you're half a point up or trailing badly, you're always one round away from a comeback.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── CTA BAND ──────────────────────────────────────────────────── -->
+  <section class="cta-band">
+    <div class="container">
+      <div class="cta-box reveal">
+        <h2>Ready to play?<br />Grab a friend and start a game.</h2>
+        <p>Free to play in any browser. No download, no sign-up. Just you, your friends, and a deck of cards with a wild card that keeps everyone guessing.</p>
+        <a href="https://play.playbeanie.com" class="btn-primary">
+          Start a game at playbeanie.com
+        </a>
+        <div class="platforms">
+          <span class="platform-pill">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2"/><path d="M12 18h.01"/></svg>
+            iPhone &amp; Android
+          </span>
+          <span class="platform-pill" style="color:var(--border)">·</span>
+          <span class="platform-pill">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><path d="M0 21h24" stroke-width="1.5"/></svg>
+            Mac &amp; Windows
+          </span>
+          <span class="platform-pill" style="color:var(--border)">·</span>
+          <span class="platform-pill">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            Any browser
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ────────────────────────────────────────────────────── -->
+  <footer>
+    <div class="container">
+      <div class="footer-inner">
+        <a href="https://play.playbeanie.com" class="footer-logo" aria-label="Beanie">
+          <span class="footer-logo-icon">★</span>
+          <span class="footer-logo-text">Beanie</span>
+        </a>
+        <p class="footer-copy">
+          © Beanie 2026 ·
+          <a href="https://play.playbeanie.com">playbeanie.com</a> ·
+          <a href="https://playbeanie.co.uk">playbeanie.co.uk</a>
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ─── SCROLL REVEAL SCRIPT ──────────────────────────────────────── -->
+  <script>
+    (function () {
+      const els = document.querySelectorAll('.reveal');
+      if (!('IntersectionObserver' in window)) {
+        els.forEach(el => el.classList.add('visible'));
+        return;
+      }
+      const io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            io.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.12 });
+      els.forEach(el => io.observe(el));
+    })();
+  </script>
+
+</body>
+</html>
