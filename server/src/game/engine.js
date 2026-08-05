@@ -548,7 +548,18 @@ function _requirePhase(game, playerId, expectedPhase) {
   if (game.status !== STATUS.PLAYING) return 'Game is not in progress';
   const current = game.players[game.currentPlayerIndex];
   if (current.id !== playerId)        return 'It is not your turn';
-  if (game.phase !== expectedPhase)   return expectedPhase === PHASE.DRAW
+
+  // The 8-card first player already "drew" their extra card at deal time.
+  // If the stored phase is somehow DRAW but this player has 8+ cards and hasn't
+  // completed their first turn, treat their effective phase as ACTION so they
+  // can lay sets / discard without needing to draw first.
+  const effectivePhase = (
+    game.phase === PHASE.DRAW &&
+    current.hand.length >= 8 &&
+    !current.firstTurnDone
+  ) ? PHASE.ACTION : game.phase;
+
+  if (effectivePhase !== expectedPhase) return expectedPhase === PHASE.DRAW
     ? 'You must draw a card first'
     : 'You must draw a card before playing';
   return null;

@@ -313,8 +313,12 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
       })
     : myHand;
   const myHasSet    = myPlayer?.hasLaidSet || false;
-  const inDraw      = game.phase === 'DRAW';
-  const inAction    = game.phase === 'ACTION';
+  // The 8-card first player starts in ACTION phase — they don't need to draw.
+  // If the server's stored phase is ever DRAW for them (e.g. stale state after
+  // a server restart), we still show them the ACTION UI so they can play normally.
+  const is8CardStart = myHand.length >= 8 && myPlayer && !myPlayer.firstTurnDone;
+  const inDraw      = game.phase === 'DRAW' && !is8CardStart;
+  const inAction    = game.phase === 'ACTION' || is8CardStart;
   const beanieCount = beaniesInPlay(game.publicSets, game.beanieRank);
   const isHost      = game.players[0]?.id === myId;
 
