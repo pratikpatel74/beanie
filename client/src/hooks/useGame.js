@@ -11,7 +11,18 @@ import socket from '../socket';
 // Stores { roomCode, playerId } in localStorage so we can rejoin after a
 // server restart. Cleared when the player leaves or the game is cancelled.
 
-const SESSION_KEY = 'beanie_session';
+const SESSION_KEY     = 'beanie_session';
+const PLAYER_NAME_KEY = 'beanie_player_name';
+
+function loadPlayerName() {
+  try { return localStorage.getItem(PLAYER_NAME_KEY) || ''; }
+  catch { return ''; }
+}
+
+function savePlayerName(name) {
+  try { localStorage.setItem(PLAYER_NAME_KEY, name); }
+  catch {}
+}
 
 // Module-level: tracks last game status so we can detect missed broadcasts
 let _lastKnownStatus = null;
@@ -32,13 +43,14 @@ function clearSession() {
 // ─── Reducer ─────────────────────────────────────────────────────────────────
 
 const INITIAL = {
-  screen:   'home',   // home | create | join | lobby | game | round-end | game-end
-  roomCode: null,
-  myId:     null,     // player's persistent ID within the game (may differ from socket.id after reconnect)
-  game:     null,
-  error:    null,
-  timer:    null,     // { seconds, playerName }
-  notice:   null,     // transient notification (disconnect, timer expired, etc.)
+  screen:     'home',  // name | home | create | join | lobby | game | round-end | game-end
+  playerName: '',
+  roomCode:   null,
+  myId:       null,    // player's persistent ID within the game (may differ from socket.id after reconnect)
+  game:       null,
+  error:      null,
+  timer:      null,    // { seconds, playerName }
+  notice:     null,    // transient notification (disconnect, timer expired, etc.)
 };
 
 function reducer(state, action) {
@@ -79,8 +91,10 @@ function reducer(state, action) {
       return { ...state, notice: action.message };
     case 'CLEAR_NOTICE':
       return { ...state, notice: null };
+    case 'SET_NAME':
+      return { ...state, playerName: action.name, screen: 'home' };
     case 'RESET':
-      return { ...INITIAL, myId: state.myId };
+      return { ...INITIAL, playerName: state.playerName, myId: state.myId };
     default:
       return state;
   }
@@ -89,7 +103,12 @@ function reducer(state, action) {
 // ─── Hook ─────────────────────────────────────────────────────────────────────
 
 export function useGame() {
-  const [state, dispatch] = useReducer(reducer, INITIAL);
+  const storedName = loadPlayerName();
+  const [state, dispatch] = useReducer(reducer, {
+    ...INITIAL,
+    playerName: storedName,
+    screen: storedName ? 'home' : 'name',
+  });
 
   // ─── Socket connection & event listeners ──────────────────────────────────
 
@@ -195,11 +214,20 @@ export function useGame() {
     goTo:        useCallback(screen => dispatch({ type: 'SET_SCREEN', screen }), []),
     clearError:  useCallback(() => dispatch({ type: 'CLEAR_ERROR' }), []),
 
-    createRoom:  useCallback(playerName =>
-      socket.emit('room:create', { playerName }), []),
+    saveName: useCallback(name => {
+      savePlayerName(name);
+      dispatch({ type: 'SET_NAME', name });
+    }, []),
 
-    joinRoom:    useCallback((roomCode, playerName) =>
-      socket.emit('room:join', { roomCode, playerName }), []),
+    createRoom:  useCallback(() => {
+      const playerName = loadPlayerName() || 'Player';
+      socket.emit('room:create', { playerName });
+    }, []),
+
+    joinRoom:    useCallback(roomCode => {
+      const playerName = loadPlayerName() || 'Player';
+      socket.emit('room:join', { roomCode, playerName });
+    }, []),
 
     leaveRoom:   useCallback(() => {
       clearSession();

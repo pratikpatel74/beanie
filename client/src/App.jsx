@@ -1,6 +1,7 @@
 import './index.css';
 import ErrorBoundary      from './components/ErrorBoundary';
 import { useGame }        from './hooks/useGame';
+import NameScreen        from './screens/NameScreen';
 import HomeScreen        from './screens/HomeScreen';
 import CreateScreen      from './screens/CreateScreen';
 import JoinScreen        from './screens/JoinScreen';
@@ -17,8 +18,11 @@ export default function App() {
   return (
     <ErrorBoundary>
     <div className="app">
+      {screen === 'name' && (
+        <NameScreen actions={actions} isEditing={!!state.playerName} />
+      )}
       {screen === 'home' && (
-        <HomeScreen actions={actions} />
+        <HomeScreen actions={actions} playerName={state.playerName} />
       )}
       {screen === 'create' && (
         <CreateScreen error={error} actions={actions} />

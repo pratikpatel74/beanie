@@ -1,15 +1,18 @@
-export default function HomeScreen({ actions }) {
+export default function HomeScreen({ actions, playerName }) {
+  const initial = playerName ? playerName[0].toUpperCase() : 'P';
+
   return (
     <div className="screen">
       <div className="home-inner">
 
         {/* Avatar / greeting */}
         <div className="home-header">
-          <div className="avatar">P</div>
+          <div className="avatar">{initial}</div>
           <div className="greeting">
             <div className="sub">Good to see you,</div>
-            <div className="name">Player</div>
+            <div className="name">{playerName || 'Player'}</div>
           </div>
+          <div className="home-edit-name" onClick={() => actions.goTo('name')}>✎</div>
         </div>
 
         {/* Hero: card fan + logo */}
