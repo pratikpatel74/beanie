@@ -1017,7 +1017,19 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
           )}
         </div>
       ) : (
-        <div className="not-your-turn">{currentPlayer?.name}'s turn</div>
+        /* Not my turn — still show Agree button if a vote is pending and I haven't voted */
+        <div className="not-your-turn">
+          {currentPlayer?.name}'s turn
+          {(game.drawVotes || []).length > 0 && !(game.drawVotes || []).includes(myId) && (
+            <button
+              className="btn-sm btn-sm-secondary"
+              style={{ opacity: 0.65, fontSize: 11, marginTop: 6, display: 'block', margin: '6px auto 0' }}
+              onClick={actions.declareDraw}
+            >
+              {`Agree to End Round (${game.drawVotes.length}/${game.players.length})`}
+            </button>
+          )}
+        </div>
       )}
 
       </div>{/* /ls-bottom */}
