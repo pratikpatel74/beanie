@@ -13,7 +13,9 @@ export default function HowToPlayScreen({ actions }) {
         {/* ── Overview ── */}
         <section className="htp-section">
           <div className="htp-section-header">
-            <span className="htp-icon">🃏</span>
+            <span className="htp-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="14" height="17" rx="2"/><path d="M8 5V3a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-1"/></svg>
+            </span>
             <h3>Overview</h3>
           </div>
           <p className="htp-body">
@@ -64,7 +66,9 @@ export default function HowToPlayScreen({ actions }) {
         {/* ── Your Turn ── */}
         <section className="htp-section">
           <div className="htp-section-header">
-            <span className="htp-icon">🔄</span>
+            <span className="htp-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            </span>
             <h3>Your Turn</h3>
           </div>
           <div className="htp-steps">
@@ -91,10 +95,16 @@ export default function HowToPlayScreen({ actions }) {
             </div>
           </div>
           <div className="htp-tip">
-            💡 A random player is chosen to go first each round. That player starts with <strong>8 cards</strong>; everyone else starts with <strong>7</strong>. The extra card counts as their draw for that turn, so they go straight to the Play/Discard step.
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{display:'inline',verticalAlign:'middle',marginRight:5}}><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26A7.01 7.01 0 0 1 5 9a7 7 0 0 1 7-7z"/><line x1="10" y1="21" x2="14" y2="21"/></svg>
+            A random player is chosen to go first each round. That player starts with <strong>8 cards</strong>; everyone else starts with <strong>7</strong>. The extra card counts as their draw for that turn, so they go straight to the Play/Discard step.
           </div>
           <div className="htp-tip" style={{ marginTop: 8 }}>
-            💡 Use the <strong>Deal / A→K</strong> toggle above your hand to sort your cards by rank — useful for spotting runs. Tap <strong>Deal</strong> to return to the original draw order.
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{display:'inline',verticalAlign:'middle',marginRight:5}}><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26A7.01 7.01 0 0 1 5 9a7 7 0 0 1 7-7z"/><line x1="10" y1="21" x2="14" y2="21"/></svg>
+            Use the <strong>Deal / A→K</strong> toggle above your hand to sort your cards by rank — useful for spotting runs. Tap <strong>Deal</strong> to return to the original draw order.
+          </div>
+          <div className="htp-tip" style={{ marginTop: 8, borderColor: 'rgba(240,180,41,0.35)' }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{display:'inline',verticalAlign:'middle',marginRight:5}}><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26A7.01 7.01 0 0 1 5 9a7 7 0 0 1 7-7z"/><line x1="10" y1="21" x2="14" y2="21"/></svg>
+            <strong>Can't go out on your first turn of each round</strong> — no player can win on the very first discard of their round. You must complete at least one full turn (draw → optional play → discard) before you can go out.
           </div>
         </section>
 
@@ -103,7 +113,9 @@ export default function HowToPlayScreen({ actions }) {
         {/* ── Sets ── */}
         <section className="htp-section">
           <div className="htp-section-header">
-            <span className="htp-icon">📋</span>
+            <span className="htp-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="13" y2="15"/></svg>
+            </span>
             <h3>Laying Sets</h3>
           </div>
           <p className="htp-body">Select 3 or more cards from your hand and tap <strong>Lay Set</strong>. Two types are valid:</p>
@@ -225,7 +237,8 @@ export default function HowToPlayScreen({ actions }) {
             <div className="htp-add-btn">+</div>
           </div>
           <div className="htp-tip">
-            💡 For Runs: your card must continue the sequence at either end. A Match can hold at most 4 cards (one per suit) — the ★ button is hidden when a set is full.
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{display:'inline',verticalAlign:'middle',marginRight:5}}><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26A7.01 7.01 0 0 1 5 9a7 7 0 0 1 7-7z"/><line x1="10" y1="21" x2="14" y2="21"/></svg>
+            For Runs: your card must continue the sequence at either end. A Match can hold at most 4 cards (one per suit) — the ★ button is hidden when a set is full.
           </div>
         </section>
 
@@ -257,7 +270,8 @@ export default function HowToPlayScreen({ actions }) {
             </div>
           </div>
           <div className="htp-tip">
-            💡 Placing a Beanie on an opponent's run locks it in and makes their set harder to complete — a useful tactical move.
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{display:'inline',verticalAlign:'middle',marginRight:5}}><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26A7.01 7.01 0 0 1 5 9a7 7 0 0 1 7-7z"/><line x1="10" y1="21" x2="14" y2="21"/></svg>
+            Placing a Beanie on an opponent's run locks it in and makes their set harder to complete — a useful tactical move.
           </div>
         </section>
 
@@ -266,7 +280,9 @@ export default function HowToPlayScreen({ actions }) {
         {/* ── Stealing a Beanie ── */}
         <section className="htp-section">
           <div className="htp-section-header">
-            <span className="htp-icon">🎯</span>
+            <span className="htp-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+            </span>
             <h3>Stealing a Beanie</h3>
           </div>
           <p className="htp-body">
@@ -295,7 +311,8 @@ export default function HowToPlayScreen({ actions }) {
             </div>
           </div>
           <div className="htp-tip">
-            💡 You must have already laid a set of your own before you can steal.
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{display:'inline',verticalAlign:'middle',marginRight:5}}><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26A7.01 7.01 0 0 1 5 9a7 7 0 0 1 7-7z"/><line x1="10" y1="21" x2="14" y2="21"/></svg>
+            You must have already laid a set of your own before you can steal.
           </div>
         </section>
 
@@ -304,7 +321,9 @@ export default function HowToPlayScreen({ actions }) {
         {/* ── Draw Pile Empty ── */}
         <section className="htp-section">
           <div className="htp-section-header">
-            <span className="htp-icon">🔀</span>
+            <span className="htp-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+            </span>
             <h3>Draw Pile Runs Out</h3>
           </div>
           <p className="htp-body">
@@ -317,7 +336,9 @@ export default function HowToPlayScreen({ actions }) {
         {/* ── Declare Draw ── */}
         <section className="htp-section">
           <div className="htp-section-header">
-            <span className="htp-icon">🤝</span>
+            <span className="htp-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 6l4-4 4 4M12 2v10M8 18l4 4 4-4M12 22V12"/></svg>
+            </span>
             <h3>Ending a Stalemate</h3>
           </div>
           <p className="htp-body">
@@ -338,7 +359,8 @@ export default function HowToPlayScreen({ actions }) {
             </div>
           </div>
           <div className="htp-tip">
-            💡 Changed your mind? Tap <strong>Cancel End Round vote</strong> to withdraw before everyone agrees.
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{display:'inline',verticalAlign:'middle',marginRight:5}}><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26A7.01 7.01 0 0 1 5 9a7 7 0 0 1 7-7z"/><line x1="10" y1="21" x2="14" y2="21"/></svg>
+            Changed your mind? Tap <strong>Cancel End Round vote</strong> to withdraw before everyone agrees.
           </div>
         </section>
 
@@ -347,7 +369,9 @@ export default function HowToPlayScreen({ actions }) {
         {/* ── Scoring ── */}
         <section className="htp-section">
           <div className="htp-section-header">
-            <span className="htp-icon">🏆</span>
+            <span className="htp-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2h12v6a6 6 0 0 1-12 0V2z"/><path d="M6 4H2v4a4 4 0 0 0 4 4"/><path d="M18 4h4v4a4 4 0 0 1-4 4"/><path d="M12 14v4"/><path d="M8 22h8"/></svg>
+            </span>
             <h3>Scoring</h3>
           </div>
           <p className="htp-body">
@@ -370,7 +394,10 @@ export default function HowToPlayScreen({ actions }) {
               <span>★ Beanie (held)</span><span>10 pts</span>
             </div>
             <div className="htp-score-row htp-score-winner">
-              <span>🏆 Round winner</span><span>0 pts</span>
+              <span>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{display:'inline',verticalAlign:'middle',marginRight:4}}><path d="M6 2h12v6a6 6 0 0 1-12 0V2z"/><path d="M6 4H2v4a4 4 0 0 0 4 4"/><path d="M18 4h4v4a4 4 0 0 1-4 4"/><path d="M12 14v4"/><path d="M8 22h8"/></svg>
+                Round winner
+              </span><span>0 pts</span>
             </div>
           </div>
           <div className="htp-tip">
@@ -383,7 +410,9 @@ export default function HowToPlayScreen({ actions }) {
         {/* ── Quick tips ── */}
         <section className="htp-section">
           <div className="htp-section-header">
-            <span className="htp-icon">💬</span>
+            <span className="htp-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </span>
             <h3>Quick Tips</h3>
           </div>
           <ul className="htp-tips-list">

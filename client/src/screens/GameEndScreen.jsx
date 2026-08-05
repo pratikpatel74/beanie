@@ -11,7 +11,15 @@ export default function GameEndScreen({ game, myId, actions }) {
 
       <div className="game-end-inner scroll">
         <div className="game-end-banner">
-          <div className="trophy">🏆</div>
+          <div className="trophy">
+            <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M6 2h12v6a6 6 0 0 1-12 0V2z"/>
+              <path d="M6 4H2v4a4 4 0 0 0 4 4"/>
+              <path d="M18 4h4v4a4 4 0 0 1-4 4"/>
+              <path d="M12 14v4"/>
+              <path d="M8 22h8"/>
+            </svg>
+          </div>
           <div className="winner">{iWon ? 'You win!' : `${winner?.name} wins!`}</div>
           <div className="sub">
             {iWon
@@ -46,7 +54,7 @@ export default function GameEndScreen({ game, myId, actions }) {
                         flexShrink: 0,
                       }}
                     />
-                    {rank === 0 ? '🏆 ' : ''}{p.id === myId ? `${p.name} (you)` : p.name}
+                    {rank === 0 ? <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{display:'inline',verticalAlign:'middle',marginRight:3}}><path d="M6 2h12v6a6 6 0 0 1-12 0V2z"/><path d="M6 4H2v4a4 4 0 0 0 4 4"/><path d="M18 4h4v4a4 4 0 0 1-4 4"/><path d="M12 14v4"/><path d="M8 22h8"/></svg> : null}{p.id === myId ? `${p.name} (you)` : p.name}
                   </td>
                   {p.roundScores.map((s, i) => (
                     <td key={i} className="score-round-cell">{s}</td>

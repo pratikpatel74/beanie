@@ -15,13 +15,25 @@ export default function RoundEndScreen({ game, myId, actions }) {
       <div className="round-end-inner scroll">
         {game.roundWinner ? (
           <div className="winner-banner">
-            <div className="crown">🏆</div>
+            <div className="crown">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M6 2h12v6a6 6 0 0 1-12 0V2z"/>
+                <path d="M6 4H2v4a4 4 0 0 0 4 4"/>
+                <path d="M18 4h4v4a4 4 0 0 1-4 4"/>
+                <path d="M12 14v4"/>
+                <path d="M8 22h8"/>
+              </svg>
+            </div>
             <div className="wins">{game.roundWinner} wins this round!</div>
             <div className="sub">Scored 0 points</div>
           </div>
         ) : (
           <div className="winner-banner">
-            <div className="crown">🤝</div>
+            <div className="crown">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--text2)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M8 6l4-4 4 4M12 2v10M8 18l4 4 4-4M12 22V12"/>
+              </svg>
+            </div>
             <div className="wins">Round drawn</div>
             <div className="sub">All players scored penalty points</div>
           </div>
@@ -65,7 +77,7 @@ export default function RoundEndScreen({ game, myId, actions }) {
                           className={isWin && i === roundsPlayed - 1 ? 'score-round-cell score-this-round' : 'score-round-cell'}
                           style={{ textAlign: 'center', fontSize: 12, padding: '4px 4px' }}
                         >
-                          {isWin ? '0🏆' : `+${score}`}
+                          {isWin ? <>0<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{display:'inline',verticalAlign:'middle',marginLeft:2}}><path d="M6 2h12v6a6 6 0 0 1-12 0V2z"/><path d="M6 4H2v4a4 4 0 0 0 4 4"/><path d="M18 4h4v4a4 4 0 0 1-4 4"/><path d="M12 14v4"/><path d="M8 22h8"/></svg></> : `+${score}`}
                         </td>
                       );
                     })}

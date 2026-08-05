@@ -25,7 +25,12 @@ export default class ErrorBoundary extends Component {
 
     return (
       <div className="screen" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, padding: 32 }}>
-        <div style={{ fontSize: 48 }}>🃏</div>
+        <div>
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--acc)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="2" y="5" width="14" height="17" rx="2"/>
+            <path d="M8 5V3a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-1"/>
+          </svg>
+        </div>
         <h2 style={{ margin: 0 }}>Something went wrong</h2>
         <p style={{ color: 'var(--text2)', textAlign: 'center', margin: 0 }}>
           The app hit an unexpected error. Tap below to reload and rejoin your game.

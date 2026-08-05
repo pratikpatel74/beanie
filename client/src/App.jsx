@@ -1,4 +1,5 @@
 import './index.css';
+import { useState, useEffect } from 'react';
 import ErrorBoundary      from './components/ErrorBoundary';
 import { useGame }        from './hooks/useGame';
 import NameScreen        from './screens/NameScreen';
@@ -15,14 +16,55 @@ export default function App() {
   const { state, actions, myPlayer, isMyTurn } = useGame();
   const { screen, roomCode, myId, game, error, timer, notice } = state;
 
+  const [showWinCelebration, setShowWinCelebration] = useState(false);
+
+  useEffect(() => {
+    if (screen === 'round-end' && game?.roundWinner && myPlayer?.name === game.roundWinner) {
+      setShowWinCelebration(true);
+    } else {
+      setShowWinCelebration(false);
+    }
+  }, [screen, game?.roundWinner, myPlayer?.name]);
+
   return (
     <ErrorBoundary>
     <div className="app">
+      {/* Round Won celebration modal */}
+      {showWinCelebration && (
+        <div className="round-won-overlay" onClick={() => setShowWinCelebration(false)}>
+          <div className="round-won-modal" onClick={e => e.stopPropagation()}>
+            <div className="burst-ring" />
+            <div className="burst-ring" />
+            <div className="burst-ring" />
+            <div className="rw-trophy">
+              <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M6 2h12v6a6 6 0 0 1-12 0V2z"/>
+                <path d="M6 4H2v4a4 4 0 0 0 4 4"/>
+                <path d="M18 4h4v4a4 4 0 0 1-4 4"/>
+                <path d="M12 14v4"/>
+                <path d="M8 22h8"/>
+              </svg>
+            </div>
+            <div className="rw-badge">ROUND {game?.round} OF 13</div>
+            <div className="rw-title">You won!</div>
+            <div className="rw-sub">{myPlayer?.name} scored 0 points this round</div>
+            <button className="rw-btn" onClick={() => setShowWinCelebration(false)}>
+              See the scores
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Host cancelled modal — shown to non-host players when game is ended */}
       {state.gameCancelled && (
         <div className="reconnect-overlay">
           <div className="exit-modal">
-            <div className="exit-modal-icon">🏠</div>
+            <div className="exit-modal-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+            </div>
             <div className="exit-modal-title">Game ended</div>
             <div className="exit-modal-body">
               The host has ended the game.<br/>Thanks for playing!

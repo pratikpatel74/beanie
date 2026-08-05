@@ -46,7 +46,12 @@ export default function HomeScreen({ actions, playerName }) {
         {/* Action cards */}
         <div className="action-card action-card-create" onClick={() => actions.goTo('create')}>
           <div className="ac-inner">
-            <div className="ac-icon">🃏</div>
+            <div className="ac-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="5" width="14" height="17" rx="2"/>
+                <path d="M8 5V3a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-1"/>
+              </svg>
+            </div>
             <div className="ac-body">
               <div className="ac-badge">NEW ROOM</div>
               <div className="ac-title">Create game</div>
@@ -58,7 +63,14 @@ export default function HomeScreen({ actions, playerName }) {
 
         <div className="action-card action-card-join" onClick={() => actions.goTo('join')}>
           <div className="ac-inner">
-            <div className="ac-icon">👥</div>
+            <div className="ac-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            </div>
             <div className="ac-body">
               <div className="ac-title">Join game</div>
               <div className="ac-desc">Enter a 4-letter room code</div>

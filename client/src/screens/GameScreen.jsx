@@ -431,7 +431,13 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
       {showExitModal && (
         <div className="exit-modal-overlay" onClick={() => setShowExitModal(false)}>
           <div className="exit-modal" onClick={e => e.stopPropagation()}>
-            <div className="exit-modal-icon">🚪</div>
+            <div className="exit-modal-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M13 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h7"/>
+                <polyline points="17 8 21 12 17 16"/>
+                <line x1="21" y1="12" x2="9" y2="12"/>
+              </svg>
+            </div>
             <div className="exit-modal-title">End the game?</div>
             <div className="exit-modal-body">
               This will cancel the game for all players.<br/>Scores will not be saved.
