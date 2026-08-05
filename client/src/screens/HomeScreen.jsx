@@ -15,26 +15,13 @@ export default function HomeScreen({ actions, playerName }) {
           <div className="home-edit-name" onClick={() => actions.goTo('name')}>✎ Edit</div>
         </div>
 
-        {/* Hero: animated card fan + logo */}
+        {/* Hero: pulsating Beanie card + logo */}
         <div className="home-hero">
           <div className="card-fan">
-            {/* Left — dark green card */}
-            <div className="crd crd-l card-dark">
-              <div className="ci cd">A</div>
-              <div className="cp cd">★</div>
-              <div className="ci cd bot">A</div>
-            </div>
-            {/* Centre — Beanie wild card */}
-            <div className="crd crd-m beanie-card">
+            <div className="crd beanie-card">
               <div className="bc-star-sm">★</div>
               <div className="bc-star-lg">★</div>
               <div className="bc-label">BEANIE ★</div>
-            </div>
-            {/* Right — white regular card */}
-            <div className="crd crd-r">
-              <div className="ci r">7<br/>♦</div>
-              <div className="cp r">♦</div>
-              <div className="ci r bot">7<br/>♦</div>
             </div>
           </div>
           <div className="logo-title">BEANIE</div>
