@@ -743,7 +743,7 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
               <>
                 {selectedCards.length === 0 && (
                   <div className="turn-banner">
-                    {!game.roundFirstTurnDone
+                    {myHand.length === 8 && !myPlayer?.firstTurnDone
                       ? 'You have 8 cards — lay a set or discard one to start the pile'
                       : 'Select cards from your hand to play or discard'}
                   </div>
@@ -777,7 +777,7 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
                   </div>
                 )}
                 {/* End Round — propose or agree to a draw */}
-                {game.roundFirstTurnDone && (
+                {game.players.some(p => p.firstTurnDone) && (
                   <div style={{ textAlign: 'center', marginTop: 6 }}>
                     <button
                       className="btn-sm btn-sm-secondary"
