@@ -4,7 +4,7 @@
 //   state        — { screen, roomCode, myId, game, error, timer, notice }
 //   actions      — all game and room actions as simple functions
 
-import { useEffect, useReducer, useCallback } from 'react';
+import { useEffect, useReducer, useCallback, useRef } from 'react';
 import socket from '../socket';
 
 // ─── Session persistence ──────────────────────────────────────────────────────
@@ -61,6 +61,7 @@ const INITIAL = {
   inviteCode:    null,    // set from ?join=XXXX URL param; cleared once used
   connected:     false,
   everConnected: false,
+  gameCancelled: false,   // true when host ended game — shows "host ended" modal for other players
   roomCode:      null,
   myId:          null,    // player's persistent ID within the game (may differ from socket.id after reconnect)
   game:          null,
@@ -111,6 +112,8 @@ function reducer(state, action) {
       return { ...state, notice: null };
     case 'SET_NAME':
       return { ...state, playerName: action.name, screen: state.inviteCode ? 'join' : 'home' };
+    case 'GAME_CANCELLED':
+      return { ...INITIAL, playerName: state.playerName, myId: state.myId, gameCancelled: true };
     case 'RESET':
       return { ...INITIAL, playerName: state.playerName, myId: state.myId };
     default:
@@ -121,8 +124,9 @@ function reducer(state, action) {
 // ─── Hook ─────────────────────────────────────────────────────────────────────
 
 export function useGame() {
-  const storedName  = loadPlayerName();
-  const inviteCode  = getInviteCode();
+  const storedName   = loadPlayerName();
+  const inviteCode   = getInviteCode();
+  const selfExiting  = useRef(false); // true when this player triggered exitGame
   const [state, dispatch] = useReducer(reducer, {
     ...INITIAL,
     playerName: storedName,
@@ -206,7 +210,14 @@ export function useGame() {
 
     socket.on('game:cancelled', () => {
       clearSession();
-      dispatch({ type: 'RESET' });
+      if (selfExiting.current) {
+        // This player triggered the exit — reset straight to home
+        selfExiting.current = false;
+        dispatch({ type: 'RESET' });
+      } else {
+        // Someone else (the host) ended the game — show the cancelled modal
+        dispatch({ type: 'GAME_CANCELLED' });
+      }
     });
 
     // Server sends this when room:rejoin finds no room (e.g. host left while we were away)
@@ -286,9 +297,12 @@ export function useGame() {
       socket.emit('game:next-round'), []),
 
     exitGame:    useCallback(() => {
+      selfExiting.current = true;
       clearSession();
       socket.emit('game:exit');
     }, []),
+
+    dismissCancelled: useCallback(() => dispatch({ type: 'RESET' }), []),
   };
 
   // Convenience helpers derived from state

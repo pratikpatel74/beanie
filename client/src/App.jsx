@@ -18,6 +18,24 @@ export default function App() {
   return (
     <ErrorBoundary>
     <div className="app">
+      {/* Host cancelled modal — shown to non-host players when game is ended */}
+      {state.gameCancelled && (
+        <div className="reconnect-overlay">
+          <div className="exit-modal">
+            <div className="exit-modal-icon">🏠</div>
+            <div className="exit-modal-title">Game ended</div>
+            <div className="exit-modal-body">
+              The host has ended the game.<br/>Thanks for playing!
+            </div>
+            <div className="exit-modal-actions">
+              <button className="exit-modal-confirm" style={{ background: 'var(--acc)' }} onClick={actions.dismissCancelled}>
+                Back to home
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Reconnecting overlay — only shown after first successful connect */}
       {!state.connected && state.everConnected && (
         <div className="reconnect-overlay">
