@@ -67,6 +67,35 @@ function playTick(muted) {
   } catch {}
 }
 
+/** Rising 3-note fanfare + sustained chord on round win */
+function playFanfare(muted) {
+  if (muted) return;
+  try {
+    const ctx = _audio(); const now = ctx.currentTime;
+    // Three quick rising notes: C5 → E5 → G5
+    [523, 659, 784].forEach((freq, i) => {
+      const osc = ctx.createOscillator(); osc.type = 'triangle'; osc.frequency.value = freq;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0, now + i * 0.07);
+      g.gain.linearRampToValueAtTime(0.22, now + i * 0.07 + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.07 + 0.18);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(now + i * 0.07); osc.stop(now + i * 0.07 + 0.2);
+    });
+    // Sustained C major chord
+    [523, 659, 784, 1047].forEach((freq, i) => {
+      const osc = ctx.createOscillator(); osc.type = 'sine'; osc.frequency.value = freq;
+      const g = ctx.createGain();
+      const t = now + 0.21;
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(i === 0 ? 0.22 : 0.16, t + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.7);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(t); osc.stop(t + 0.75);
+    });
+  } catch {}
+}
+
 /** Short whoosh per card dealt */
 function playWhoosh(muted, delay = 0) {
   if (muted) return;
@@ -430,6 +459,14 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
       setLayingCardIds([]);
     }, 380);
   }
+
+  // Round-win fanfare: fires for all players when round ends
+  useEffect(() => {
+    if (game.status === 'ROUND_END' && prevStatusRef.current === 'PLAYING') {
+      playFanfare(muted);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [game.status]);
 
   // Deal animation: fires on round start or game start
   useEffect(() => {
