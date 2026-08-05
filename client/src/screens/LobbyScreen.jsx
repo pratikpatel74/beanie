@@ -40,7 +40,17 @@ export default function LobbyScreen({ game, roomCode, myId, error, actions }) {
           <div className="room-code-label">Room code</div>
           <div className="room-code">{roomCode}</div>
           <button className="share-btn" onClick={handleShare}>
-            {copied ? '✓ Link copied!' : '⬆ Invite friends'}
+            {copied ? (
+              <>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0}}><polyline points="20 6 9 17 4 12"/></svg>
+                Link copied!
+              </>
+            ) : (
+              <>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0}}><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                Invite friends
+              </>
+            )}
           </button>
         </div>
 

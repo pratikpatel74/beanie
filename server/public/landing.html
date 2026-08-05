@@ -530,11 +530,38 @@
       border-color: rgba(100, 220, 180, 0.4);
     }
 
-    .feature-emoji {
-      font-size: 2rem;
-      margin-bottom: 16px;
-      display: block;
+    /* Feature icon container — replaces raw emoji */
+    .feature-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      flex-shrink: 0;
     }
+    .feature-icon svg { width: 26px; height: 26px; }
+    .feature-icon-gold   { background: rgba(240,180,41,0.14);  color: var(--gold); }
+    .feature-icon-red    { background: rgba(232,84,128,0.14);  color: var(--red); }
+    .feature-icon-teal   { background: rgba(100,220,180,0.13); color: #5fd4aa; }
+    .feature-icon-purple { background: rgba(124,111,255,0.14); color: var(--purple); }
+
+    /* Step icon */
+    .step-icon {
+      font-size: 1.6rem;
+      margin-bottom: 14px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .step-icon-spade  { color: var(--purple); }
+    .step-icon-star   { color: var(--gold); }
+    .step-icon-heart  { color: var(--red); }
+
+    /* Platform pill icons */
+    .platform-pill svg { width: 15px; height: 15px; flex-shrink: 0; }
 
     .feature-card h3 {
       font-size: 1.15rem;
@@ -786,21 +813,35 @@
 
         <div class="step reveal" style="transition-delay:0.05s;">
           <div class="step-num">1</div>
-          <div class="step-icon">♠</div>
+          <div class="step-icon step-icon-purple">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+              <polyline points="16 6 12 2 8 6"/>
+              <line x1="12" y1="2" x2="12" y2="15"/>
+            </svg>
+          </div>
           <h3>Create a room &amp; share the code</h3>
           <p>Head to playbeanie.com, create a room and send the 4-letter code to your friends. They join instantly — no sign-up required.</p>
         </div>
 
         <div class="step reveal" style="transition-delay:0.12s;">
           <div class="step-num">2</div>
-          <div class="step-icon">★</div>
+          <div class="step-icon step-icon-star">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2l2.118 6.524h6.861l-5.55 4.032 2.118 6.524L12 15.048l-5.547 4.032 2.118-6.524L3 8.524h6.882L12 2z"/>
+            </svg>
+          </div>
           <h3>Draw, lay sets, steal Beanies</h3>
           <p>Form runs and three-of-a-kinds. Use the Beanie wild card as any card you like — and snatch it back from opponents when you hold the real thing.</p>
         </div>
 
         <div class="step reveal" style="transition-delay:0.19s;">
           <div class="step-num">3</div>
-          <div class="step-icon">♥</div>
+          <div class="step-icon step-icon-heart">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 21.593c-.293-.237-6.61-5.386-8.535-7.538C1.548 11.79 1.5 8.65 3.7 6.757a5.27 5.27 0 0 1 7.297.54L12 8.362l1.003-1.065a5.27 5.27 0 0 1 7.297-.54c2.2 1.893 2.152 5.033.235 7.298C18.61 16.207 12.293 21.356 12 21.593z"/>
+            </svg>
+          </div>
           <h3>Lowest score after 13 rounds wins</h3>
           <p>Empty your hand first to score zero. Everyone else scores for cards left behind. The wild card rank climbs each round — 3s through Aces.</p>
         </div>
@@ -819,25 +860,52 @@
       <div class="feature-grid">
 
         <div class="feature-card accent-gold reveal" style="transition-delay:0.05s;">
-          <span class="feature-emoji">★</span>
+          <div class="feature-icon feature-icon-gold">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72Z"/>
+              <path d="m14 7 3 3"/>
+              <path d="M5 6v4"/>
+              <path d="M19 14v4"/>
+              <path d="M10 2v2"/>
+              <path d="M7 8H3"/>
+              <path d="M21 16h-4"/>
+              <path d="M11 3H9"/>
+            </svg>
+          </div>
           <h3>The Beanie changes every round</h3>
           <p>Round one the wild card is 3s. Round two it's 4s. All the way up through 13 rounds to Aces. The same hand that wins one round can crumble the next — you can never get too comfortable.</p>
         </div>
 
         <div class="feature-card accent-red reveal" style="transition-delay:0.12s;">
-          <span class="feature-emoji">🤺</span>
+          <div class="feature-icon feature-icon-red">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m16 3 4 4-4 4"/>
+              <path d="M20 7H4"/>
+              <path d="m8 21-4-4 4-4"/>
+              <path d="M4 17h16"/>
+            </svg>
+          </div>
           <h3>Steal the Beanie</h3>
           <p>Spot an opponent using a Beanie wild card as a stand-in in their set? If you hold the real card it's covering for, you can steal the Beanie right out of their set and take it into your own hand. Watch the table turn in an instant.</p>
         </div>
 
         <div class="feature-card accent-teal reveal" style="transition-delay:0.19s;">
-          <span class="feature-emoji">📱</span>
+          <div class="feature-icon feature-icon-teal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="14" height="20" x="5" y="2" rx="2" ry="2"/>
+              <path d="M12 18h.01"/>
+            </svg>
+          </div>
           <h3>Play anywhere, on anything</h3>
           <p>Beanie runs entirely in your browser. No app store, no download, no account. Tap the link on your phone, share the 4-letter room code, and you're playing in seconds — wherever you are.</p>
         </div>
 
         <div class="feature-card accent-purple reveal" style="transition-delay:0.26s;">
-          <span class="feature-emoji">⚡</span>
+          <div class="feature-icon feature-icon-purple">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>
+            </svg>
+          </div>
           <h3>Quick rounds, big swings</h3>
           <p>Each round is short and punchy. One perfectly timed steal or a lucky draw can swing the whole leaderboard. Whether you're half a point up or trailing badly, you're always one round away from a comeback.</p>
         </div>
@@ -856,11 +924,20 @@
           Start a game at playbeanie.com
         </a>
         <div class="platforms">
-          <span class="platform-pill">📱 iPhone &amp; Android</span>
+          <span class="platform-pill">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2"/><path d="M12 18h.01"/></svg>
+            iPhone &amp; Android
+          </span>
           <span class="platform-pill" style="color:var(--border)">·</span>
-          <span class="platform-pill">💻 Mac &amp; Windows</span>
+          <span class="platform-pill">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><path d="M0 21h24" stroke-width="1.5"/></svg>
+            Mac &amp; Windows
+          </span>
           <span class="platform-pill" style="color:var(--border)">·</span>
-          <span class="platform-pill">🌐 Any browser</span>
+          <span class="platform-pill">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            Any browser
+          </span>
         </div>
       </div>
     </div>
