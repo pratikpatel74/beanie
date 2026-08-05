@@ -224,7 +224,7 @@ html, body, #root {
 .action-card-create .ac-arr { background: rgba(124,111,255,0.2); color: var(--acc); }
 .action-card-join   .ac-arr { background: rgba(255,255,255,0.06); color: var(--text3); }
 
-.home-footer { text-align: center; margin-top: auto; padding-top: 14px; }
+.home-footer { text-align: center; margin-top: 20px; }
 .home-footer button {
   background: none; border: none; color: var(--accl);
   font-size: 13px; cursor: pointer;
