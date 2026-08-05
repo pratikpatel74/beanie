@@ -664,7 +664,11 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
 
       {/* Top bar */}
       <div className="game-topbar">
-        <div className="round-badge">Round {game.round} of 13</div>
+        <div className="round-badge">
+          Round {game.round} of 13
+          <span className="rb-sep">·</span>
+          <span className="rb-beanie">★ {game.beanieRank} Beanie</span>
+        </div>
         {timer && isMyTurn ? (
           <div className={`timer-badge${timerUrgent ? ' urgent' : ''}`}>⏱ {timer.seconds}s</div>
         ) : timer ? (
@@ -714,21 +718,6 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
             </div>
           </div>
         ))}
-      </div>
-
-      {/* Beanie banner */}
-      <div className="beanie-bar">
-        <div>
-          <div className="beanie-bar-label">Beanie this round</div>
-          <div className="beanie-bar-val">{game.beanieRank}s are wild</div>
-        </div>
-        <div className="beanie-bar-cards">
-          {Array.from({ length: 4 }).map((_, i) => (
-            i < beanieCount
-              ? <Card key={i} card={{ id: `b${i}`, rank: game.beanieRank, suit: '★' }} beanieRank={game.beanieRank} size="sm" />
-              : <EmptyCard key={i} size="sm" />
-          ))}
-        </div>
       </div>
 
       {/* Notices */}
@@ -972,6 +961,22 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
             ) : (
               /* Normal action mode */
               <>
+                {/* End Round — at top of action area so it's never clipped on small screens */}
+                {game.players.some(p => p.firstTurnDone) && (
+                  <div style={{ textAlign: 'center', marginBottom: 4 }}>
+                    <button
+                      className="btn-sm btn-sm-secondary"
+                      style={{ opacity: 0.65, fontSize: 11 }}
+                      onClick={actions.declareDraw}
+                    >
+                      {(game.drawVotes || []).includes(myId)
+                        ? 'Cancel End Round vote'
+                        : (game.drawVotes || []).length > 0
+                          ? `Agree to End Round (${game.drawVotes.length}/${game.players.length})`
+                          : 'End Round'}
+                    </button>
+                  </div>
+                )}
                 {selectedCards.length === 0 && (
                   <div className="turn-banner">
                     {myHand.length === 8 && !myPlayer?.firstTurnDone
@@ -1004,22 +1009,6 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
                       onClick={() => { clearSelection(); setMode('steal'); }}
                     >
                       Steal Beanie ★
-                    </button>
-                  </div>
-                )}
-                {/* End Round — propose or agree to a draw */}
-                {game.players.some(p => p.firstTurnDone) && (
-                  <div style={{ textAlign: 'center', marginTop: 6 }}>
-                    <button
-                      className="btn-sm btn-sm-secondary"
-                      style={{ opacity: 0.65, fontSize: 11 }}
-                      onClick={actions.declareDraw}
-                    >
-                      {(game.drawVotes || []).includes(myId)
-                        ? 'Cancel End Round vote'
-                        : (game.drawVotes || []).length > 0
-                          ? `Agree to End Round (${game.drawVotes.length}/${game.players.length})`
-                          : 'End Round'}
                     </button>
                   </div>
                 )}
