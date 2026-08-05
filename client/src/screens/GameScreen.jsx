@@ -707,7 +707,7 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
             <div className="pchip-name">{p.id === myId ? 'You' : p.name}</div>
             <div className="pchip-score">{p.totalScore}</div>
             {p.id !== myId && game.status === 'PLAYING' && (
-              <div className="pchip-cards">{p.hand?.length ?? '?'}c</div>
+              <div className="pchip-cards">{p.handCount ?? '?'}c</div>
             )}
             <div className="pchip-dot" style={{ background: PLAYER_COLOURS[i] }} />
           </div>
