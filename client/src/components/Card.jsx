@@ -2,7 +2,7 @@
 
 const RED_SUITS = ['♥', '♦'];
 
-export default function Card({ card, beanieRank, size = 'md', selected = false, onClick, disabled = false, className = '' }) {
+export default function Card({ card, beanieRank, size = 'md', selected = false, onClick, disabled = false, className = '', style }) {
   if (!card) return null;
 
   const isBeanie = card.rank === beanieRank;
@@ -21,7 +21,7 @@ export default function Card({ card, beanieRank, size = 'md', selected = false, 
 
   if (card.rank === 'back') {
     return (
-      <div className={cls} onClick={disabled ? undefined : onClick}>
+      <div className={cls} onClick={disabled ? undefined : onClick} style={style}>
         <div className="back-inner" />
       </div>
     );
@@ -31,7 +31,7 @@ export default function Card({ card, beanieRank, size = 'md', selected = false, 
   const index = isBeanie ? '★' : card.suit;
 
   return (
-    <div className={cls} onClick={disabled ? undefined : onClick} title={card.id}>
+    <div className={cls} onClick={disabled ? undefined : onClick} title={card.id} style={style}>
       <div className="card-corner card-corner-tl">
         <span className="ci-rank">{card.rank}</span>
         <span className="ci-suit">{index}</span>

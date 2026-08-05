@@ -1,9 +1,89 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Card, { EmptyCard } from '../components/Card';
 
 const PLAYER_COLOURS = ['var(--p1)', 'var(--p2)', 'var(--p3)', 'var(--p4)'];
 const RANK_ORDER = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 const SUIT_ORDER = ['♠','♥','♦','♣'];
+
+// ─── Audio engine (module-level, lazy AudioContext) ───────────────────────────
+
+let _actx = null;
+function _audio() {
+  if (!_actx) _actx = new (window.AudioContext || window.webkitAudioContext)();
+  if (_actx.state === 'suspended') _actx.resume();
+  return _actx;
+}
+
+/** Card slap + low pitch-drop thud on discard */
+function playThwack(muted) {
+  if (muted) return;
+  try {
+    const ctx = _audio(); const now = ctx.currentTime;
+    // Noise burst
+    const n = Math.floor(ctx.sampleRate * 0.06);
+    const buf = ctx.createBuffer(1, n, ctx.sampleRate);
+    const d = buf.getChannelData(0); for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+    const src = ctx.createBufferSource(); src.buffer = buf;
+    const lpf = ctx.createBiquadFilter(); lpf.type = 'lowpass'; lpf.frequency.value = 1600;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.3, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+    src.connect(lpf); lpf.connect(g); g.connect(ctx.destination); src.start(now);
+    // Pitch-drop thud
+    const osc = ctx.createOscillator(); osc.type = 'sine';
+    osc.frequency.setValueAtTime(220, now); osc.frequency.exponentialRampToValueAtTime(80, now + 0.09);
+    const og = ctx.createGain();
+    og.gain.setValueAtTime(0.28, now); og.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+    osc.connect(og); og.connect(ctx.destination); osc.start(now); osc.stop(now + 0.1);
+  } catch {}
+}
+
+/** Ascending shimmer chord when a set is laid */
+function playShimmer(muted) {
+  if (muted) return;
+  try {
+    const ctx = _audio(); const now = ctx.currentTime;
+    [523, 659, 784, 1047].forEach((freq, i) => {
+      const osc = ctx.createOscillator(); osc.type = 'sine'; osc.frequency.value = freq;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0, now + i * 0.07);
+      g.gain.linearRampToValueAtTime(0.18, now + i * 0.07 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.07 + 0.45);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(now + i * 0.07); osc.stop(now + i * 0.07 + 0.5);
+    });
+  } catch {}
+}
+
+/** Soft tick on turn change */
+function playTick(muted) {
+  if (muted) return;
+  try {
+    const ctx = _audio(); const now = ctx.currentTime;
+    const osc = ctx.createOscillator(); osc.type = 'sine';
+    osc.frequency.setValueAtTime(650, now); osc.frequency.exponentialRampToValueAtTime(320, now + 0.06);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.18, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+    osc.connect(g); g.connect(ctx.destination); osc.start(now); osc.stop(now + 0.07);
+  } catch {}
+}
+
+/** Short whoosh per card dealt */
+function playWhoosh(muted, delay = 0) {
+  if (muted) return;
+  try {
+    const ctx = _audio();
+    const now = ctx.currentTime + delay;
+    const n = Math.floor(ctx.sampleRate * 0.07);
+    const buf = ctx.createBuffer(1, n, ctx.sampleRate);
+    const d = buf.getChannelData(0); for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+    const src = ctx.createBufferSource(); src.buffer = buf;
+    const lpf = ctx.createBiquadFilter(); lpf.type = 'lowpass'; lpf.frequency.value = 1800;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, now); g.gain.linearRampToValueAtTime(0.1, now + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+    src.connect(lpf); lpf.connect(g); g.connect(ctx.destination); src.start(now);
+  } catch {}
+}
 
 // ─── Run / Beanie analysis helpers ───────────────────────────────────────────
 
@@ -303,6 +383,18 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
   // beanieChoice shape:    { cardIds, options: [{ label, overrides }] }
   // addBeanieChoice shape: { setIndex, cardId, options: [{ label, override }] }
 
+  // ─── Animation + audio state ───────────────────────────────────────────────
+  const [muted, setMuted]                       = useState(() => {
+    try { return localStorage.getItem('beanie_muted') === 'true'; } catch { return false; }
+  });
+  const [discardingCardId, setDiscardingCardId] = useState(null);  // card flying to discard pile
+  const [layingCardIds, setLayingCardIds]       = useState([]);    // cards lifting to table
+  const [dealAnim, setDealAnim]                 = useState(false); // deal-in animation active
+
+  const prevRoundRef     = useRef(null);
+  const prevStatusRef    = useRef(null);
+  const prevPlayerIdxRef = useRef(null);
+
   const myPlayer    = game.players.find(p => p.id === myId);
   const myHand      = myPlayer?.hand || [];
   const sortedHand  = sortMode === 'rank'
@@ -321,6 +413,50 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
   const inAction    = game.phase === 'ACTION' || is8CardStart;
   const beanieCount = beaniesInPlay(game.publicSets, game.beanieRank);
   const isHost      = game.players[0]?.id === myId;
+
+  function toggleMute() {
+    const next = !muted;
+    setMuted(next);
+    try { localStorage.setItem('beanie_muted', String(next)); } catch {}
+  }
+
+  /** Animate selected cards lifting to table, then fire server action */
+  function animateThenLay(cardIds, overrides) {
+    playShimmer(muted);
+    setLayingCardIds(cardIds);
+    const snap = [...cardIds];
+    setTimeout(() => {
+      actions.layDownSet(snap, overrides);
+      setLayingCardIds([]);
+    }, 380);
+  }
+
+  // Deal animation: fires on round start or game start
+  useEffect(() => {
+    const roundChanged = game.round !== prevRoundRef.current;
+    const justStarted  = game.status === 'PLAYING' && prevStatusRef.current !== 'PLAYING';
+    if (game.status === 'PLAYING' && (roundChanged || justStarted)) {
+      setDealAnim(true);
+      for (let i = 0; i < 7; i++) playWhoosh(muted, (i * 0.085) + 0.06);
+      setTimeout(() => setDealAnim(false), 7 * 85 + 260 + 150);
+    }
+    prevRoundRef.current  = game.round;
+    prevStatusRef.current = game.status;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [game.round, game.status]);
+
+  // Turn-change: play tick when current player rotates
+  useEffect(() => {
+    if (
+      prevPlayerIdxRef.current !== null &&
+      prevPlayerIdxRef.current !== game.currentPlayerIndex &&
+      game.status === 'PLAYING'
+    ) {
+      playTick(muted);
+    }
+    prevPlayerIdxRef.current = game.currentPlayerIndex;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [game.currentPlayerIndex, game.status]);
 
   function toggleCard(cardId) {
     if (mode === 'steal') {
@@ -343,7 +479,8 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
   function handleLaySet() {
     if (selectedCards.length < 3) return;
 
-    const cards      = selectedCards.map(id => myHand.find(c => c.id === id)).filter(Boolean);
+    const cardIds    = [...selectedCards];
+    const cards      = cardIds.map(id => myHand.find(c => c.id === id)).filter(Boolean);
     const beanies    = cards.filter(c => c.rank === game.beanieRank);
     const nonBeanies = cards.filter(c => c.rank !== game.beanieRank);
 
@@ -356,19 +493,19 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
       if (result) {
         const { gapOverrides, options, solo } = result;
         if (!options) {
-          // Only one valid arrangement (or all gap Beanies) — lay immediately
-          actions.layDownSet(selectedCards, solo ? solo.overrides : gapOverrides);
+          // Only one valid arrangement — animate then lay
+          animateThenLay(cardIds, solo ? solo.overrides : gapOverrides);
           clearSelection();
         } else {
-          // Multiple valid arrangements — ask the user to pick
-          setBeanieChoice({ cardIds: selectedCards, options });
+          // Multiple arrangements — show picker (modal handles animation)
+          setBeanieChoice({ cardIds, options });
         }
         return;
       }
     }
 
-    // Set of kind or no Beanies
-    actions.layDownSet(selectedCards, {});
+    // Set of kind or no Beanies — animate then lay
+    animateThenLay(cardIds, {});
     clearSelection();
   }
 
@@ -421,8 +558,16 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
 
   function handleDiscard() {
     if (selectedCards.length !== 1) return;
-    actions.discard(selectedCards[0]);
+    const cardId = selectedCards[0];
+    setDiscardingCardId(cardId);
     clearSelection();
+    // Thwack at 120ms (lands as the card "hits" the pile)
+    setTimeout(() => playThwack(muted), 120);
+    // Fire server after animation completes
+    setTimeout(() => {
+      actions.discard(cardId);
+      setDiscardingCardId(null);
+    }, 380);
   }
 
   const currentPlayer = game.players[game.currentPlayerIndex];
@@ -466,6 +611,20 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
         ) : timer ? (
           <div className="timer-badge">⏱ {timer.seconds}s</div>
         ) : null}
+        {/* Mute toggle */}
+        <button className={`btn-mute${muted ? ' muted' : ''}`} onClick={toggleMute} title={muted ? 'Unmute' : 'Mute'}>
+          {muted ? (
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>
+            </svg>
+          ) : (
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+            </svg>
+          )}
+        </button>
         {isHost && (
           <button className="btn-exit" onClick={() => setShowExitModal(true)}>
             Exit
@@ -476,11 +635,11 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
       {/* Left column — in landscape this becomes the left panel */}
       <div className="ls-left">
 
-      {/* Player chips */}
+      {/* Player chips — key changes when a player becomes active so CSS animation re-fires */}
       <div className="player-chips">
         {game.players.map((p, i) => (
           <div
-            key={p.id}
+            key={game.currentPlayerIndex === i ? `active-${game.currentPlayerIndex}` : p.id}
             className={`pchip${game.currentPlayerIndex === i ? ' active' : ''}`}
             style={game.currentPlayerIndex === i ? { borderColor: PLAYER_COLOURS[i] } : {}}
           >
@@ -692,7 +851,7 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
           </div>
         </div>
         <div className="hand-scroll">
-          {sortedHand.map(c => (
+          {sortedHand.map((c, ci) => (
             <Card
               key={c.id}
               card={c}
@@ -701,7 +860,13 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
               selected={selectedCards.includes(c.id)}
               onClick={isMyTurn && inAction ? () => toggleCard(c.id) : undefined}
               disabled={!isMyTurn || !inAction}
-              className={cardCanStealSomething(c) ? 'steal-capable-card' : ''}
+              className={[
+                cardCanStealSomething(c)      ? 'steal-capable-card' : '',
+                discardingCardId === c.id     ? 'card-discarding'    : '',
+                layingCardIds.includes(c.id)  ? 'card-laying'        : '',
+                dealAnim                      ? 'card-dealing'       : '',
+              ].filter(Boolean).join(' ')}
+              style={dealAnim ? { animationDelay: `${ci * 80}ms` } : undefined}
             />
           ))}
         </div>
