@@ -27,7 +27,7 @@ export default function NameScreen({ actions, isEditing }) {
 
         <div className="name-screen-form">
           <div className="name-screen-heading">
-            {isEditing ? 'Change your name' : 'What should we call you?'}
+            {isEditing ? 'Change your name' : 'Who\'s playing?'}
           </div>
           <input
             className="input"

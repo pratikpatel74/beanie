@@ -12,7 +12,7 @@ export default function HomeScreen({ actions, playerName }) {
             <div className="sub">Good to see you,</div>
             <div className="name">{playerName || 'Player'}</div>
           </div>
-          <div className="home-edit-name" onClick={() => actions.goTo('name')}>✎</div>
+          <div className="home-edit-name" onClick={() => actions.goTo('name')}>✎ Edit</div>
         </div>
 
         {/* Hero: card fan + logo */}

@@ -240,13 +240,15 @@ html, body, #root {
 .name-screen-form { width: 100%; display: flex; flex-direction: column; gap: 12px; }
 .name-screen-heading { font-size: 20px; font-weight: 700; text-align: center; margin-bottom: 4px; }
 
-/* Edit name pencil on home header */
+/* Edit name button on home header */
 .home-edit-name {
-  font-size: 17px; color: var(--text3); cursor: pointer;
-  padding: 6px 8px; border-radius: 8px; line-height: 1;
-  transition: color 0.15s;
+  font-size: 12px; font-weight: 600; color: var(--text3);
+  cursor: pointer; padding: 8px 14px; border-radius: 20px;
+  background: var(--surf); border: 1px solid var(--border);
+  line-height: 1; white-space: nowrap; transition: color 0.15s, background 0.15s;
+  min-width: 44px; text-align: center;
 }
-.home-edit-name:active { color: var(--acc); }
+.home-edit-name:active { color: var(--text); background: var(--surf2); }
 
 /* ── CREATE / JOIN ─────────────────────────────────────────────────────────── */
 .form-screen { flex: 1; padding: 0 20px 32px; display: flex; flex-direction: column; gap: 16px; }
