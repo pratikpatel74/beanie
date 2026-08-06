@@ -47,12 +47,12 @@ export default function RoundEndScreen({ game, myId, actions }) {
 
         {/* Horizontally scrollable so all round columns fit on mobile */}
         <div style={{ overflowX: 'auto', width: '100%' }}>
-          <table className="score-table" style={{ minWidth: roundsPlayed > 4 ? `${180 + roundsPlayed * 36}px` : undefined }}>
+          <table className="score-table" style={{ minWidth: roundsPlayed > 4 ? `${180 + roundsPlayed * 44}px` : undefined }}>
             <thead>
               <tr>
                 <th style={{ textAlign: 'left' }}>Player</th>
                 {Array.from({ length: roundsPlayed }, (_, i) => (
-                  <th key={i} style={{ textAlign: 'center', fontSize: 11, padding: '4px 4px' }}>
+                  <th key={i} style={{ textAlign: 'right', fontSize: 11, padding: '4px 6px' }}>
                     R{i + 1}
                   </th>
                 ))}
@@ -74,14 +74,33 @@ export default function RoundEndScreen({ game, myId, actions }) {
                       </div>
                     </td>
                     {p.roundScores.map((score, i) => {
-                      const isWin = score === 0 && game.roundWinner;
+                      const isThisRound = i === roundsPlayed - 1;
+                      const isWin = score === 0 && (isThisRound ? !!game.roundWinner : true);
+                      const runningTotal = p.roundScores.slice(0, i + 1).reduce((a, b) => a + b, 0);
                       return (
                         <td
                           key={i}
-                          className={isWin && i === roundsPlayed - 1 ? 'score-round-cell score-this-round' : 'score-round-cell'}
-                          style={{ textAlign: 'center', fontSize: 12, padding: '4px 4px' }}
+                          className={`score-round-cell${isThisRound ? ' score-this-round' : ''}`}
+                          style={{ padding: '4px 6px' }}
                         >
-                          {isWin ? <>0<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{display:'inline',verticalAlign:'middle',marginLeft:2}}><path d="M6 2h12v6a6 6 0 0 1-12 0V2z"/><path d="M6 4H2v4a4 4 0 0 0 4 4"/><path d="M18 4h4v4a4 4 0 0 1-4 4"/><path d="M12 14v4"/><path d="M8 22h8"/></svg></> : `+${score}`}
+                          {isWin ? (
+                            <div className="score-win-cell">
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M6 2h12v6a6 6 0 0 1-12 0V2z"/>
+                                <path d="M6 4H2v4a4 4 0 0 0 4 4"/>
+                                <path d="M18 4h4v4a4 4 0 0 1-4 4"/>
+                                <path d="M12 14v4"/>
+                                <path d="M8 22h8"/>
+                              </svg>
+                              <span className="score-win-total">{runningTotal} · 0</span>
+                              <span className="score-win-badge">Winner</span>
+                            </div>
+                          ) : (
+                            <div className="score-cell-inner">
+                              <span className="score-running-total">{runningTotal}</span>
+                              <span className="score-round-delta">+{score}</span>
+                            </div>
+                          )}
                         </td>
                       );
                     })}

@@ -877,7 +877,14 @@ html, body, #root {
 .score-table td:first-child { text-align: left; font-weight: 500; display: flex; align-items: center; gap: 8px; }
 .score-table .total-col { font-weight: 700; color: var(--accl); }
 .score-round-cell { font-size: 11px; color: var(--text2); }
-.score-this-round { font-weight: 600; color: var(--ok); }
+.score-cell-inner { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.score-running-total { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.2; }
+.score-round-delta { font-size: 9px; font-weight: 600; color: var(--text3); background: rgba(255,255,255,0.06); border-radius: 3px; padding: 1px 4px; }
+.score-this-round .score-running-total { color: var(--gold); }
+.score-this-round .score-round-delta { color: rgba(240,180,41,0.6); background: rgba(240,180,41,0.1); }
+.score-win-cell { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.score-win-total { font-size: 13px; font-weight: 700; color: var(--gold); line-height: 1.2; }
+.score-win-badge { font-size: 9px; font-weight: 600; color: rgba(240,180,41,0.55); background: rgba(240,180,41,0.1); border-radius: 3px; padding: 1px 4px; }
 
 /* ── GAME END ──────────────────────────────────────────────────────────────── */
 .game-end-inner {
