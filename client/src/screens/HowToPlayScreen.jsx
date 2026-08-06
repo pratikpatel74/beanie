@@ -158,13 +158,23 @@ export default function HowToPlayScreen({ actions }) {
           <div className="htp-rule-block">
             <div className="htp-rule-title">In a Match</div>
             <p className="htp-rule-body">
-              A Beanie fills in for the missing suit. Include it like any other card — the set is still valid.
+              A Beanie fills in for a missing suit. A badge below it shows exactly which card it represents — useful for knowing what card could steal it.
             </p>
             <div className="htp-set-pill">
               <div className="htp-card face">J<span className="htp-suit">♣</span></div>
               <div className="htp-card face">J<span className="htp-suit">♠</span></div>
-              <div className="htp-card beanie">★<span className="htp-suit">★</span></div>
+              <div className="htp-card beanie" style={{ position:'relative' }}>
+                ★<span className="htp-suit">★</span>
+                <span className="htp-beanie-badge">J♥</span>
+              </div>
             </div>
+          </div>
+
+          <div className="htp-rule-block">
+            <div className="htp-rule-title">Match or Run?</div>
+            <p className="htp-rule-body">
+              If your selected cards could form either a Match or a Run — for example a single real card plus one or more Beanies — you'll be asked <strong>"How to play these cards?"</strong> and can pick the arrangement you want.
+            </p>
           </div>
 
           <div className="htp-rule-block">
