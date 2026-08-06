@@ -775,6 +775,15 @@
       color: var(--text);
     }
 
+    /* ─── FAQ ───────────────────────────────────────────────────── */
+    .faq { padding: 96px 0; }
+    .faq-list { margin-top: 40px; display: flex; flex-direction: column; gap: 0; border-top: 1px solid var(--border); }
+    .faq-item { padding: 22px 0; border-bottom: 1px solid var(--border); }
+    .faq-q { font-size: 1rem; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+    .faq-a { font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; }
+    .faq-a a { color: var(--gold); text-decoration: none; }
+    .faq-a a:hover { text-decoration: underline; }
+
     /* ─── RESPONSIVE ─────────────────────────────────────────────── */
     @media (max-width: 900px) {
       .hero-inner {
@@ -1060,6 +1069,28 @@
     </div>
   </section>
 
+  <!-- ─── FAQ ─────────────────────────────────────────────────────── -->
+  <section class="faq">
+    <div class="container">
+      <p class="section-label reveal">FAQ</p>
+      <h2 class="section-title reveal">Common questions</h2>
+      <div class="faq-list reveal">
+        <div class="faq-item">
+          <p class="faq-q">Do I need an account?</p>
+          <p class="faq-a">No. Open the link, enter a name, and you're in. No sign-up, no email, no password — ever.</p>
+        </div>
+        <div class="faq-item">
+          <p class="faq-q">How many players?</p>
+          <p class="faq-a">Beanie supports 2 to 4 players per game. You need at least two to start a room.</p>
+        </div>
+        <div class="faq-item">
+          <p class="faq-q">Is it free?</p>
+          <p class="faq-a">Yes — completely free to play in any browser. No ads, no in-app purchases. If you enjoy it, <!-- ⚠️ KO-FI LINK — DO NOT REMOVE --><a href="https://ko-fi.com/beaniepod" target="_blank" rel="noopener">buy us a coffee</a><!-- ⚠️ END KO-FI LINK --> to help keep the servers running.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ─── CTA BAND ──────────────────────────────────────────────────── -->
   <section class="cta-band">
     <div class="container">
@@ -1085,6 +1116,12 @@
             Any browser
           </span>
         </div>
+        <p style="margin-top:20px;font-size:0.88rem;color:var(--text-muted);">
+          Enjoying Beanie?
+          <!-- ⚠️ KO-FI LINK — DO NOT REMOVE -->
+          <a href="https://ko-fi.com/beaniepod" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;">Buy us a coffee</a>
+          <!-- ⚠️ END KO-FI LINK -->
+        </p>
       </div>
     </div>
   </section>
@@ -1097,6 +1134,9 @@
           <span class="footer-logo-icon">★</span>
           <span class="footer-logo-text">Beanie</span>
         </a>
+        <!-- ⚠️ KO-FI LINK — DO NOT REMOVE -->
+        <a href="https://ko-fi.com/beaniepod" target="_blank" rel="noopener" class="footer-copy" style="text-decoration:none;font-weight:500;">Support Beanie ☕</a>
+        <!-- ⚠️ END KO-FI LINK -->
         <p class="footer-copy">
           © Beanie 2026 ·
           <a href="https://play.playbeanie.com">playbeanie.com</a> ·
