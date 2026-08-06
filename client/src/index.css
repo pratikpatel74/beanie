@@ -706,13 +706,63 @@ html, body, #root {
 .beanie-choice-btns  { display: flex; gap: 10px; margin-top: 4px; }
 
 .turn-banner {
-  background: rgba(124,111,255,0.12);
-  border: 1px solid rgba(124,111,255,0.25);
-  border-radius: 8px; padding: 6px 10px;
-  font-size: 11px; color: var(--accl);
-  text-align: center; flex-shrink: 0;
+  font-size: 13px; color: var(--text2); text-align: center;
+  padding: 10px 14px; border-bottom: .5px solid var(--border); flex-shrink: 0;
 }
-.not-your-turn { font-size: 11px; color: var(--text3); text-align: center; }
+.turn-banner strong { color: var(--text); font-weight: 500; }
+
+/* Not my turn banner */
+.not-your-turn {
+  padding: 15px 16px; display: flex; align-items: center; gap: 10px;
+  border-left: 3px solid transparent; flex-shrink: 0;
+}
+.nmt-dot  { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.nmt-name { font-size: 15px; font-weight: 600; color: var(--text); }
+.nmt-sub  { font-size: 12px; color: var(--text3); margin-top: 2px; }
+
+/* Draw vote bar */
+.draw-vote-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 11px 14px; flex-shrink: 0;
+  background: rgba(240,180,41,0.07); border-bottom: .5px solid rgba(240,180,41,0.18);
+}
+.vote-text { font-size: 13px; font-weight: 500; color: var(--gold); }
+.vote-sub  { font-size: 11px; color: rgba(240,180,41,0.5); margin-top: 1px; }
+.vote-agree-btn {
+  flex-shrink: 0; padding: 9px 14px; border-radius: 9px;
+  background: rgba(240,180,41,0.14); border: 1px solid rgba(240,180,41,0.3);
+  color: var(--gold); font-size: 13px; font-weight: 600; cursor: pointer;
+}
+
+/* Action bar */
+.action-bar { padding: 10px 12px; display: flex; flex-direction: column; gap: 7px; }
+.action-primary-row { display: flex; gap: 7px; }
+.action-primary {
+  flex: 1; padding: 14px 12px; border-radius: 12px;
+  font-size: 15px; font-weight: 600; cursor: pointer; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+}
+.action-discard { background: rgba(232,84,128,0.13); color: var(--danger); border: 1px solid rgba(232,84,128,0.28); }
+.action-lay     { background: rgba(124,111,255,0.13); color: var(--accl);  border: 1px solid rgba(124,111,255,0.28); }
+.action-clear {
+  flex: 0 0 72px; padding: 14px 0; border-radius: 12px;
+  background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+  color: var(--text2); font-size: 14px; font-weight: 500; cursor: pointer;
+}
+.action-steal {
+  width: 100%; padding: 12px; border-radius: 12px;
+  background: rgba(240,180,41,0.07); border: 1px solid rgba(240,180,41,0.22);
+  color: rgba(240,180,41,0.85); font-size: 14px; font-weight: 500; cursor: pointer;
+}
+.action-count { font-size: 12px; font-weight: 400; opacity: .65; margin-left: 2px; }
+.steal-instruction { font-size: 13px; color: var(--gold); text-align: center; padding: 6px 4px; }
+.action-bar-divider { height: .5px; background: var(--border); flex-shrink: 0; }
+.action-end-round-row { padding: 9px 12px; display: flex; justify-content: center; }
+.action-end-round-btn {
+  padding: 9px 24px; border-radius: 9px;
+  background: transparent; border: .5px solid var(--border);
+  color: var(--text3); font-size: 13px; font-weight: 500; cursor: pointer;
+}
 
 /* Sort toggle — segmented control next to hand label */
 .sort-toggle {
@@ -1178,10 +1228,21 @@ html, body, #root {
   .hand-scroll .card.selected { transform: translateY(-7px); }
 
   /* ── Bottom action area ── */
-  .ls-bottom .draw-vote-bar { padding: 3px 10px; font-size: 10px; margin: 0; }
   .action-area { flex-shrink: 0; }
-  .turn-banner { padding: 4px 8px; font-size: 10px; }
-  .ls-bottom .not-your-turn { font-size: 10px; padding: 3px 0; }
+  .draw-vote-bar { padding: 7px 12px; }
+  .vote-text { font-size: 11px; }
+  .vote-sub  { font-size: 9px; }
+  .vote-agree-btn { padding: 6px 10px; font-size: 11px; }
+  .not-your-turn { padding: 10px 12px; }
+  .nmt-name { font-size: 13px; }
+  .nmt-sub  { font-size: 10px; }
+  .turn-banner { padding: 6px 10px; font-size: 11px; }
+  .action-bar { padding: 6px 10px; gap: 5px; }
+  .action-primary { padding: 10px 12px; font-size: 13px; }
+  .action-clear { padding: 10px 0; font-size: 13px; flex: 0 0 60px; }
+  .action-steal { padding: 9px; font-size: 12px; }
+  .action-end-round-row { padding: 6px 10px; }
+  .action-end-round-btn { padding: 7px 18px; font-size: 12px; }
   .btn-sm { padding: 7px 13px; font-size: 12px; }
 
 }

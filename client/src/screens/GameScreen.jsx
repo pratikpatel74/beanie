@@ -939,26 +939,31 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
       {/* Bottom bar — in landscape this spans full width below the hand */}
       <div className="ls-bottom">
 
-      {/* Draw vote notice — visible to all when someone has proposed ending the round */}
+      {/* Draw vote bar — shown to all when a vote is pending */}
       {(game.drawVotes || []).length > 0 && (
         <div className="draw-vote-bar">
-          {(game.drawVotes || [])
-            .map(id => game.players.find(p => p.id === id)?.name || '?')
-            .join(', ')}{' '}
-          {(game.drawVotes || []).length === 1 ? 'has' : 'have'} proposed ending this round
-          {(game.drawVotes || []).length < game.players.length &&
-            ` (${game.drawVotes.length}/${game.players.length} agreed)`}
+          <div>
+            <div className="vote-text">
+              {(game.drawVotes || [])
+                .map(id => game.players.find(p => p.id === id)?.name || '?')
+                .join(', ')} proposed ending this round
+            </div>
+            <div className="vote-sub">
+              {game.drawVotes.length} of {game.players.length} players agreed
+            </div>
+          </div>
+          {!(game.drawVotes || []).includes(myId) && (
+            <button className="vote-agree-btn" onClick={actions.declareDraw}>Agree</button>
+          )}
         </div>
       )}
 
-      {/* Action buttons */}
       {isMyTurn ? (
         <div className="action-area">
           {inAction && (
             mode === 'steal' ? (
-              /* Steal mode: select replacement card first, then tap pulsing Beanie */
-              <div className="action-row" style={{ flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--gold)', textAlign: 'center' }}>
+              <div className="action-bar">
+                <div className="steal-instruction">
                   {selectedCards.length === 0
                     ? hasSomeStealableHandCard
                       ? '✦ Tap a gold card from your hand to use as replacement'
@@ -967,81 +972,56 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
                       ? 'Tap a pulsing ★ Beanie on the table to steal it'
                       : "That card can't replace any Beanie — try another"}
                 </div>
-                <button className="btn-sm btn-sm-secondary" onClick={clearSelection}>
-                  Cancel
-                </button>
+                <button className="action-steal" onClick={clearSelection}>Cancel steal</button>
               </div>
             ) : (
-              /* Normal action mode */
-              <>
-                {/* End Round — at top of action area so it's never clipped on small screens */}
-                {game.players.some(p => p.firstTurnDone) && (
-                  <div style={{ textAlign: 'center', marginBottom: 4 }}>
-                    <button
-                      className="btn-sm btn-sm-secondary"
-                      style={{ opacity: 0.65, fontSize: 11 }}
-                      onClick={actions.declareDraw}
-                    >
-                      {(game.drawVotes || []).includes(myId)
-                        ? 'Cancel End Round vote'
-                        : (game.drawVotes || []).length > 0
-                          ? `Agree to End Round (${game.drawVotes.length}/${game.players.length})`
-                          : 'End Round'}
-                    </button>
-                  </div>
-                )}
+              <div className="action-bar">
                 {selectedCards.length === 0 && (
                   <div className="turn-banner">
                     {myHand.length === 8 && !myPlayer?.firstTurnDone
                       ? 'You have 8 cards — lay a set or discard one to start the pile'
-                      : 'Select cards from your hand to play or discard'}
+                      : <>Select cards from your hand to <strong>play</strong> or <strong>discard</strong></>}
                   </div>
                 )}
                 {selectedCards.length > 0 && (
-                  <div className="action-row">
-                    {selectedCards.length >= 3 && (
-                      <button className="btn-sm btn-sm-primary" onClick={handleLaySet}>
-                        Lay set ({selectedCards.length})
-                      </button>
-                    )}
+                  <div className="action-primary-row">
                     {selectedCards.length === 1 && (
-                      <button className="btn-sm btn-sm-danger" onClick={handleDiscard}>
-                        Discard
+                      <button className="action-primary action-discard" onClick={handleDiscard}>Discard</button>
+                    )}
+                    {selectedCards.length >= 3 && (
+                      <button className="action-primary action-lay" onClick={handleLaySet}>
+                        Lay set <span className="action-count">({selectedCards.length})</span>
                       </button>
                     )}
-                    <button className="btn-sm btn-sm-secondary" onClick={clearSelection}>
-                      Clear
-                    </button>
+                    <button className="action-clear" onClick={clearSelection}>Clear</button>
                   </div>
                 )}
-                {/* Steal Beanie — only visible when player has a card that can actually steal */}
                 {myHasSet && hasSomeStealableHandCard && (
-                  <div style={{ textAlign: 'center', marginTop: selectedCards.length > 0 ? 6 : 0 }}>
-                    <button
-                      className="btn-sm btn-sm-gold"
-                      onClick={() => { clearSelection(); setMode('steal'); }}
-                    >
-                      Steal Beanie ★
-                    </button>
-                  </div>
+                  <button className="action-steal" onClick={() => { clearSelection(); setMode('steal'); }}>
+                    Steal Beanie ★
+                  </button>
                 )}
-              </>
+              </div>
             )
+          )}
+          {game.players.some(p => p.firstTurnDone) && (
+            <>
+              <div className="action-bar-divider" />
+              <div className="action-end-round-row">
+                <button className="action-end-round-btn" onClick={actions.declareDraw}>
+                  {(game.drawVotes || []).includes(myId) ? 'Cancel End Round vote' : 'End Round'}
+                </button>
+              </div>
+            </>
           )}
         </div>
       ) : (
-        /* Not my turn — still show Agree button if a vote is pending and I haven't voted */
-        <div className="not-your-turn">
-          {currentPlayer?.name}'s turn
-          {(game.drawVotes || []).length > 0 && !(game.drawVotes || []).includes(myId) && (
-            <button
-              className="btn-sm btn-sm-secondary"
-              style={{ opacity: 0.65, fontSize: 11, marginTop: 6, display: 'block', margin: '6px auto 0' }}
-              onClick={actions.declareDraw}
-            >
-              {`Agree to End Round (${game.drawVotes.length}/${game.players.length})`}
-            </button>
-          )}
+        <div className="not-your-turn" style={{ borderLeftColor: PLAYER_COLOURS[game.currentPlayerIndex] }}>
+          <div className="nmt-dot" style={{ background: PLAYER_COLOURS[game.currentPlayerIndex] }} />
+          <div>
+            <div className="nmt-name">{currentPlayer?.name}'s turn</div>
+            <div className="nmt-sub">{game.phase === 'DRAW' ? 'Drawing a card…' : 'Playing…'}</div>
+          </div>
         </div>
       )}
 
