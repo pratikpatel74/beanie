@@ -198,8 +198,23 @@ function layDownSet(game, playerId, cardIds, beanieOverrides = {}) {
   const result = validateSet(cards, game.beanieRank);
   if (!result.valid) return err(game, result.error);
 
+  // If beanieOverrides cover every Beanie, resolve them to determine the correct type.
+  // e.g. K♥ + 2 Beanies with J♥/Q♥ overrides should be stored as RUN, not SET.
+  let setType = result.type;
+  const beaniesInCards = cards.filter(c => c.rank === game.beanieRank);
+  if (beaniesInCards.length > 0 && beaniesInCards.every(c => beanieOverrides[c.id])) {
+    const resolvedCards = cards.map(c =>
+      (c.rank === game.beanieRank && beanieOverrides[c.id])
+        ? { ...c, rank: beanieOverrides[c.id].rank, suit: beanieOverrides[c.id].suit }
+        : c
+    );
+    // Validate resolved cards with a sentinel beanieRank so all are treated as real cards
+    const runCheck = validateSet(resolvedCards, '__NONE__');
+    if (runCheck.valid && runCheck.type === 'RUN') setType = 'RUN';
+  }
+
   const newHand    = player.hand.filter(c => !cardIds.includes(c.id));
-  const publicSets = [...game.publicSets, { playerId, cards, type: result.type, beanieOverrides }];
+  const publicSets = [...game.publicSets, { playerId, cards, type: setType, beanieOverrides }];
 
   // No player can go out on their very first turn of a round — must discard first
   const playerSetsAfter = publicSets.filter(s => s.playerId === playerId);

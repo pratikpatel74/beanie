@@ -558,20 +558,31 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
     const beanies    = cards.filter(c => c.rank === game.beanieRank);
     const nonBeanies = cards.filter(c => c.rank !== game.beanieRank);
 
-    // If there are Beanies and all non-Beanies share a suit → could be a run
-    const allSameSuit = nonBeanies.length > 0 &&
-      nonBeanies.every(c => c.suit === nonBeanies[0].suit);
+    const allSameSuit = nonBeanies.length > 0 && nonBeanies.every(c => c.suit === nonBeanies[0].suit);
+    const allSameRank = nonBeanies.length > 0 && nonBeanies.every(c => c.rank === nonBeanies[0].rank);
 
     if (beanies.length > 0 && allSameSuit) {
       const result = buildRunOptions(cards, game.beanieRank);
       if (result) {
         const { gapOverrides, options, solo } = result;
+
+        // If non-Beanies are also all the same rank → ambiguous (valid SET *and* RUN) → ask player
+        if (allSameRank) {
+          const runOpts = options ? options : (solo ? [{ label: solo.label, overrides: solo.overrides }] : []);
+          const setRank = nonBeanies[0].rank;
+          const RANK_NAME = { A:'Aces', '2':'2s', '3':'3s', '4':'4s', '5':'5s', '6':'6s',
+                              '7':'7s', '8':'8s', '9':'9s', '10':'10s', J:'Jacks', Q:'Queens', K:'Kings' };
+          const setOpt = { label: `Set of ${RANK_NAME[setRank] || setRank + 's'}`, overrides: {} };
+          setBeanieChoice({ cardIds, options: [...runOpts, setOpt] });
+          return;
+        }
+
         if (!options) {
-          // Only one valid arrangement — animate then lay
+          // Only one valid run arrangement — animate then lay
           animateThenLay(cardIds, solo ? solo.overrides : gapOverrides);
           clearSelection();
         } else {
-          // Multiple arrangements — show picker (modal handles animation)
+          // Multiple run arrangements — show picker
           setBeanieChoice({ cardIds, options });
         }
         return;
@@ -780,12 +791,24 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
                         <div key={si} className={boxClass}>
                           {sortedRunCards(set, game.beanieRank).map(c => {
                             let beanieLabel = null;
-                            if (c.rank === game.beanieRank && set.type === 'RUN') {
-                              if (set.beanieOverrides?.[c.id]) {
-                                const o = set.beanieOverrides[c.id];
-                                beanieLabel = `${o.rank}${o.suit}`;
-                              } else {
-                                beanieLabel = computeGapLabel(c, set.cards, game.beanieRank);
+                            if (c.rank === game.beanieRank) {
+                              if (set.type === 'RUN') {
+                                if (set.beanieOverrides?.[c.id]) {
+                                  const o = set.beanieOverrides[c.id];
+                                  beanieLabel = `${o.rank}${o.suit}`;
+                                } else {
+                                  beanieLabel = computeGapLabel(c, set.cards, game.beanieRank);
+                                }
+                              } else if (set.type === 'SET') {
+                                // Show which copy of the rank this Beanie stands in for
+                                const setNBs = set.cards.filter(x => x.rank !== game.beanieRank);
+                                const setRank = setNBs[0]?.rank;
+                                if (setRank) {
+                                  const usedSuits = setNBs.map(x => x.suit);
+                                  const freeSuits = ['♠', '♥', '♦', '♣'].filter(s => !usedSuits.includes(s));
+                                  const bIdx = set.cards.filter(x => x.rank === game.beanieRank).findIndex(x => x.id === c.id);
+                                  if (bIdx < freeSuits.length) beanieLabel = `${setRank}${freeSuits[bIdx]}`;
+                                }
                               }
                             }
                             const isBeanie = c.rank === game.beanieRank;
@@ -1059,19 +1082,19 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
         </div>
       )}
 
-      {/* Beanie run-arrangement picker */}
+      {/* Beanie arrangement picker */}
       {beanieChoice && (
         <div className="beanie-choice-backdrop">
           <div className="beanie-choice-sheet">
-            <div className="beanie-choice-title">Where does the Beanie go?</div>
-            <div className="beanie-choice-sub">Choose the run arrangement</div>
+            <div className="beanie-choice-title">How to play these cards?</div>
+            <div className="beanie-choice-sub">Choose an arrangement</div>
             <div className="beanie-choice-btns">
               {beanieChoice.options.map((opt, i) => (
                 <button
                   key={i}
                   className="btn-sm btn-sm-secondary"
                   onClick={() => {
-                    actions.layDownSet(beanieChoice.cardIds, opt.overrides);
+                    animateThenLay(beanieChoice.cardIds, opt.overrides);
                     setBeanieChoice(null);
                     clearSelection();
                   }}
