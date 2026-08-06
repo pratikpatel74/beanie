@@ -104,8 +104,8 @@ function _startRound(game) {
   const deck       = shuffle(createDeck());
   const beanieRank = getBeanieRank(game.round);
 
-  // Randomly pick the first player each round
-  const firstPlayerIndex = Math.floor(Math.random() * game.players.length);
+  // Sequential first player: round 1 → player 1 (host), round 2 → player 2, etc.
+  const firstPlayerIndex = (game.round - 1) % game.players.length;
 
   // Deal: first player gets 8 cards, everyone else gets 7
   let cursor = 0;
