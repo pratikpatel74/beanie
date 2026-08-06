@@ -96,7 +96,7 @@ export default function HowToPlayScreen({ actions }) {
           </div>
           <div className="htp-tip">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{display:'inline',verticalAlign:'middle',marginRight:5}}><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26A7.01 7.01 0 0 1 5 9a7 7 0 0 1 7-7z"/><line x1="10" y1="21" x2="14" y2="21"/></svg>
-            A random player is chosen to go first each round. That player starts with <strong>8 cards</strong>; everyone else starts with <strong>7</strong>. The extra card counts as their draw for that turn, so they go straight to the Play/Discard step.
+            Players take turns going first each round in sequence — Player 1 (the host) starts round 1, Player 2 starts round 2, and so on, cycling back to Player 1 after the last player. That player starts with <strong>8 cards</strong>; everyone else starts with <strong>7</strong>. The extra card counts as their draw for that turn, so they go straight to the Play/Discard step.
           </div>
           <div className="htp-tip" style={{ marginTop: 8 }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{display:'inline',verticalAlign:'middle',marginRight:5}}><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26A7.01 7.01 0 0 1 5 9a7 7 0 0 1 7-7z"/><line x1="10" y1="21" x2="14" y2="21"/></svg>
