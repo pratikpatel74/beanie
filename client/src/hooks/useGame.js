@@ -208,6 +208,11 @@ export function useGame() {
     socket.on('game:player-left', ({ playerName }) =>
       dispatch({ type: 'NOTICE', message: `${playerName} left the game` }));
 
+    socket.on('game:draw-vote', ({ playerName, voted }) =>
+      dispatch({ type: 'NOTICE', message: voted
+        ? `${playerName} voted to end the round`
+        : `${playerName} cancelled their End Round vote` }));
+
     socket.on('game:cancelled', () => {
       clearSession();
       if (selfExiting.current) {

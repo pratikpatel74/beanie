@@ -409,13 +409,6 @@ function computeAddBeanieOptions(set, beanieRank) {
   return { options };
 }
 
-// ─── Beanie count in public sets ─────────────────────────────────────────────
-
-function beaniesInPlay(publicSets, beanieRank) {
-  let count = 0;
-  publicSets.forEach(s => s.cards.forEach(c => { if (c.rank === beanieRank) count++; }));
-  return count;
-}
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
@@ -436,6 +429,9 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
   const [discardingCardId, setDiscardingCardId] = useState(null);  // card flying to discard pile
   const [layingCardIds, setLayingCardIds]       = useState([]);    // cards lifting to table
   const [dealAnim, setDealAnim]                 = useState(false); // deal-in animation active
+  const [newOpponentSetIds, setNewOpponentSetIds] = useState(new Set()); // shimmer on new opponent sets
+
+  const prevSetsCountRef = useRef(game.publicSets.length);
 
   const prevRoundRef     = useRef(null);
   const prevStatusRef    = useRef(null);
@@ -457,7 +453,6 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
   const is8CardStart = myHand.length >= 8 && myPlayer && !myPlayer.firstTurnDone;
   const inDraw      = game.phase === 'DRAW' && !is8CardStart;
   const inAction    = game.phase === 'ACTION' || is8CardStart;
-  const beanieCount = beaniesInPlay(game.publicSets, game.beanieRank);
   const isHost      = game.players[0]?.id === myId;
 
   function toggleMute() {
@@ -516,6 +511,26 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
     prevPlayerIdxRef.current = game.currentPlayerIndex;
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [game.currentPlayerIndex, game.status]);
+
+  // Opponent set laid: shimmer + sound when publicSets grows with a non-my set
+  useEffect(() => {
+    const prev = prevSetsCountRef.current;
+    const curr = game.publicSets.length;
+    if (curr > prev && game.status === 'PLAYING') {
+      const newSets = game.publicSets.slice(prev);
+      const opponentNewIds = newSets
+        .map((s, i) => ({ s, idx: prev + i }))
+        .filter(({ s }) => s.playerId !== myId)
+        .map(({ idx }) => idx);
+      if (opponentNewIds.length > 0) {
+        playShimmer(muted);
+        setNewOpponentSetIds(new Set(opponentNewIds));
+        setTimeout(() => setNewOpponentSetIds(new Set()), 700);
+      }
+    }
+    prevSetsCountRef.current = curr;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [game.publicSets.length]);
 
   function toggleCard(cardId) {
     if (mode === 'steal') {
@@ -759,7 +774,8 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
                       const cardsAddable  = isAddingBeanie || canAddCardsToSet(selectedCards, set, myHand, game.beanieRank);
                       const isAddable     = myHasSet && isMyTurn && inAction && mode !== 'steal' && selectedCards.length > 0 && beanieAddable && cardsAddable;
                       const isStealTarget = mode === 'steal' && !isOwnSet && isMyTurn && inAction;
-                      const boxClass = `set-box${isAddable ? ' addable' : ''}${isStealTarget ? ' steal-target' : ''}`;
+                      const isNewOpponent = newOpponentSetIds.has(si);
+                      const boxClass = `set-box${isAddable ? ' addable' : ''}${isStealTarget ? ' steal-target' : ''}${isNewOpponent ? ' set-new' : ''}`;
                       return (
                         <div key={si} className={boxClass}>
                           {sortedRunCards(set, game.beanieRank).map(c => {
@@ -872,9 +888,6 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
               ? <Card card={game.discardTop} beanieRank={game.beanieRank} size="sm" disabled />
               : <EmptyCard size="sm" />}
             <div className="pile-compact-info">
-              <div className="pile-compact-num">
-                {game.discardTop ? `${game.discardTop.rank}${game.discardTop.suit}` : '—'}
-              </div>
               <div className="pile-compact-sub">Top of discard</div>
             </div>
           </div>

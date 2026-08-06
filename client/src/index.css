@@ -551,6 +551,14 @@ html, body, #root {
   border-color: rgba(240,180,41,0.4);
   background: rgba(240,180,41,0.06);
 }
+.set-box.set-new {
+  animation: set-appear 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes set-appear {
+  0%   { transform: scale(0.88); opacity: 0; border-color: rgba(124,111,255,0.7); background: rgba(124,111,255,0.15); }
+  50%  { border-color: rgba(124,111,255,0.5); background: rgba(124,111,255,0.08); }
+  100% { transform: scale(1);    opacity: 1; border-color: rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); }
+}
 /* Inline + button shown on the right of each eligible set */
 .set-add-btn {
   display: flex; align-items: center; justify-content: center;

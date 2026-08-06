@@ -321,6 +321,12 @@ module.exports = function registerHandlers(io, socket) {
     if (result.error) return sendError(result.error);
     broadcast(currentRoom, result.game);
     if (result.game.status !== STATUS.PLAYING) clearTimer(currentRoom);
+    // Notify all players whether this was a vote or a cancellation
+    const voted = (result.game.drawVotes || []).includes(currentPlayerId);
+    const playerName = result.game.players.find(p => p.id === currentPlayerId)?.name;
+    if (playerName) {
+      io.to(currentRoom).emit('game:draw-vote', { playerName, voted });
+    }
   });
 
   socket.on('game:exit', () => {
