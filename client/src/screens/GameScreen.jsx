@@ -978,7 +978,7 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
         </div>
         <div className="hand-scroll">
           {sortedHand.map((c, ci) => (
-            <div key={c.id} style={{ position: 'relative', display: 'inline-block', flexShrink: 0 }}>
+            <div key={c.id} className="hand-card-wrap">
               <Card
                 card={c}
                 beanieRank={game.beanieRank}

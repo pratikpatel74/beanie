@@ -646,15 +646,18 @@ html, body, #root {
   overflow: visible;
   padding: 14px 8px 4px; /* top padding gives room for selected card lift */
 }
-/* Fan-style overlap — each card peeks out from under the next */
-.hand-scroll .card {
+/* Fan-style overlap — each wrapper peeks out from under the next */
+.hand-card-wrap {
   position: relative;
   margin-right: -28px;
+  flex-shrink: 0;
+}
+.hand-card-wrap:last-child { margin-right: 0; }
+.hand-scroll .card {
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
-.hand-scroll .card:last-child { margin-right: 0; }
 /* Lift selected card above its neighbours */
-.hand-scroll .card.selected { z-index: 20; }
+.hand-card-wrap:has(.card.selected) { z-index: 20; }
 
 .action-row { display: flex; gap: 6px; flex-shrink: 0; }
 
@@ -1232,6 +1235,7 @@ html, body, #root {
   .hand-scroll .card-xl.beanie .card-pip { font-size: 17px; }
   /* Smaller lift for selected cards in compact hand */
   .hand-scroll .card.selected { transform: translateY(-7px); }
+  .hand-card-wrap:has(.card.selected) { z-index: 20; }
 
   /* ── Bottom action area ── */
   .action-area { flex-shrink: 0; }
