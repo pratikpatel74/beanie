@@ -77,7 +77,7 @@ function reducer(state, action) {
     case 'DISCONNECTED':
       return { ...state, connected: false };
     case 'SET_SCREEN':
-      return { ...state, screen: action.screen, error: null };
+      return { ...state, prevScreen: state.screen, screen: action.screen, error: null };
     case 'ROOM_CREATED':
       return { ...state, screen: 'lobby', roomCode: action.roomCode };
     case 'ROOM_JOINED':

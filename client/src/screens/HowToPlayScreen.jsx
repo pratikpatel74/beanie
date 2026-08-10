@@ -1,11 +1,17 @@
 // HowToPlayScreen.jsx — Full in-app rules guide
 
-export default function HowToPlayScreen({ actions }) {
+export default function HowToPlayScreen({ actions, returnTo = 'home' }) {
+  const fromGame = returnTo === 'game';
   return (
     <div className="screen">
       <div className="topnav" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <button className="back-btn" onClick={() => actions.goTo('home')}>‹</button>
+        <button className="back-btn" onClick={() => actions.goTo(returnTo)}>‹</button>
         <h2 style={{ flex: 1 }}>How to Play</h2>
+        {fromGame && (
+          <button className="htp-back-game-btn" onClick={() => actions.goTo(returnTo)}>
+            ← Back to game
+          </button>
+        )}
       </div>
 
       <div className="htp-scroll scroll">

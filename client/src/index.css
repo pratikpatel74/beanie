@@ -461,23 +461,28 @@ html, body, #root {
 .rw-btn:active { opacity: 0.85; }
 
 .game-topbar { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+/* All topbar controls share a consistent 30px height */
+.round-badge, .timer-badge, .btn-exit, .btn-mute, .btn-info {
+  height: 30px; box-sizing: border-box;
+}
 .btn-exit {
   background: transparent; border: 1px solid rgba(255,80,80,0.5); color: #ff6b6b;
-  border-radius: 8px; padding: 7px 14px; font-size: 13px; font-weight: 600; cursor: pointer;
+  border-radius: 8px; padding: 0 14px; font-size: 13px; font-weight: 600; cursor: pointer;
   flex-shrink: 0;
 }
 .btn-exit:active { background: rgba(255,80,80,0.15); }
 .round-badge {
   background: rgba(240,180,41,0.1); border: 1px solid rgba(240,180,41,0.3);
-  border-radius: 20px; padding: 5px 12px;
+  border-radius: 20px; padding: 0 12px;
   font-size: 11px; font-weight: 700; color: var(--gold);
   white-space: nowrap; flex-shrink: 1; min-width: 0;
+  display: flex; align-items: center;
 }
 .rb-sep    { opacity: 0.45; margin: 0 5px; font-weight: 400; }
 .rb-beanie { opacity: 0.85; font-weight: 700; }
 .timer-badge {
   background: var(--goldbg); border: 1px solid var(--goldbdr);
-  border-radius: 20px; padding: 5px 10px;
+  border-radius: 20px; padding: 0 10px;
   font-size: 12px; font-weight: 600; color: var(--gold);
   display: flex; align-items: center; gap: 5px;
   min-width: 60px;
@@ -1175,10 +1180,11 @@ html, body, #root {
 
   /* ── Compact top bar ── */
   .game-topbar { gap: 6px; }
-  .round-badge { padding: 3px 8px; font-size: 9px; }
+  .round-badge, .timer-badge, .btn-exit, .btn-mute, .btn-info { height: 26px; }
+  .round-badge { padding: 0 8px; font-size: 9px; }
   .rb-sep      { margin: 0 3px; }
-  .timer-badge { padding: 3px 8px; font-size: 10px; min-width: 50px; }
-  .btn-exit    { padding: 4px 10px; font-size: 11px; }
+  .timer-badge { padding: 0 8px; font-size: 10px; min-width: 50px; }
+  .btn-exit    { padding: 0 10px; font-size: 11px; }
 
   /* ── Compact player chips ── */
   .player-chips { gap: 4px; }
@@ -1296,13 +1302,13 @@ html, body, #root {
   animation: chip-activate 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Mute button */
-.btn-mute {
+/* Mute / info buttons */
+.btn-mute, .btn-info {
   background: rgba(255,255,255,0.06);
   border: 1px solid rgba(255,255,255,0.09);
   border-radius: 8px;
   color: var(--text2);
-  padding: 4px 9px;
+  padding: 0 9px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1310,5 +1316,33 @@ html, body, #root {
   flex-shrink: 0;
   transition: color 0.15s, border-color 0.15s, opacity 0.15s;
 }
-.btn-mute:hover   { color: var(--text); }
-.btn-mute.muted   { opacity: 0.45; }
+.btn-mute:hover, .btn-info:hover { color: var(--text); }
+.btn-mute.muted { opacity: 0.45; }
+
+/* New card badge */
+.new-card-badge {
+  position: absolute;
+  top: -7px; left: 50%;
+  transform: translateX(-50%);
+  background: #7c6fff;
+  color: #fff;
+  font-size: 8px; font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 6px;
+  pointer-events: none;
+  white-space: nowrap;
+  letter-spacing: 0.04em;
+}
+
+/* HowToPlay back-to-game button */
+.htp-back-game-btn {
+  background: rgba(124,111,255,0.15);
+  border: 1px solid rgba(124,111,255,0.35);
+  color: #7c6fff;
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-size: 12px; font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.htp-back-game-btn:active { background: rgba(124,111,255,0.25); }

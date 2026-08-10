@@ -180,7 +180,7 @@ export default function App() {
         <GameEndScreen game={game} myId={myId} actions={actions} />
       )}
       {screen === 'howtoplay' && (
-        <HowToPlayScreen actions={actions} />
+        <HowToPlayScreen actions={actions} returnTo={state.prevScreen || 'home'} />
       )}
     </div>
     </ErrorBoundary>

@@ -419,6 +419,8 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
   const [addBeanieChoice, setAddBeanieChoice] = useState(null);
   const [sortMode, setSortMode]               = useState('deal');
   const [showExitModal, setShowExitModal]     = useState(false);
+  const [newCardId, setNewCardId]             = useState(null);
+  const prevHandRef                           = useRef([]);
   // beanieChoice shape:    { cardIds, options: [{ label, overrides }] }
   // addBeanieChoice shape: { setIndex, cardId, options: [{ label, override }] }
 
@@ -444,6 +446,12 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
         const ri = RANK_ORDER.indexOf(a.rank) - RANK_ORDER.indexOf(b.rank);
         if (ri !== 0) return ri;
         return SUIT_ORDER.indexOf(a.suit) - SUIT_ORDER.indexOf(b.suit);
+      })
+    : sortMode === 'suit'
+    ? [...myHand].sort((a, b) => {
+        const si = SUIT_ORDER.indexOf(a.suit) - SUIT_ORDER.indexOf(b.suit);
+        if (si !== 0) return si;
+        return RANK_ORDER.indexOf(a.rank) - RANK_ORDER.indexOf(b.rank);
       })
     : myHand;
   const myHasSet    = myPlayer?.hasLaidSet || false;
@@ -498,6 +506,25 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
     prevStatusRef.current = game.status;
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [game.round, game.status]);
+
+  // New card indicator: detect when exactly 1 card is added to hand (a draw)
+  useEffect(() => {
+    const prev = prevHandRef.current;
+    const curr = myHand;
+    if (curr.length === prev.length + 1) {
+      const prevIds = new Set(prev.map(c => c.id));
+      const added = curr.find(c => !prevIds.has(c.id));
+      if (added) setNewCardId(added.id);
+    } else if (curr.length < prev.length) {
+      // Cards left hand (discard or lay set) — clear indicator
+      setNewCardId(null);
+    } else if (curr.length !== prev.length) {
+      // Round reset / bulk change — clear
+      setNewCardId(null);
+    }
+    prevHandRef.current = curr;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [myHand.length, myHand.map(c => c.id).join(',')]);
 
   // Turn-change: play tick when current player rotates
   useEffect(() => {
@@ -713,6 +740,14 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
               <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
             </svg>
           )}
+        </button>
+        {/* How to play info */}
+        <button className="btn-info" onClick={() => actions.goTo('howtoplay')} title="How to play">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
         </button>
         {isHost && (
           <button className="btn-exit" onClick={() => setShowExitModal(true)}>
@@ -935,26 +970,32 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
               className={`sort-seg${sortMode === 'rank' ? ' sort-seg-active' : ''}`}
               onClick={() => setSortMode('rank')}
             >A→K</span>
+            <span
+              className={`sort-seg${sortMode === 'suit' ? ' sort-seg-active' : ''}`}
+              onClick={() => setSortMode('suit')}
+            >♠♥♦♣</span>
           </div>
         </div>
         <div className="hand-scroll">
           {sortedHand.map((c, ci) => (
-            <Card
-              key={c.id}
-              card={c}
-              beanieRank={game.beanieRank}
-              size="xl"
-              selected={selectedCards.includes(c.id)}
-              onClick={isMyTurn && inAction ? () => toggleCard(c.id) : undefined}
-              disabled={!isMyTurn || !inAction}
-              className={[
-                cardCanStealSomething(c)      ? 'steal-capable-card' : '',
-                discardingCardId === c.id     ? 'card-discarding'    : '',
-                layingCardIds.includes(c.id)  ? 'card-laying'        : '',
-                dealAnim                      ? 'card-dealing'       : '',
-              ].filter(Boolean).join(' ')}
-              style={dealAnim ? { animationDelay: `${ci * 80}ms` } : undefined}
-            />
+            <div key={c.id} style={{ position: 'relative', display: 'inline-block', flexShrink: 0 }}>
+              <Card
+                card={c}
+                beanieRank={game.beanieRank}
+                size="xl"
+                selected={selectedCards.includes(c.id)}
+                onClick={isMyTurn && inAction ? () => toggleCard(c.id) : undefined}
+                disabled={!isMyTurn || !inAction}
+                className={[
+                  cardCanStealSomething(c)      ? 'steal-capable-card' : '',
+                  discardingCardId === c.id     ? 'card-discarding'    : '',
+                  layingCardIds.includes(c.id)  ? 'card-laying'        : '',
+                  dealAnim                      ? 'card-dealing'       : '',
+                ].filter(Boolean).join(' ')}
+                style={dealAnim ? { animationDelay: `${ci * 80}ms` } : undefined}
+              />
+              {newCardId === c.id && <span className="new-card-badge">NEW</span>}
+            </div>
           ))}
         </div>
       </div>
