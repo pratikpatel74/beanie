@@ -51,9 +51,26 @@ if (IS_PROD) {
     next();
   });
 
-  app.use(express.static(CLIENT_DIST));
-  // SPA fallback — all non-API routes return index.html
-  app.get('*', (_req, res) => res.sendFile(path.join(CLIENT_DIST, 'index.html')));
+  // Serve hashed assets (JS/CSS) with long-term cache; index.html with no-cache
+  app.use(express.static(CLIENT_DIST, {
+    setHeaders(res, filePath) {
+      if (filePath.endsWith('index.html')) {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+      } else {
+        // Vite hashes all JS/CSS filenames — safe to cache for 1 year
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      }
+    },
+  }));
+  // SPA fallback — all non-API routes return index.html (no-cache)
+  app.get('*', (_req, res) => {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.sendFile(path.join(CLIENT_DIST, 'index.html'));
+  });
 }
 
 // ─── Socket.io ───────────────────────────────────────────────────────────────
