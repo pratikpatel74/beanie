@@ -19,8 +19,8 @@ const rm               = require('./rooms/roomManager');
 const PORT    = process.env.PORT || 3001;
 const IS_PROD = process.env.NODE_ENV === 'production';
 
-// Built client lives at ../../client/dist relative to this file
-const CLIENT_DIST = path.join(__dirname, '..', '..', 'client', 'dist');
+// Built client lives in server/public (assets are git-tracked here; client/dist is gitignored)
+const CLIENT_DIST = path.join(__dirname, '..', 'public');
 
 // Marketing landing page (served for www.* requests) — read once at startup
 const LANDING_HTML_PATH = path.join(__dirname, '..', 'public', 'landing.html');
