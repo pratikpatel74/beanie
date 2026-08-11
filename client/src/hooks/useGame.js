@@ -276,9 +276,9 @@ export function useGame() {
       dispatch({ type: 'SET_NAME', name });
     }, []),
 
-    createRoom:  useCallback(() => {
+    createRoom:  useCallback((config = {}) => {
       const playerName = loadPlayerName() || 'Player';
-      socket.emit('room:create', { playerName });
+      socket.emit('room:create', { playerName, config });
     }, []),
 
     joinRoom:    useCallback(roomCode => {

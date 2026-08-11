@@ -30,11 +30,29 @@ const TOTAL_ROUNDS = 13;
 
 // ─── Game creation ──────────────────────────────────────────────────────────
 
-const LOBBY_EXPIRY_MS = 15 * 60 * 1000; // 15 minutes
+// Default game configuration — host can override any of these at room creation.
+// Once a game starts, config is locked and cannot be changed.
+const DEFAULT_CONFIG = {
+  turnSeconds:        60,    // per-player turn timer (30 | 60 | 90 | 120)
+  lobbyMinutes:       15,    // lobby expiry (5 | 10 | 15)
+  beanieHandValue:    10,    // points for a Beanie still in hand at round end (10 | 25)
+  allowReclaimBeanie: false, // if true, players may reclaim their own laid-down Beanie
+};
 
-function createGame(roomCode) {
+const LOBBY_EXPIRY_MS = 15 * 60 * 1000; // fallback constant (kept for external imports)
+
+function createGame(roomCode, config = {}) {
+  const mergedConfig = {
+    turnSeconds:        Math.max(30, Math.min(120, Number(config.turnSeconds)  || DEFAULT_CONFIG.turnSeconds)),
+    lobbyMinutes:       Math.max(5,  Math.min(15,  Number(config.lobbyMinutes) || DEFAULT_CONFIG.lobbyMinutes)),
+    beanieHandValue:    [10, 25].includes(Number(config.beanieHandValue))
+                          ? Number(config.beanieHandValue) : DEFAULT_CONFIG.beanieHandValue,
+    allowReclaimBeanie: !!config.allowReclaimBeanie,
+  };
+
   return {
     roomCode,
+    config:              mergedConfig,
     status:              STATUS.WAITING,
     players:             [],
     round:               0,
@@ -49,7 +67,7 @@ function createGame(roomCode) {
     roundWinner:         null,
     error:               null,
     isPaused:            false,
-    lobbyExpiresAt:      Date.now() + LOBBY_EXPIRY_MS,
+    lobbyExpiresAt:      Date.now() + mergedConfig.lobbyMinutes * 60 * 1000,
   };
 }
 
@@ -281,7 +299,7 @@ function stealBeanie(game, playerId, setIndex, replacementCardId, beanieCardId =
   const targetSet = game.publicSets[setIndex];
   if (!targetSet) return err(game, 'Set not found');
 
-  if (targetSet.playerId === playerId) {
+  if (targetSet.playerId === playerId && !game.config?.allowReclaimBeanie) {
     return err(game, 'You cannot steal your own Beanie');
   }
 
@@ -503,7 +521,7 @@ function declareDraw(game, playerId) {
 function _endRoundDraw(game) {
   // No winner — every player scores penalty points for their remaining hand cards
   const players = game.players.map(p => {
-    const roundScore = _scoreHand(p.hand, game.beanieRank);
+    const roundScore = _scoreHand(p.hand, game.beanieRank, game.config);
     return {
       ...p,
       totalScore:  p.totalScore + roundScore,
@@ -539,7 +557,7 @@ function _endRound(game, winnerId) {
   const players = game.players.map(p => {
     const roundScore = p.id === winnerId
       ? 0
-      : _scoreHand(p.hand, game.beanieRank);
+      : _scoreHand(p.hand, game.beanieRank, game.config);
     return {
       ...p,
       totalScore:  p.totalScore + roundScore,
@@ -552,9 +570,10 @@ function _endRound(game, winnerId) {
   return ok({ ...game, players, status: newStatus, roundWinner });
 }
 
-function _scoreHand(hand, beanieRank) {
+function _scoreHand(hand, beanieRank, config = {}) {
+  const beanieHandValue = config.beanieHandValue ?? DEFAULT_CONFIG.beanieHandValue;
   return hand.reduce((total, card) => {
-    if (card.rank === beanieRank)              return total + 10; // any Beanie = 10
+    if (card.rank === beanieRank)              return total + beanieHandValue;
     if (['J', 'Q', 'K'].includes(card.rank))  return total + 10;
     if (card.rank === 'A')                     return total + 1;
     return total + parseInt(card.rank, 10);
@@ -624,6 +643,7 @@ module.exports = {
   STATUS,
   PHASE,
   LOBBY_EXPIRY_MS,
+  DEFAULT_CONFIG,
   createGame,
   addPlayer,
   removePlayer,

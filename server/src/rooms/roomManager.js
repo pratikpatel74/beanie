@@ -99,9 +99,9 @@ function generateRoomCode() {
   return rooms.has(code) ? generateRoomCode() : code; // retry on collision
 }
 
-function createRoom(hostId, hostName) {
+function createRoom(hostId, hostName, config = {}) {
   const roomCode = generateRoomCode();
-  let game = createGame(roomCode);
+  let game = createGame(roomCode, config);
   game = addPlayer(game, hostId, hostName);
   rooms.set(roomCode, game);
   touchRoom(roomCode);

@@ -1462,3 +1462,73 @@ html, body, #root {
   margin-top: 4px; width: 100%;
 }
 .pause-resume-btn:active { opacity: 0.85; }
+
+/* ─── Settings panel (CreateScreen) ─────────────────────────────────────── */
+.settings-panel {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--goldbdr);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex; flex-direction: column; gap: 14px;
+  width: 100%;
+}
+.settings-title {
+  font-size: 13px; font-weight: 700; color: var(--gold); letter-spacing: 0.05em; text-transform: uppercase;
+}
+.settings-note {
+  font-size: 11px; color: var(--text3); line-height: 1.4; margin-top: -6px;
+}
+.settings-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.settings-row-label {
+  display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0;
+}
+.settings-label { font-size: 13px; font-weight: 600; color: var(--text1); }
+.settings-hint  { font-size: 11px; color: var(--text3); }
+
+/* Segmented selector */
+.seg-selector { display: flex; gap: 3px; flex-shrink: 0; }
+.seg-btn {
+  background: transparent; border: 1px solid var(--goldbdr);
+  border-radius: 7px; padding: 5px 9px;
+  font-size: 12px; font-weight: 600; color: var(--text2);
+  cursor: pointer; transition: background 0.15s, color 0.15s;
+}
+.seg-btn:active { opacity: 0.7; }
+.seg-btn-active { background: var(--gold); border-color: var(--gold); color: #1a1200; }
+
+/* Toggle */
+.settings-toggle {
+  width: 42px; height: 24px; border-radius: 12px;
+  background: rgba(255,255,255,0.12); border: 1.5px solid rgba(255,255,255,0.15);
+  padding: 0; cursor: pointer; position: relative;
+  transition: background 0.2s, border-color 0.2s; flex-shrink: 0;
+}
+.settings-toggle-on { background: var(--gold); border-color: var(--gold); }
+.settings-toggle-thumb {
+  position: absolute; top: 2px; left: 2px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: #fff; transition: left 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+.settings-toggle-on .settings-toggle-thumb { left: 20px; }
+
+/* ─── Lobby config summary ───────────────────────────────────────────────── */
+.lobby-config-summary { display: flex; flex-wrap: wrap; gap: 6px; padding: 2px 0 10px; }
+.lobby-config-pill {
+  background: rgba(255,255,255,0.07); border: 1px solid var(--goldbdr);
+  border-radius: 20px; padding: 3px 10px;
+  font-size: 11px; font-weight: 600; color: var(--text2);
+}
+
+/* ─── Reclaim target set (steal mode, own sets) ──────────────────────────── */
+.set-box.reclaim-target {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px var(--gold), 0 0 10px rgba(212,175,55,0.25);
+  animation: reclaim-pulse 1.4s ease-in-out infinite;
+}
+@keyframes reclaim-pulse {
+  0%, 100% { box-shadow: 0 0 0 1px var(--gold), 0 0 8px rgba(212,175,55,0.2); }
+  50%       { box-shadow: 0 0 0 2px var(--gold), 0 0 16px rgba(212,175,55,0.45); }
+}

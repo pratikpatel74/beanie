@@ -644,19 +644,24 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
     return !!selectedCard && canStealBeanie(selectedCard, set, beanieCard, game.beanieRank);
   }
 
-  // True in steal mode: the currently selected hand card can swap with at least one Beanie
-  const hasAnyStealableBeanie = mode === 'steal' && selectedCards.length === 1 &&
-    game.publicSets.some(
-      s => s.playerId !== myId && s.cards.some(c => c.rank === game.beanieRank && isStealable(s, c))
-    );
+  const allowReclaim = !!game.config?.allowReclaimBeanie;
 
-  // Returns true if handCard can steal ANY Beanie from any opponent set
+  // True in steal mode: selected card can swap with at least one eligible Beanie
+  // (opponent sets always; own sets only when allowReclaimBeanie is on)
+  const hasAnyStealableBeanie = mode === 'steal' && selectedCards.length === 1 &&
+    game.publicSets.some(s => {
+      if (s.playerId === myId && !allowReclaim) return false;
+      return s.cards.some(c => c.rank === game.beanieRank && isStealable(s, c));
+    });
+
+  // Returns true if handCard can steal/reclaim ANY eligible Beanie
   function cardCanStealAnyBeanie(handCard) {
-    return game.publicSets.some(
-      s => s.playerId !== myId && s.cards.some(
+    return game.publicSets.some(s => {
+      if (s.playerId === myId && !allowReclaim) return false;
+      return s.cards.some(
         c => c.rank === game.beanieRank && canStealBeanie(handCard, s, c, game.beanieRank)
-      )
-    );
+      );
+    });
   }
 
   // In steal mode: used to add gold ring to eligible hand cards
@@ -664,7 +669,7 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
     return mode === 'steal' && cardCanStealAnyBeanie(handCard);
   }
 
-  // True when at least one hand card can actually steal an opponent's Beanie.
+  // True when at least one hand card can steal/reclaim an eligible Beanie.
   // Used for both: button visibility AND steal mode instruction text.
   const hasSomeStealableHandCard = myHand.some(cardCanStealAnyBeanie);
 
@@ -849,9 +854,10 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
                       // For regular add: check selected cards actually fit this set
                       const cardsAddable  = isAddingBeanie || canAddCardsToSet(selectedCards, set, myHand, game.beanieRank);
                       const isAddable     = myHasSet && isMyTurn && inAction && mode !== 'steal' && selectedCards.length > 0 && beanieAddable && cardsAddable;
-                      const isStealTarget = mode === 'steal' && !isOwnSet && isMyTurn && inAction;
-                      const isNewOpponent = newOpponentSetIds.has(si);
-                      const boxClass = `set-box${isAddable ? ' addable' : ''}${isStealTarget ? ' steal-target' : ''}${isNewOpponent ? ' set-new' : ''}`;
+                      const isStealTarget   = mode === 'steal' && !isOwnSet && isMyTurn && inAction;
+                      const isReclaimTarget = mode === 'steal' && isOwnSet && allowReclaim && isMyTurn && inAction;
+                      const isNewOpponent   = newOpponentSetIds.has(si);
+                      const boxClass = `set-box${isAddable ? ' addable' : ''}${isStealTarget ? ' steal-target' : ''}${isReclaimTarget ? ' reclaim-target' : ''}${isNewOpponent ? ' set-new' : ''}`;
                       return (
                         <div key={si} className={boxClass}>
                           {sortedRunCards(set, game.beanieRank).map(c => {
@@ -877,14 +883,15 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
                               }
                             }
                             const isBeanie = c.rank === game.beanieRank;
-                            const isStealableBeanie = isStealTarget && isBeanie && isStealable(set, c);
+                            const isStealableBeanie  = isStealTarget   && isBeanie && isStealable(set, c);
+                            const isReclaimableBeanie = isReclaimTarget && isBeanie && isStealable(set, c);
                             return (
                               <div key={c.id} style={{ position: 'relative', display: 'inline-block' }}>
                                 <Card
                                   card={c}
                                   beanieRank={game.beanieRank}
                                   size="sm"
-                                  onClick={isStealableBeanie ? () => handleStealBeanie(si, c.id) : undefined}
+                                  onClick={(isStealableBeanie || isReclaimableBeanie) ? () => handleStealBeanie(si, c.id) : undefined}
                                 />
                                 {beanieLabel && <span className="beanie-badge">{beanieLabel}</span>}
                                 {isStealableBeanie && <span className="steal-pulse" />}
@@ -1063,7 +1070,9 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
                       ? '✦ Tap a gold card from your hand to use as replacement'
                       : "None of your current cards can replace a Beanie"
                     : hasAnyStealableBeanie
-                      ? 'Tap a pulsing ★ Beanie on the table to steal it'
+                      ? allowReclaim
+                        ? 'Tap a pulsing ★ to steal — or reclaim from your own sets'
+                        : 'Tap a pulsing ★ Beanie on the table to steal it'
                       : "That card can't replace any Beanie — try another"}
                 </div>
                 <button className="action-steal" onClick={clearSelection}>Cancel steal</button>
@@ -1092,7 +1101,7 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
                 )}
                 {myHasSet && hasSomeStealableHandCard && (
                   <button className="action-steal" onClick={() => { clearSelection(); setMode('steal'); }}>
-                    Steal Beanie ★
+                    {allowReclaim ? 'Steal / Reclaim Beanie ★' : 'Steal Beanie ★'}
                   </button>
                 )}
               </div>

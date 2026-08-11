@@ -23,10 +23,9 @@
 // client on every connect using its localStorage session data).
 
 const rm = require('../rooms/roomManager');
-const { startTimer, clearTimer, DEFAULT_DURATION_MS } = require('./timers');
+const { startTimer, clearTimer } = require('./timers');
 const { PHASE, STATUS, LOBBY_EXPIRY_MS } = require('../game/engine');
 
-const TURN_DURATION_MS     = DEFAULT_DURATION_MS;
 const RECONNECT_GRACE_MS   = 60 * 1000; // 60 seconds
 
 // ─── Module-level session maps ────────────────────────────────────────────────
@@ -138,7 +137,8 @@ module.exports = function registerHandlers(io, socket) {
 
     const currentPlayer = game.players[game.currentPlayerIndex];
 
-    startTimer(roomCode, TURN_DURATION_MS, () => {
+    const turnDurationMs = (game.config?.turnSeconds ?? 60) * 1000;
+    startTimer(roomCode, turnDurationMs, () => {
       // Timer expired — force a discard (or draw+discard if still in draw phase)
       let g = rm.getRoom(roomCode);
       if (!g || g.status !== STATUS.PLAYING || g.isPaused) return;
@@ -178,16 +178,16 @@ module.exports = function registerHandlers(io, socket) {
     io.to(roomCode).emit('game:timer', {
       playerId:   currentPlayer.id,
       playerName: currentPlayer.name,
-      seconds:    TURN_DURATION_MS / 1000,
+      seconds:    game.config?.turnSeconds ?? 60,
     });
   }
 
   // ─── Room events ──────────────────────────────────────────────────────────
 
-  socket.on('room:create', ({ playerName }) => {
+  socket.on('room:create', ({ playerName, config }) => {
     if (!playerName?.trim()) return sendError('Display name required');
 
-    const { roomCode, game } = rm.createRoom(currentPlayerId, playerName.trim());
+    const { roomCode, game } = rm.createRoom(currentPlayerId, playerName.trim(), config || {});
     currentRoom = roomCode;
     socket.join(roomCode);
 
@@ -492,6 +492,7 @@ function screenFor(status) {
 function sanitise(game, viewingPlayerId) {
   return {
     roomCode:            game.roomCode,
+    config:              game.config,
     status:              game.status,
     round:               game.round,
     beanieRank:          game.beanieRank,

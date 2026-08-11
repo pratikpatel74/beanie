@@ -33,6 +33,21 @@ function formatExpiry(secs) {
   return `${m}:${String(s).padStart(2, '0')}`;
 }
 
+function ConfigSummary({ config }) {
+  if (!config) return null;
+  const pills = [
+    `${config.turnSeconds}s turns`,
+    `${config.lobbyMinutes}m lobby`,
+    `★ = ${config.beanieHandValue}pts`,
+    config.allowReclaimBeanie ? 'Reclaim on' : null,
+  ].filter(Boolean);
+  return (
+    <div className="lobby-config-summary">
+      {pills.map(p => <span key={p} className="lobby-config-pill">{p}</span>)}
+    </div>
+  );
+}
+
 export default function LobbyScreen({ game, roomCode, myId, error, actions, lobbyExpiresAt }) {
   const players  = game?.players || [];
   const isHost   = players[0]?.id === myId;
@@ -109,6 +124,8 @@ export default function LobbyScreen({ game, roomCode, myId, error, actions, lobb
             )}
           </button>
         </div>
+
+        <ConfigSummary config={game?.config} />
 
         <div className="section-label">Players ({players.length}/4)</div>
 
