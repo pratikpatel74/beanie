@@ -1,6 +1,12 @@
 import { useState, useEffect } from 'react';
 
 const PLAYER_COLOURS = ['var(--p1)', 'var(--p2)', 'var(--p3)', 'var(--p4)'];
+
+function playerSuit(name) {
+  const h = (name || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+  return ['♠', '♥', '♦', '♣'][h % 4];
+}
+function suitColor(s) { return (s === '♥' || s === '♦') ? '#c0392b' : '#1a1a2e'; }
 // Always show lobby countdown so players know the room has a time limit
 
 function useExpiryCountdown(lobbyExpiresAt) {
@@ -109,7 +115,7 @@ export default function LobbyScreen({ game, roomCode, myId, error, actions, lobb
         <div className="players-list">
           {players.map((p, i) => (
             <div className="player-row" key={p.id}>
-              <div className="player-dot" style={{ background: PLAYER_COLOURS[i] }} />
+              <span className="player-suit-pip" style={{ color: suitColor(playerSuit(p.name)) }}>{playerSuit(p.name)}</span>
               <span className="player-row-name">{p.name}</span>
               {i === 0 && <span className="player-row-host">Host</span>}
               {p.id === myId && <span style={{ fontSize: 11, color: 'var(--text3)' }}>You</span>}

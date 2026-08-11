@@ -3,6 +3,12 @@ import Card, { EmptyCard } from '../components/Card';
 
 const PLAYER_COLOURS = ['var(--p1)', 'var(--p2)', 'var(--p3)', 'var(--p4)'];
 const RANK_ORDER = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+
+function pSuit(name) {
+  const h = (name || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+  return ['♠', '♥', '♦', '♣'][h % 4];
+}
+function pSuitColor(name) { const s = pSuit(name); return (s === '♥' || s === '♦') ? '#c0392b' : '#1a1a2e'; }
 const SUIT_ORDER = ['♠','♥','♦','♣'];
 
 // ─── Audio engine (module-level, lazy AudioContext) ───────────────────────────
@@ -792,7 +798,7 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
             style={game.currentPlayerIndex === i ? { borderColor: PLAYER_COLOURS[i] } : {}}
           >
             <div className="pchip-left">
-              <div className="pchip-dot" style={{ background: PLAYER_COLOURS[i] }} />
+              <span className="pchip-suit" style={{ color: pSuitColor(p.name) }}>{pSuit(p.name)}</span>
               <div className="pchip-name">{p.id === myId ? 'You' : p.name}</div>
             </div>
             <div className="pchip-right">

@@ -143,6 +143,14 @@ html, body, #root {
   background: linear-gradient(135deg, var(--acc), #4B3FC7);
   display: flex; align-items: center; justify-content: center;
   font-size: 14px; font-weight: 700; flex-shrink: 0;
+  position: relative;
+}
+.avatar-pip {
+  position: absolute; bottom: -2px; right: -2px;
+  width: 15px; height: 15px; border-radius: 50%;
+  background: #fff; border: 1.5px solid rgba(0,0,0,0.14);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 8px; line-height: 1;
 }
 .greeting { flex: 1; }
 .greeting .sub  { font-size: 12px; color: var(--text2); }
@@ -387,6 +395,7 @@ html, body, #root {
   border: 1px solid var(--border);
 }
 .player-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.player-suit-pip { font-size: 14px; line-height: 1; flex-shrink: 0; width: 18px; text-align: center; font-family: Georgia, serif; }
 .player-row-name { font-size: 15px; font-weight: 500; flex: 1; }
 .player-row-host { font-size: 11px; color: var(--gold); }
 .player-waiting  { font-size: 11px; color: var(--text3); font-style: italic; }
@@ -535,6 +544,7 @@ html, body, #root {
 .pchip-score { font-size: 13px; font-weight: 700; line-height: 1.1; }
 .pchip-cards { font-size: 9px; color: var(--text3); line-height: 1; }
 .pchip-dot   { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.pchip-suit  { font-size: 11px; line-height: 1; flex-shrink: 0; font-family: Georgia, serif; }
 
 .beanie-bar {
   background: var(--goldbg); border: 1px solid var(--goldbdr);
