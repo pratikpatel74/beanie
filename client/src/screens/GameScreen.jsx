@@ -720,9 +720,12 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
             <div className="exit-modal-title">Host options</div>
             <div className="exit-modal-actions" style={{ flexDirection: 'column', gap: 10 }}>
               {!game.isPaused && (
-                <button className="exit-modal-cancel" style={{ background: 'rgba(240,180,41,0.12)', border: '1px solid rgba(240,180,41,0.3)', color: 'var(--gold)' }}
+                <button className="exit-modal-cancel" style={{ background: 'rgba(240,180,41,0.12)', border: '1px solid rgba(240,180,41,0.3)', color: 'var(--gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
                   onClick={() => { actions.pauseGame(); setShowExitModal(false); }}>
-                  ⏸ Pause game
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>
+                  </svg>
+                  Pause game
                 </button>
               )}
               <button className="exit-modal-confirm" onClick={actions.exitGame}>
