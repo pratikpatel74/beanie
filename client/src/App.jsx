@@ -125,7 +125,10 @@ export default function App() {
             </div>
             <div className="exit-modal-title">Room expired</div>
             <div className="exit-modal-body">
-              This room has been open for 15 minutes without starting.<br/>Create a new room to play!
+              This room has been open for 15 minutes without starting.<br/>
+              {state.roomExpiredAsHost
+                ? 'Create a new room to play!'
+                : 'Ask the host to create a new room to play!'}
             </div>
             <div className="exit-modal-actions">
               <button className="exit-modal-confirm" style={{ background: 'var(--acc)' }} onClick={actions.dismissExpired}>

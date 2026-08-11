@@ -61,8 +61,9 @@ const INITIAL = {
   inviteCode:    null,    // set from ?join=XXXX URL param; cleared once used
   connected:     false,
   everConnected: false,
-  gameCancelled: false,   // true when host ended game — shows "host ended" modal for other players
-  roomExpired:   false,   // true when lobby 15-min expiry fires
+  gameCancelled:     false,  // true when host ended game — shows "host ended" modal for other players
+  roomExpired:       false,  // true when lobby 15-min expiry fires
+  roomExpiredAsHost: false,  // true if the expired player was the host (different modal copy)
   roomCode:      null,
   myId:          null,    // player's persistent ID within the game (may differ from socket.id after reconnect)
   game:          null,
@@ -116,7 +117,7 @@ function reducer(state, action) {
     case 'GAME_CANCELLED':
       return { ...INITIAL, playerName: state.playerName, myId: state.myId, gameCancelled: true };
     case 'ROOM_EXPIRED':
-      return { ...INITIAL, playerName: state.playerName, myId: state.myId, roomExpired: true };
+      return { ...INITIAL, playerName: state.playerName, myId: state.myId, roomExpired: true, roomExpiredAsHost: action.isHost || false };
     case 'RESET':
       return { ...INITIAL, playerName: state.playerName, myId: state.myId };
     default:
@@ -130,6 +131,7 @@ export function useGame() {
   const storedName   = loadPlayerName();
   const inviteCode   = getInviteCode();
   const selfExiting  = useRef(false); // true when this player triggered exitGame
+  const stateRef     = useRef(null);  // always points to latest state for use inside socket closures
   const [state, dispatch] = useReducer(reducer, {
     ...INITIAL,
     playerName: storedName,
@@ -138,6 +140,9 @@ export function useGame() {
       ? (inviteCode ? 'join' : 'home')
       : 'name',
   });
+
+  // Keep stateRef always pointing to the latest state (used in stale socket closures)
+  stateRef.current = state;
 
   // ─── Socket connection & event listeners ──────────────────────────────────
 
@@ -233,10 +238,12 @@ export function useGame() {
       clearSession();
     });
 
-    // Lobby 15-min expiry
+    // Lobby 15-min expiry — both host and non-host see a modal, but different copy
     socket.on('room:expired', () => {
+      const s = stateRef.current;
+      const isHost = s.myId && s.game?.players?.[0]?.id === s.myId;
       clearSession();
-      dispatch({ type: 'ROOM_EXPIRED' });
+      dispatch({ type: 'ROOM_EXPIRED', isHost });
     });
 
     return () => socket.removeAllListeners();
