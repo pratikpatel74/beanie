@@ -1171,6 +1171,8 @@ html, body, #root {
     justify-content: center;
     gap: 6px;
     min-width: 0;
+    min-height: 0;      /* allow grid cell to shrink */
+    overflow: hidden;   /* clip draw zone if too tall — prevents pushing hand off screen */
   }
 
   /* ls-bottom: full-width bottom bar — actions */
@@ -1214,11 +1216,32 @@ html, body, #root {
   .ls-right .pile-arrow { font-size: 13px; }
   .ls-right .pile-label { font-size: 9px; }
 
-  /* Draw zone in right column */
-  .ls-right .draw-zone { padding: 6px 6px 5px; width: 100%; }
-  .ls-right .draw-zone-label { font-size: 9px; margin-bottom: 4px; }
-  .ls-right .draw-zone .pile-row { flex-direction: column; gap: 4px; }
-  .ls-right .draw-zone .pile-arrow { font-size: 10px; }
+  /* Draw zone in right column — shrink cards to card-sm size so they fit in 1fr row */
+  .ls-right .draw-zone { padding: 5px 5px 4px; width: 100%; }
+  .ls-right .draw-zone-label { font-size: 9px; margin-bottom: 3px; }
+  .ls-right .draw-zone .pile-row { flex-direction: column; gap: 3px; }
+  .ls-right .draw-zone .pile-arrow { font-size: 9px; line-height: 1; }
+  .ls-right .draw-zone .pile-label { font-size: 8px; margin-top: 1px; }
+  /* Downsize card-md → card-sm in the draw zone */
+  .ls-right .card-md {
+    width: 40px; height: 56px; border-radius: 5px;
+  }
+  .ls-right .card-md .card-corner { padding: 2px 3px; }
+  .ls-right .card-md .ci-rank     { font-size: 8px; }
+  .ls-right .card-md .ci-suit     { font-size: 6px; }
+  .ls-right .card-md .card-pip    { font-size: 16px; }
+  .ls-right .card-md.beanie .card-pip { font-size: 13px; }
+
+  /* Pile compact: stack vertically in the right column */
+  .ls-right .pile-compact { flex-direction: column; width: 100%; }
+  .ls-right .pile-compact .pile-compact-sep {
+    width: 100%; height: 1px; align-self: unset;
+  }
+  .ls-right .pile-compact .pile-compact-half {
+    justify-content: center; gap: 6px;
+  }
+  .ls-right .pile-compact .pile-compact-half:first-child { padding: 5px 8px; }
+  .ls-right .pile-compact .pile-compact-half:last-child  { padding: 5px 8px; }
 
   /* ── Hand: slightly smaller cards to save vertical space ── */
   .hand-label { font-size: 9px; margin-bottom: 3px; }

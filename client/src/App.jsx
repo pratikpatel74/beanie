@@ -3,18 +3,18 @@ import { useState, useEffect, useRef } from 'react';
 
 // ─── Round-end audio (module-level so AudioContext persists) ──────────────────
 let _appActx = null;
-function _appAudio() {
+async function _appAudio() {
   if (!_appActx) _appActx = new (window.AudioContext || window.webkitAudioContext)();
-  if (_appActx.state === 'suspended') _appActx.resume();
+  if (_appActx.state === 'suspended') await _appActx.resume();
   return _appActx;
 }
 function _isMuted() {
   try { return localStorage.getItem('beanie_muted') === 'true'; } catch { return false; }
 }
-function playRoundFanfare() {
+async function playRoundFanfare() {
   if (_isMuted()) return;
   try {
-    const ctx = _appAudio(); const now = ctx.currentTime;
+    const ctx = await _appAudio(); const now = ctx.currentTime;
     [523, 659, 784].forEach((freq, i) => {
       const osc = ctx.createOscillator(); osc.type = 'triangle'; osc.frequency.value = freq;
       const g = ctx.createGain();
@@ -34,10 +34,10 @@ function playRoundFanfare() {
     });
   } catch {}
 }
-function playRoundDraw() {
+async function playRoundDraw() {
   if (_isMuted()) return;
   try {
-    const ctx = _appAudio(); const now = ctx.currentTime;
+    const ctx = await _appAudio(); const now = ctx.currentTime;
     [523, 392].forEach((freq, i) => {
       const osc = ctx.createOscillator(); osc.type = 'sine'; osc.frequency.value = freq;
       const g = ctx.createGain();

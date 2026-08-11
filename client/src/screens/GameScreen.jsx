@@ -8,17 +8,17 @@ const SUIT_ORDER = ['♠','♥','♦','♣'];
 // ─── Audio engine (module-level, lazy AudioContext) ───────────────────────────
 
 let _actx = null;
-function _audio() {
+async function _audio() {
   if (!_actx) _actx = new (window.AudioContext || window.webkitAudioContext)();
-  if (_actx.state === 'suspended') _actx.resume();
+  if (_actx.state === 'suspended') await _actx.resume();
   return _actx;
 }
 
 /** Card slap + low pitch-drop thud on discard */
-function playThwack(muted) {
+async function playThwack(muted) {
   if (muted) return;
   try {
-    const ctx = _audio(); const now = ctx.currentTime;
+    const ctx = await _audio(); const now = ctx.currentTime;
     // Noise burst
     const n = Math.floor(ctx.sampleRate * 0.06);
     const buf = ctx.createBuffer(1, n, ctx.sampleRate);
@@ -38,10 +38,10 @@ function playThwack(muted) {
 }
 
 /** Ascending shimmer chord when a set is laid */
-function playShimmer(muted) {
+async function playShimmer(muted) {
   if (muted) return;
   try {
-    const ctx = _audio(); const now = ctx.currentTime;
+    const ctx = await _audio(); const now = ctx.currentTime;
     [523, 659, 784, 1047].forEach((freq, i) => {
       const osc = ctx.createOscillator(); osc.type = 'sine'; osc.frequency.value = freq;
       const g = ctx.createGain();
@@ -55,10 +55,10 @@ function playShimmer(muted) {
 }
 
 /** Soft tick on turn change */
-function playTick(muted) {
+async function playTick(muted) {
   if (muted) return;
   try {
-    const ctx = _audio(); const now = ctx.currentTime;
+    const ctx = await _audio(); const now = ctx.currentTime;
     const osc = ctx.createOscillator(); osc.type = 'sine';
     osc.frequency.setValueAtTime(650, now); osc.frequency.exponentialRampToValueAtTime(320, now + 0.06);
     const g = ctx.createGain();
@@ -68,10 +68,10 @@ function playTick(muted) {
 }
 
 /** Soft descending two-note interval on round draw — neutral, conclusive */
-function playDraw(muted) {
+async function playDraw(muted) {
   if (muted) return;
   try {
-    const ctx = _audio(); const now = ctx.currentTime;
+    const ctx = await _audio(); const now = ctx.currentTime;
     [523, 392].forEach((freq, i) => {
       const osc = ctx.createOscillator(); osc.type = 'sine'; osc.frequency.value = freq;
       const g = ctx.createGain();
@@ -85,10 +85,10 @@ function playDraw(muted) {
 }
 
 /** Rising 3-note fanfare + sustained chord on round win */
-function playFanfare(muted) {
+async function playFanfare(muted) {
   if (muted) return;
   try {
-    const ctx = _audio(); const now = ctx.currentTime;
+    const ctx = await _audio(); const now = ctx.currentTime;
     // Three quick rising notes: C5 → E5 → G5
     [523, 659, 784].forEach((freq, i) => {
       const osc = ctx.createOscillator(); osc.type = 'triangle'; osc.frequency.value = freq;
@@ -114,10 +114,10 @@ function playFanfare(muted) {
 }
 
 /** Short whoosh per card dealt */
-function playWhoosh(muted, delay = 0) {
+async function playWhoosh(muted, delay = 0) {
   if (muted) return;
   try {
-    const ctx = _audio();
+    const ctx = await _audio();
     const now = ctx.currentTime + delay;
     const n = Math.floor(ctx.sampleRate * 0.07);
     const buf = ctx.createBuffer(1, n, ctx.sampleRate);
