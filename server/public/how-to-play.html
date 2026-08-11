@@ -206,22 +206,26 @@
     /* ─── CARD VISUALS ──── */
     .card-row { display: flex; align-items: flex-end; gap: 8px; margin: 16px 0; flex-wrap: wrap; }
     .hcard {
-      width: 50px; height: 70px; border-radius: 7px;
+      width: 52px; height: 74px; border-radius: 7px;
       background: #fff; border: 1px solid rgba(0,0,0,0.1);
       box-shadow: 0 4px 12px rgba(0,0,0,0.35);
-      display: flex; flex-direction: column; justify-content: space-between;
-      padding: 5px 6px; font-family: Georgia, serif; font-weight: 800;
-      font-size: 0.9rem; position: relative;
+      display: flex; align-items: center; justify-content: center;
+      font-family: Georgia, serif; font-weight: 800;
+      position: relative; overflow: visible;
     }
     .hcard.red { color: #c0392b; }
     .hcard.black { color: #111; }
-    /* card corners: rank + suit stacked */
-    .hc-c { display: flex; flex-direction: column; align-items: flex-start; line-height: 1; gap: 1px; }
-    .hc-r { font-size: 0.85rem; font-weight: 800; line-height: 1; }
-    .hc-s { font-size: 0.65rem; line-height: 1; }
-    .hc-br { align-self: flex-end; transform: rotate(180deg); }
+    /* corners: absolutely positioned so they never overflow */
+    .hc-c {
+      position: absolute; top: 4px; left: 5px;
+      display: flex; flex-direction: column; align-items: flex-start;
+      line-height: 1; gap: 1px;
+    }
+    .hc-r { font-size: 0.8rem; font-weight: 800; line-height: 1; }
+    .hc-s { font-size: 0.6rem; line-height: 1; }
+    .hc-br { top: auto; bottom: 4px; left: auto; right: 5px; transform: rotate(180deg); }
     /* centred pip */
-    .hcard .pip { font-size: 1.5rem; line-height: 1; flex: 1; display: flex; align-items: center; justify-content: center; }
+    .hcard .pip { font-size: 1.45rem; line-height: 1; }
     .hcard.beanie-c {
       background: linear-gradient(135deg, #2A1600, #180D00);
       border: 1.5px solid var(--gold); color: var(--gold);
@@ -687,24 +691,25 @@
             <h2>Room &amp; Controls</h2>
           </div>
 
+          <!-- NO EMOJI in rule titles — use plain text labels only -->
           <div class="rule-block">
-            <div class="rule-title">⏱ Lobby countdown</div>
+            <div class="rule-title">Lobby countdown</div>
             <div class="rule-body">A room stays open for <strong>15 minutes</strong> before it expires. A countdown is shown in the lobby from the moment it's created — get everyone in and start before time runs out. If it expires, all players are returned to the home screen.</div>
           </div>
 
           <div class="rule-block">
-            <div class="rule-title">⏸ Pause &amp; resume (host only)</div>
+            <div class="rule-title">Pause &amp; resume (host only)</div>
             <div class="rule-body">The host can pause the game at any time — tap <strong>Exit</strong> in the top-right corner, then choose <strong>Pause game</strong>. All players see a "Game paused" screen and the turn timer is suspended. The host can resume from the same overlay.</div>
           </div>
 
           <div class="rule-block">
-            <div class="rule-title">🃏 Sorting your hand</div>
+            <div class="rule-title">Sorting your hand</div>
             <div class="rule-body">Use the <strong>Deal / A→K / ♠♥♦♣</strong> toggle above your hand to sort cards. <em>A→K</em> sorts by rank (useful for spotting runs), <em>♠♥♦♣</em> sorts by suit then rank, and <em>Deal</em> returns to the original draw order.</div>
           </div>
 
           <div class="rule-block">
-            <div class="rule-title">ⓘ Rules in-game</div>
-            <div class="rule-body">You can open this guide mid-game by tapping the <strong>ⓘ</strong> button in the top bar. A <em>Back to game</em> button lets you return without losing your place.</div>
+            <div class="rule-title">Rules in-game</div>
+            <div class="rule-body">You can open this guide mid-game by tapping the <strong>(i)</strong> button in the top bar. A <em>Back to game</em> button lets you return without losing your place.</div>
           </div>
         </section>
 
