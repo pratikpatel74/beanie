@@ -3,26 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Beanie — Wild Card Rummy for 2–4 Players</title>
-  <meta name="description" content="Free multiplayer card game. The wild card changes every round. Create a room, share the code, play instantly — no download needed." />
-
-  <!-- Open Graph / social sharing -->
-  <meta property="og:type"        content="website" />
-  <meta property="og:site_name"   content="Beanie" />
-  <meta property="og:url"         content="https://www.playbeanie.com/" />
-  <meta property="og:title"       content="Beanie — Wild Card Rummy for 2–4 Players" />
-  <meta property="og:description" content="Free multiplayer card game. Create a room, share the code, play instantly — no download needed." />
-  <meta property="og:image"       content="https://www.playbeanie.com/og-image.png" />
-  <meta property="og:image:width"  content="1200" />
-  <meta property="og:image:height" content="630" />
-
-  <!-- Twitter / X card -->
-  <meta name="twitter:card"        content="summary_large_image" />
-  <meta name="twitter:site"        content="@playbeanie" />
-  <meta name="twitter:url"         content="https://www.playbeanie.com/" />
-  <meta name="twitter:title"       content="Beanie — Wild Card Rummy for 2–4 Players" />
-  <meta name="twitter:description" content="Free multiplayer card game. Create a room, share the code, play instantly — no download needed." />
-  <meta name="twitter:image"       content="https://www.playbeanie.com/og-image.png" />
+  <title>Beanie — The Card Game Where the Wild Card Changes Every Round</title>
+  <meta name="description" content="Beanie is a rummy-style multiplayer card game for 2–4 players. No download needed — just visit playbeanie.com and share a 4-letter room code." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -265,192 +247,131 @@
       color: var(--text);
     }
 
-    /* ─── PHONE MOCKUP ──────────────────────────────────────────── */
-    .phone-wrap {
+    /* ─── CARD FAN VISUAL ────────────────────────────────────────── */
+    .card-fan-wrapper {
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 420px;
       position: relative;
+      height: 340px;
     }
 
-    .phone-frame {
-      width: 230px;
-      height: 400px;
-      background: #12111f;
-      border-radius: 36px;
-      border: 2px solid #2a2840;
-      box-shadow: 0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
-      overflow: hidden;
+    .card-fan {
       position: relative;
-      display: flex;
-      flex-direction: column;
+      width: 220px;
+      height: 310px;
     }
 
-    .ph-notch {
-      width: 64px; height: 8px;
-      background: #0d0c1d;
-      border-radius: 0 0 8px 8px;
-      align-self: center;
-      flex-shrink: 0;
-    }
-
-    .ph-topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 6px 12px 4px;
-      gap: 6px;
-      flex-shrink: 0;
-    }
-
-    .ph-round-badge {
-      background: rgba(240,180,41,0.12);
-      border: 1px solid rgba(240,180,41,0.3);
-      border-radius: 20px;
-      padding: 3px 8px;
-      font-size: 7.5px;
-      font-weight: 700;
-      color: #f0b429;
-      white-space: nowrap;
-    }
-
-    .ph-timer {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 20px;
-      padding: 3px 7px;
-      font-size: 7.5px;
-      color: #888;
-      flex-shrink: 0;
-    }
-
-    .ph-chips {
-      display: flex;
-      gap: 4px;
-      padding: 0 10px 6px;
-      flex-shrink: 0;
-    }
-
-    .ph-chip {
-      flex: 1;
-      background: rgba(255,255,255,0.05);
-      border: 1.5px solid transparent;
-      border-radius: 8px;
-      padding: 4px 5px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .ph-chip.ph-active {
-      border-color: rgba(124,111,255,0.5);
-      background: rgba(124,111,255,0.1);
-    }
-
-    .ph-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
-    .ph-cname { font-size: 7px; color: #aaa; margin-left: 3px; }
-    .ph-cscore { font-size: 10px; font-weight: 700; color: #fff; }
-    .ph-ccards { font-size: 6.5px; color: #666; }
-
-    .ph-table {
-      margin: 0 10px 6px;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.07);
-      border-radius: 8px;
-      padding: 8px;
-      flex: 1;
-      min-height: 0;
-    }
-
-    .ph-sets-lbl { font-size: 7px; color: #555; margin-bottom: 5px; }
-    .ph-player-lbl { font-size: 6.5px; color: #666; margin-bottom: 3px; display: flex; align-items: center; gap: 3px; }
-    .ph-player-dot { width: 4px; height: 4px; border-radius: 50%; }
-    .ph-set-row { display: flex; gap: 3px; margin-bottom: 5px; }
-
-    .mc {
-      width: 24px; height: 33px;
-      border-radius: 4px;
+    .play-card {
+      position: absolute;
+      width: 110px;
+      height: 160px;
+      border-radius: 10px;
       background: #fff;
-      border: 1px solid rgba(0,0,0,0.1);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding: 2px 3px;
-      flex-shrink: 0;
-    }
-    .mc-r { font-size: 7px; font-weight: 800; line-height: 1; }
-    .mc-rb { font-size: 7px; font-weight: 800; line-height: 1; transform: rotate(180deg); align-self: flex-end; }
-    .mc.red .mc-r, .mc.red .mc-rb { color: #d0021b; }
-    .mc.blk .mc-r, .mc.blk .mc-rb { color: #111; }
-    .mc.bn { background: #1a1408; border: 1px solid #f0b429; }
-    .mc.bn .mc-r, .mc.bn .mc-rb { color: #f0b429; }
-
-    .ph-pile-row {
+      border: 1.5px solid rgba(0,0,0,0.08);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.3);
       display: flex;
       align-items: center;
-      gap: 5px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 8px;
-      padding: 5px 10px;
-      margin: 0 10px 5px;
-      flex-shrink: 0;
-    }
-
-    .pile-mini-back {
-      width: 18px; height: 25px;
-      border-radius: 3px;
-      background: #1e1c3a;
-      border: 1px solid rgba(255,255,255,0.15);
-      flex-shrink: 0;
-    }
-
-    .ph-pile-sep { width: 1px; background: rgba(255,255,255,0.08); align-self: stretch; margin: 0 3px; }
-    .ph-pile-num { font-size: 10px; font-weight: 700; color: #fff; line-height: 1; }
-    .ph-pile-sub { font-size: 6.5px; color: #666; }
-
-    .ph-hand-area { padding: 0 10px; flex-shrink: 0; }
-    .ph-hand-lbl { font-size: 6.5px; color: #555; margin-bottom: 4px; }
-
-    .ph-hand {
-      display: flex;
       justify-content: center;
+      font-weight: 800;
+      font-size: 1.3rem;
+      bottom: 0;
+      left: 50%;
+      transform-origin: bottom center;
+      transition: transform 0.3s ease;
     }
 
-    .hc {
-      width: 32px; height: 45px;
-      border-radius: 5px;
-      background: #fff;
-      border: 1px solid rgba(0,0,0,0.1);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding: 3px 4px;
-      margin-left: -8px;
-      box-shadow: -2px 0 8px rgba(0,0,0,0.3);
+    .play-card .rank-top {
+      position: absolute;
+      top: 8px;
+      left: 10px;
+      font-size: 1rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .play-card .rank-bottom {
+      position: absolute;
+      bottom: 8px;
+      right: 10px;
+      font-size: 1rem;
+      font-weight: 800;
+      line-height: 1;
+      transform: rotate(180deg);
+    }
+    .play-card .suit-center {
+      font-size: 2rem;
     }
 
-    .hc:first-child { margin-left: 0; }
-    .hc-r { font-size: 8px; font-weight: 800; line-height: 1; }
-    .hc-rb { font-size: 8px; font-weight: 800; line-height: 1; transform: rotate(180deg); align-self: flex-end; }
-    .hc.red .hc-r, .hc.red .hc-rb { color: #d0021b; }
-    .hc.blk .hc-r, .hc.blk .hc-rb { color: #111; }
-    .hc.bn { background: #1a1408; border: 1.5px solid #f0b429; box-shadow: -2px 0 8px rgba(0,0,0,0.3), 0 0 0 2px rgba(240,180,41,0.15); }
-    .hc.bn .hc-r, .hc.bn .hc-rb { color: #f0b429; }
-    .hc.sel { outline: 2px solid rgba(124,111,255,0.9); outline-offset: 1px; transform: translateY(-6px); }
+    .card-red   { color: #d0021b; }
+    .card-black { color: #111; }
 
-    .ph-discard {
-      margin: 6px 10px 8px;
-      background: rgba(232,84,128,0.15);
-      border: 1px solid rgba(232,84,128,0.3);
-      border-radius: 20px;
-      padding: 6px 0;
-      text-align: center;
-      font-size: 9px;
+    /* Card 1 — far left */
+    .c1 { transform: translateX(-50%) rotate(-28deg); z-index: 1; }
+    /* Card 2 */
+    .c2 { transform: translateX(-50%) rotate(-14deg); z-index: 2; }
+    /* Card 3 — centre */
+    .c3 { transform: translateX(-50%) rotate(0deg); z-index: 3; }
+    /* Card 4 */
+    .c4 { transform: translateX(-50%) rotate(14deg); z-index: 2; }
+    /* Card 5 — far right */
+    .c5 { transform: translateX(-50%) rotate(28deg); z-index: 1; }
+
+    /* The Beanie wild card — gold themed, on top */
+    .play-card.beanie-card {
+      background: linear-gradient(135deg, #2d200a 0%, #1c1408 100%);
+      border: 2px solid var(--gold);
+      color: var(--gold);
+      z-index: 10;
+      transform: translateX(-50%) translateY(-28px) rotate(0deg) scale(1.08);
+      box-shadow: 0 0 0 4px rgba(240,180,41,0.18), 0 16px 48px rgba(0,0,0,0.6);
+      animation: float-card 3.5s ease-in-out infinite;
+    }
+    .play-card.beanie-card .beanie-label {
+      font-size: 0.55rem;
       font-weight: 700;
-      color: #e85480;
-      flex-shrink: 0;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-top: 2px;
+    }
+
+    @keyframes float-card {
+      0%, 100% { transform: translateX(-50%) translateY(-28px) rotate(0deg) scale(1.08); }
+      50%       { transform: translateX(-50%) translateY(-40px) rotate(0deg) scale(1.08); }
+    }
+
+    .card-fan-wrapper .glow-ring {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 200px;
+      height: 60px;
+      background: radial-gradient(ellipse, rgba(240, 180, 41, 0.2) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    /* room code badge */
+    .room-badge {
+      position: absolute;
+      top: 10px;
+      right: 0px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+    .room-badge .code {
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: var(--gold);
+      letter-spacing: 4px;
+      display: block;
+      margin-top: 4px;
     }
 
     /* ─── HOW IT WORKS ───────────────────────────────────────────── */
@@ -609,39 +530,11 @@
       border-color: rgba(100, 220, 180, 0.4);
     }
 
-    /* Feature icon container — replaces raw emoji */
-    .feature-icon {
-      width: 52px;
-      height: 52px;
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 20px;
-      flex-shrink: 0;
+    .feature-emoji {
+      font-size: 2rem;
+      margin-bottom: 16px;
+      display: block;
     }
-    .feature-icon svg { width: 26px; height: 26px; }
-    .feature-icon-gold   { background: rgba(240,180,41,0.14);  color: var(--gold); }
-    .feature-icon-red    { background: rgba(232,84,128,0.14);  color: var(--red); }
-    .feature-icon-teal   { background: rgba(100,220,180,0.13); color: #5fd4aa; }
-    .feature-icon-purple { background: rgba(124,111,255,0.14); color: var(--purple); }
-
-    /* Step icon */
-    .step-icon {
-      font-size: 1.6rem;
-      margin-bottom: 14px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .step-icon svg { width: 28px; height: 28px; }
-    .step-icon-spade  { color: var(--purple); }
-    .step-icon-star   { color: var(--gold); }
-    .step-icon-heart  { color: var(--red); }
-
-    /* Platform pill icons */
-    .platform-pill svg { width: 15px; height: 15px; flex-shrink: 0; }
 
     .feature-card h3 {
       font-size: 1.15rem;
@@ -775,14 +668,65 @@
       color: var(--text);
     }
 
-    /* ─── FAQ ───────────────────────────────────────────────────── */
-    .faq { padding: 96px 0; }
-    .faq-list { margin-top: 40px; display: flex; flex-direction: column; gap: 0; border-top: 1px solid var(--border); }
-    .faq-item { padding: 22px 0; border-bottom: 1px solid var(--border); }
-    .faq-q { font-size: 1rem; font-weight: 600; color: var(--text); margin-bottom: 8px; }
-    .faq-a { font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; }
-    .faq-a a { color: var(--gold); text-decoration: none; }
-    .faq-a a:hover { text-decoration: underline; }
+    /* ─── FAQ ────────────────────────────────────────────────────── */
+    .faq {
+      padding: 100px 0;
+      border-top: 1px solid var(--border);
+    }
+    .faq-list {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    .faq-item {
+      border-bottom: 1px solid var(--border);
+    }
+    .faq-item:first-child {
+      border-top: 1px solid var(--border);
+    }
+    .faq-item details summary {
+      padding: 20px 0;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      user-select: none;
+      transition: color 0.15s;
+    }
+    .faq-item details summary::-webkit-details-marker { display: none; }
+    .faq-item details summary:hover { color: var(--gold); }
+    .faq-chevron {
+      flex-shrink: 0;
+      width: 18px; height: 18px;
+      color: var(--text-muted);
+      transition: transform 0.2s;
+    }
+    .faq-item details[open] .faq-chevron { transform: rotate(180deg); }
+    .faq-answer {
+      padding: 0 0 20px;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.75;
+    }
+    .faq-answer a {
+      color: var(--purple);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      transition: color 0.15s;
+    }
+    .faq-answer a:hover { color: var(--gold); }
+    .faq-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+    .nav-htp { font-size: 0.88rem; padding: 9px 16px; }
 
     /* ─── RESPONSIVE ─────────────────────────────────────────────── */
     @media (max-width: 900px) {
@@ -790,8 +734,8 @@
         grid-template-columns: 1fr;
         gap: 48px;
       }
-      .phone-wrap {
-        height: auto;
+      .card-fan-wrapper {
+        height: 280px;
       }
       .feature-grid {
         grid-template-columns: 1fr;
@@ -806,10 +750,11 @@
 
     @media (max-width: 600px) {
       .hero { padding: 60px 0 60px; }
-      .how, .features, .cta-band { padding: 72px 0; }
+      .how, .features, .cta-band, .faq { padding: 72px 0; }
       .hero-content h1 { font-size: 2rem; }
       .cta-box { padding: 44px 24px; }
       .footer-inner { flex-direction: column; align-items: flex-start; gap: 10px; }
+      .nav-htp { display: none; }
     }
   </style>
 </head>
@@ -823,9 +768,10 @@
           <span class="logo-icon">★</span>
           <span class="logo-text">Beanie</span>
         </a>
-        <a href="https://play.playbeanie.com" class="btn-primary">
-          Play Now
-        </a>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <a href="/how-to-play.html" class="btn-ghost nav-htp">How to Play</a>
+          <a href="https://play.playbeanie.com" class="btn-primary">Play Now</a>
+        </div>
       </nav>
     </div>
   </header>
@@ -847,109 +793,43 @@
           <p class="hero-url" style="margin-top:16px;">Or visit <a href="https://play.playbeanie.com">playbeanie.com</a></p>
         </div>
 
-        <!-- Phone mockup showing actual game UI -->
-        <div class="phone-wrap reveal" style="transition-delay:0.15s;">
-          <div class="phone-frame">
-            <div class="ph-notch"></div>
-
-            <!-- Top bar: round badge + timer -->
-            <div class="ph-topbar">
-              <div class="ph-round-badge">Round 7 of 13 · ★ 7s Beanie</div>
-              <div class="ph-timer">0:42</div>
+        <div class="card-fan-wrapper reveal" style="transition-delay:0.15s;">
+          <div class="card-fan">
+            <!-- Back cards fan -->
+            <div class="play-card c1" style="background:#1e4d3b; border-color:rgba(255,255,255,0.08);">
+              <div class="rank-top" style="color:rgba(255,255,255,0.3)">A</div>
+              <div class="suit-center" style="color:rgba(255,255,255,0.15)">♣</div>
+              <div class="rank-bottom" style="color:rgba(255,255,255,0.3)">A</div>
             </div>
-
-            <!-- Player chips (3 players) -->
-            <div class="ph-chips">
-              <div class="ph-chip">
-                <div class="ph-dot" style="background:#e85480;"></div>
-                <div style="flex:1;margin-left:3px;">
-                  <div class="ph-cname">Alex</div>
-                  <div class="ph-cscore">34</div>
-                </div>
-                <div class="ph-ccards">9c</div>
-              </div>
-              <div class="ph-chip ph-active">
-                <div class="ph-dot" style="background:#7c6fff;"></div>
-                <div style="flex:1;margin-left:3px;">
-                  <div class="ph-cname">You</div>
-                  <div class="ph-cscore">51</div>
-                </div>
-                <div class="ph-ccards">7c</div>
-              </div>
-              <div class="ph-chip">
-                <div class="ph-dot" style="background:#34d399;"></div>
-                <div style="flex:1;margin-left:3px;">
-                  <div class="ph-cname">Sam</div>
-                  <div class="ph-cscore">29</div>
-                </div>
-                <div class="ph-ccards">8c</div>
-              </div>
+            <div class="play-card c2">
+              <div class="rank-top card-red">7</div>
+              <div class="suit-center card-red">♥</div>
+              <div class="rank-bottom card-red">7</div>
             </div>
-
-            <!-- Table / sets area -->
-            <div class="ph-table">
-              <div class="ph-sets-lbl">Sets on table</div>
-
-              <!-- Your sets -->
-              <div class="ph-player-lbl">
-                <div class="ph-player-dot" style="background:#7c6fff;"></div> You
-              </div>
-              <div class="ph-set-row">
-                <div class="mc blk"><span class="mc-r">7</span><span class="mc-rb">7</span></div>
-                <div class="mc blk"><span class="mc-r">7</span><span class="mc-rb">7</span></div>
-                <div class="mc bn"><span class="mc-r">★</span><span class="mc-rb">★</span></div>
-              </div>
-              <div class="ph-set-row">
-                <div class="mc red"><span class="mc-r">Q</span><span class="mc-rb">Q</span></div>
-                <div class="mc blk"><span class="mc-r">Q</span><span class="mc-rb">Q</span></div>
-                <div class="mc red"><span class="mc-r">Q</span><span class="mc-rb">Q</span></div>
-                <div class="mc blk"><span class="mc-r">Q</span><span class="mc-rb">Q</span></div>
-              </div>
-
-              <!-- Opponent set -->
-              <div class="ph-player-lbl" style="margin-top:4px;">
-                <div class="ph-player-dot" style="background:#e85480;"></div> Alex
-              </div>
-              <div class="ph-set-row">
-                <div class="mc red"><span class="mc-r">A</span><span class="mc-rb">A</span></div>
-                <div class="mc blk"><span class="mc-r">A</span><span class="mc-rb">A</span></div>
-                <div class="mc red"><span class="mc-r">A</span><span class="mc-rb">A</span></div>
-              </div>
+            <div class="play-card c3">
+              <div class="rank-top card-black">J</div>
+              <div class="suit-center card-black">♠</div>
+              <div class="rank-bottom card-black">J</div>
             </div>
-
-            <!-- Pile pill -->
-            <div class="ph-pile-row">
-              <div class="pile-mini-back"></div>
-              <div>
-                <div class="ph-pile-num">24</div>
-                <div class="ph-pile-sub">Draw pile</div>
-              </div>
-              <div class="ph-pile-sep"></div>
-              <div class="mc red" style="width:18px;height:25px;flex-shrink:0;">
-                <span class="mc-r" style="font-size:6px;">K</span>
-                <span class="mc-rb" style="font-size:6px;">K</span>
-              </div>
-              <div>
-                <div class="ph-pile-sub">Discard</div>
-              </div>
+            <div class="play-card c4">
+              <div class="rank-top card-red">9</div>
+              <div class="suit-center card-red">♦</div>
+              <div class="rank-bottom card-red">9</div>
             </div>
-
-            <!-- Hand -->
-            <div class="ph-hand-area">
-              <div class="ph-hand-lbl">Your hand</div>
-              <div class="ph-hand">
-                <div class="hc blk"><span class="hc-r">3</span><span class="hc-rb">3</span></div>
-                <div class="hc red"><span class="hc-r">7</span><span class="hc-rb">7</span></div>
-                <div class="hc blk sel"><span class="hc-r">7</span><span class="hc-rb">7</span></div>
-                <div class="hc bn"><span class="hc-r">★</span><span class="hc-rb">★</span></div>
-                <div class="hc red"><span class="hc-r">J</span><span class="hc-rb">J</span></div>
-                <div class="hc blk"><span class="hc-r">K</span><span class="hc-rb">K</span></div>
-                <div class="hc red"><span class="hc-r">2</span><span class="hc-rb">2</span></div>
-              </div>
+            <!-- Beanie wild card — front and centre -->
+            <div class="play-card beanie-card c3" style="left:50%;">
+              <div class="rank-top" style="color:var(--gold)">★</div>
+              <div class="suit-center" style="font-size:2.2rem;">★</div>
+              <div class="rank-bottom" style="color:var(--gold)">★</div>
+              <div class="beanie-label" style="position:absolute;bottom:10px;left:0;right:0;text-align:center;">BEANIE</div>
             </div>
+          </div>
+          <div class="glow-ring"></div>
 
-            <!-- Discard button -->
-            <div class="ph-discard">Discard selected card</div>
+          <!-- Room code badge -->
+          <div class="room-badge">
+            Room code
+            <span class="code">KQJT</span>
           </div>
         </div>
 
@@ -968,35 +848,21 @@
 
         <div class="step reveal" style="transition-delay:0.05s;">
           <div class="step-num">1</div>
-          <div class="step-icon step-icon-purple">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
-              <polyline points="16 6 12 2 8 6"/>
-              <line x1="12" y1="2" x2="12" y2="15"/>
-            </svg>
-          </div>
+          <div class="step-icon">♠</div>
           <h3>Create a room &amp; share the code</h3>
           <p>Head to playbeanie.com, create a room and send the 4-letter code to your friends. They join instantly — no sign-up required.</p>
         </div>
 
         <div class="step reveal" style="transition-delay:0.12s;">
           <div class="step-num">2</div>
-          <div class="step-icon step-icon-star">
-            <svg viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2l2.118 6.524h6.861l-5.55 4.032 2.118 6.524L12 15.048l-5.547 4.032 2.118-6.524L3 8.524h6.882L12 2z"/>
-            </svg>
-          </div>
+          <div class="step-icon">★</div>
           <h3>Draw, lay sets, steal Beanies</h3>
           <p>Form runs and three-of-a-kinds. Use the Beanie wild card as any card you like — and snatch it back from opponents when you hold the real thing.</p>
         </div>
 
         <div class="step reveal" style="transition-delay:0.19s;">
           <div class="step-num">3</div>
-          <div class="step-icon step-icon-heart">
-            <svg viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 21.593c-.293-.237-6.61-5.386-8.535-7.538C1.548 11.79 1.5 8.65 3.7 6.757a5.27 5.27 0 0 1 7.297.54L12 8.362l1.003-1.065a5.27 5.27 0 0 1 7.297-.54c2.2 1.893 2.152 5.033.235 7.298C18.61 16.207 12.293 21.356 12 21.593z"/>
-            </svg>
-          </div>
+          <div class="step-icon">♥</div>
           <h3>Lowest score after 13 rounds wins</h3>
           <p>Empty your hand first to score zero. Everyone else scores for cards left behind. The wild card rank changes each round — Aces first, all the way through to Kings in round 13.</p>
         </div>
@@ -1015,52 +881,25 @@
       <div class="feature-grid">
 
         <div class="feature-card accent-gold reveal" style="transition-delay:0.05s;">
-          <div class="feature-icon feature-icon-gold">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-              <path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72Z"/>
-              <path d="m14 7 3 3"/>
-              <path d="M5 6v4"/>
-              <path d="M19 14v4"/>
-              <path d="M10 2v2"/>
-              <path d="M7 8H3"/>
-              <path d="M21 16h-4"/>
-              <path d="M11 3H9"/>
-            </svg>
-          </div>
+          <span class="feature-emoji">★</span>
           <h3>The Beanie changes every round</h3>
-          <p>Round one the wild card is Aces. Round two it's 2s, then 3s, all the way up to Kings in round 13. The same hand that wins one round can crumble the next — you can never get too comfortable.</p>
+          <p>Round one the wild card is Aces. Round two it's 2s, all the way up to Kings in round 13. The same hand that wins one round can crumble the next — you can never get too comfortable.</p>
         </div>
 
         <div class="feature-card accent-red reveal" style="transition-delay:0.12s;">
-          <div class="feature-icon feature-icon-red">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-              <path d="m16 3 4 4-4 4"/>
-              <path d="M20 7H4"/>
-              <path d="m8 21-4-4 4-4"/>
-              <path d="M4 17h16"/>
-            </svg>
-          </div>
+          <span class="feature-emoji">🤺</span>
           <h3>Steal the Beanie</h3>
           <p>Spot an opponent using a Beanie wild card as a stand-in in their set? If you hold the real card it's covering for, you can steal the Beanie right out of their set and take it into your own hand. Watch the table turn in an instant.</p>
         </div>
 
         <div class="feature-card accent-teal reveal" style="transition-delay:0.19s;">
-          <div class="feature-icon feature-icon-teal">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-              <rect width="14" height="20" x="5" y="2" rx="2" ry="2"/>
-              <path d="M12 18h.01"/>
-            </svg>
-          </div>
+          <span class="feature-emoji">📱</span>
           <h3>Play anywhere, on anything</h3>
           <p>Beanie runs entirely in your browser. No app store, no download, no account. Tap the link on your phone, share the 4-letter room code, and you're playing in seconds — wherever you are.</p>
         </div>
 
         <div class="feature-card accent-purple reveal" style="transition-delay:0.26s;">
-          <div class="feature-icon feature-icon-purple">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>
-            </svg>
-          </div>
+          <span class="feature-emoji">⚡</span>
           <h3>Quick rounds, big swings</h3>
           <p>Each round is short and punchy. One perfectly timed steal or a lucky draw can swing the whole leaderboard. Whether you're half a point up or trailing badly, you're always one round away from a comeback.</p>
         </div>
@@ -1069,24 +908,79 @@
     </div>
   </section>
 
-  <!-- ─── FAQ ─────────────────────────────────────────────────────── -->
-  <section class="faq">
+  <!-- ─── FAQ ─────────────────────────────────────────────────────────── -->
+  <section class="faq" id="faq">
     <div class="container">
       <p class="section-label reveal">FAQ</p>
       <h2 class="section-title reveal">Common questions</h2>
-      <div class="faq-list reveal">
-        <div class="faq-item">
-          <p class="faq-q">Do I need an account?</p>
-          <p class="faq-a">No. Open the link, enter a name, and you're in. No sign-up, no email, no password — ever.</p>
+
+      <div class="faq-list">
+
+        <div class="faq-item reveal">
+          <details>
+            <summary>Do I need an account?
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </summary>
+            <p class="faq-answer">No. Open the link, enter a name, and you're in. No sign-up, no email, no password — ever.</p>
+          </details>
         </div>
-        <div class="faq-item">
-          <p class="faq-q">How many players?</p>
-          <p class="faq-a">Beanie supports 2 to 4 players per game. You need at least two to start a room.</p>
+
+        <div class="faq-item reveal">
+          <details>
+            <summary>How many players?
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </summary>
+            <p class="faq-answer">Beanie supports 2 to 4 players per game. You need at least two to start a room.</p>
+          </details>
         </div>
-        <div class="faq-item">
-          <p class="faq-q">Is it free?</p>
-          <p class="faq-a">Yes — completely free to play in any browser. No ads, no in-app purchases. If you enjoy it, <!-- ⚠️ KO-FI LINK — DO NOT REMOVE --><a href="https://ko-fi.com/beaniepod" target="_blank" rel="noopener">buy us a coffee</a><!-- ⚠️ END KO-FI LINK --> to help keep the servers running.</p>
+
+        <div class="faq-item reveal">
+          <details>
+            <summary>Is it free?
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </summary>
+            <!-- ⚠️ KO-FI LINK — DO NOT REMOVE -->
+            <p class="faq-answer">Yes — completely free to play in any browser. No ads, no in-app purchases. If you enjoy it, <a href="https://ko-fi.com/beaniepod">buy us a coffee ☕</a> to help keep the servers running.</p>
+            <!-- ⚠️ END KO-FI LINK -->
+          </details>
         </div>
+
+        <div class="faq-item reveal">
+          <details>
+            <summary>How do turns work?
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </summary>
+            <p class="faq-answer">Each turn: draw a card (from the draw pile or top of the discard pile), optionally lay sets or add cards to sets already on the table, then discard one card to end your turn. Empty your hand to win the round and score zero. <a class="faq-link" href="/how-to-play.html#turns">Full rules →</a></p>
+          </details>
+        </div>
+
+        <div class="faq-item reveal">
+          <details>
+            <summary>What counts as a valid set?
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </summary>
+            <p class="faq-answer">Two types — a <strong>Match</strong> (3 or more cards of the same rank, each a different suit) or a <strong>Run</strong> (3 or more consecutive cards of the same suit). Beanies can substitute for any card in either. <a class="faq-link" href="/how-to-play.html#sets">Full rules →</a></p>
+          </details>
+        </div>
+
+        <div class="faq-item reveal">
+          <details>
+            <summary>How does scoring work?
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </summary>
+            <p class="faq-answer">The round winner scores 0. Everyone else scores penalty points for cards still in hand — face value for 2–9, 10 pts for tens and face cards, 1 pt for Aces, and 10 pts if you're caught holding a Beanie. Lowest total after all 13 rounds wins. <a class="faq-link" href="/how-to-play.html#scoring">Full rules →</a></p>
+          </details>
+        </div>
+
+        <div class="faq-item reveal">
+          <details>
+            <summary>Can I steal a Beanie from another player?
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </summary>
+            <p class="faq-answer">Yes. If a Beanie on the table is standing in for a specific card and you hold that exact card in your hand, you can swap yours in and take the Beanie for yourself. You must have already laid at least one set of your own first. <a class="faq-link" href="/how-to-play.html#steal">Full rules →</a></p>
+          </details>
+        </div>
+
       </div>
     </div>
   </section>
@@ -1101,27 +995,12 @@
           Start a game at playbeanie.com
         </a>
         <div class="platforms">
-          <span class="platform-pill">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2"/><path d="M12 18h.01"/></svg>
-            iPhone &amp; Android
-          </span>
+          <span class="platform-pill">📱 iPhone &amp; Android</span>
           <span class="platform-pill" style="color:var(--border)">·</span>
-          <span class="platform-pill">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><path d="M0 21h24" stroke-width="1.5"/></svg>
-            Mac &amp; Windows
-          </span>
+          <span class="platform-pill">💻 Mac &amp; Windows</span>
           <span class="platform-pill" style="color:var(--border)">·</span>
-          <span class="platform-pill">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-            Any browser
-          </span>
+          <span class="platform-pill">🌐 Any browser</span>
         </div>
-        <p style="margin-top:20px;font-size:0.88rem;color:var(--text-muted);">
-          Enjoying Beanie?
-          <!-- ⚠️ KO-FI LINK — DO NOT REMOVE -->
-          <a href="https://ko-fi.com/beaniepod" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;">Buy us a coffee</a>
-          <!-- ⚠️ END KO-FI LINK -->
-        </p>
       </div>
     </div>
   </section>
@@ -1134,19 +1013,14 @@
           <span class="footer-logo-icon">★</span>
           <span class="footer-logo-text">Beanie</span>
         </a>
-        <!-- ⚠️ KO-FI LINK — DO NOT REMOVE -->
-        <a href="https://ko-fi.com/beaniepod" target="_blank" rel="noopener" class="footer-copy" style="text-decoration:none;font-weight:500;display:inline-flex;align-items:center;gap:5px;">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-          Support Beanie
-        </a>
-        <!-- ⚠️ END KO-FI LINK -->
         <p class="footer-copy">
           © Beanie 2026 ·
           <a href="https://play.playbeanie.com">playbeanie.com</a> ·
-          <a href="/privacy.html">Privacy Policy</a> ·
-          <a href="/terms.html">Terms &amp; Conditions</a> ·
+          <a href="/how-to-play.html">How to Play</a> ·
+          <a href="/privacy.html">Privacy</a> ·
+          <a href="/terms.html">Terms</a> ·
           <!-- ⚠️ KO-FI LINK — DO NOT REMOVE -->
-          <a href="https://ko-fi.com/beaniepod" target="_blank" rel="noopener">Support on Ko-fi</a>
+          <a href="https://ko-fi.com/beaniepod">Support on Ko-fi</a>
           <!-- ⚠️ END KO-FI LINK -->
         </p>
       </div>
