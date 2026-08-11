@@ -62,6 +62,7 @@ const INITIAL = {
   connected:     false,
   everConnected: false,
   gameCancelled: false,   // true when host ended game — shows "host ended" modal for other players
+  roomExpired:   false,   // true when lobby 15-min expiry fires
   roomCode:      null,
   myId:          null,    // player's persistent ID within the game (may differ from socket.id after reconnect)
   game:          null,
@@ -114,6 +115,8 @@ function reducer(state, action) {
       return { ...state, playerName: action.name, screen: state.inviteCode ? 'join' : 'home' };
     case 'GAME_CANCELLED':
       return { ...INITIAL, playerName: state.playerName, myId: state.myId, gameCancelled: true };
+    case 'ROOM_EXPIRED':
+      return { ...INITIAL, playerName: state.playerName, myId: state.myId, roomExpired: true };
     case 'RESET':
       return { ...INITIAL, playerName: state.playerName, myId: state.myId };
     default:
@@ -230,16 +233,23 @@ export function useGame() {
       clearSession();
     });
 
+    // Lobby 15-min expiry
+    socket.on('room:expired', () => {
+      clearSession();
+      dispatch({ type: 'ROOM_EXPIRED' });
+    });
+
     return () => socket.removeAllListeners();
   }, []);
 
   // ─── Timer tick ───────────────────────────────────────────────────────────
+  // Stop ticking while game is paused (server has already cleared its timer).
 
   useEffect(() => {
-    if (!state.timer) return;
+    if (!state.timer || state.game?.isPaused) return;
     const interval = setInterval(() => dispatch({ type: 'TIMER_TICK' }), 1000);
     return () => clearInterval(interval);
-  }, [state.timer]);
+  }, [state.timer, state.game?.isPaused]);
 
   // Auto-clear notices after 3s
   useEffect(() => {
@@ -307,7 +317,11 @@ export function useGame() {
       socket.emit('game:exit');
     }, []),
 
+    pauseGame:   useCallback(() => socket.emit('game:pause'),  []),
+    resumeGame:  useCallback(() => socket.emit('game:resume'), []),
+
     dismissCancelled: useCallback(() => dispatch({ type: 'RESET' }), []),
+    dismissExpired:   useCallback(() => dispatch({ type: 'RESET' }), []),
   };
 
   // Convenience helpers derived from state

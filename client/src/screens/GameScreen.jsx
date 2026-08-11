@@ -688,7 +688,25 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
   return (
     <div className="game-screen">
 
-      {/* Exit confirmation modal */}
+      {/* Paused overlay — shown to all players while game is paused */}
+      {game.isPaused && (
+        <div className="pause-overlay">
+          <div className="pause-box">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>
+            </svg>
+            <div className="pause-title">Game paused</div>
+            <div className="pause-sub">{isHost ? 'Tap Resume to continue' : 'Waiting for host to resume…'}</div>
+            {isHost && (
+              <button className="pause-resume-btn" onClick={actions.resumeGame}>
+                ▶ Resume
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Exit / pause modal — host only */}
       {showExitModal && (
         <div className="exit-modal-overlay" onClick={() => setShowExitModal(false)}>
           <div className="exit-modal" onClick={e => e.stopPropagation()}>
@@ -699,13 +717,16 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
                 <line x1="21" y1="12" x2="9" y2="12"/>
               </svg>
             </div>
-            <div className="exit-modal-title">End the game?</div>
-            <div className="exit-modal-body">
-              This will cancel the game for all players.<br/>Scores will not be saved.
-            </div>
-            <div className="exit-modal-actions">
+            <div className="exit-modal-title">Host options</div>
+            <div className="exit-modal-actions" style={{ flexDirection: 'column', gap: 10 }}>
+              {!game.isPaused && (
+                <button className="exit-modal-cancel" style={{ background: 'rgba(240,180,41,0.12)', border: '1px solid rgba(240,180,41,0.3)', color: 'var(--gold)' }}
+                  onClick={() => { actions.pauseGame(); setShowExitModal(false); }}>
+                  ⏸ Pause game
+                </button>
+              )}
               <button className="exit-modal-confirm" onClick={actions.exitGame}>
-                End game
+                End game for all
               </button>
               <button className="exit-modal-cancel" onClick={() => setShowExitModal(false)}>
                 Keep playing
@@ -722,9 +743,9 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
           <span className="rb-sep">·</span>
           <span className="rb-beanie">★ {game.beanieRank} Beanie</span>
         </div>
-        {timer && isMyTurn ? (
+        {!game.isPaused && timer && isMyTurn ? (
           <div className={`timer-badge${timerUrgent ? ' urgent' : ''}`}>⏱ {timer.seconds}s</div>
-        ) : timer ? (
+        ) : !game.isPaused && timer ? (
           <div className="timer-badge">⏱ {timer.seconds}s</div>
         ) : null}
         {/* Mute toggle */}

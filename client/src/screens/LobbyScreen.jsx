@@ -1,13 +1,42 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const PLAYER_COLOURS = ['var(--p1)', 'var(--p2)', 'var(--p3)', 'var(--p4)'];
+const SHOW_EXPIRY_THRESHOLD_MS = 5 * 60 * 1000; // show countdown when <5 min left
 
-export default function LobbyScreen({ game, roomCode, myId, error, actions }) {
+function useExpiryCountdown(lobbyExpiresAt) {
+  const [secsLeft, setSecsLeft] = useState(null);
+
+  useEffect(() => {
+    if (!lobbyExpiresAt) return;
+    function update() {
+      const ms = lobbyExpiresAt - Date.now();
+      setSecsLeft(ms > 0 ? Math.ceil(ms / 1000) : 0);
+    }
+    update();
+    const id = setInterval(update, 1000);
+    return () => clearInterval(id);
+  }, [lobbyExpiresAt]);
+
+  return secsLeft;
+}
+
+function formatExpiry(secs) {
+  if (secs === null || secs < 0) return null;
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+
+export default function LobbyScreen({ game, roomCode, myId, error, actions, lobbyExpiresAt }) {
   const players  = game?.players || [];
   const isHost   = players[0]?.id === myId;
   const canStart = players.length >= 2;
   const [copied, setCopied]         = useState(false);
   const [codeCopied, setCodeCopied] = useState(false);
+
+  const secsLeft     = useExpiryCountdown(lobbyExpiresAt);
+  const showCountdown = secsLeft !== null && secsLeft <= SHOW_EXPIRY_THRESHOLD_MS / 1000;
+  const expiryUrgent  = secsLeft !== null && secsLeft <= 60;
 
   async function handleCopyCode() {
     try {
@@ -43,6 +72,15 @@ export default function LobbyScreen({ game, roomCode, myId, error, actions }) {
       </div>
 
       {error && <div className="error-toast">{error}</div>}
+
+      {showCountdown && (
+        <div className={`lobby-expiry-bar${expiryUrgent ? ' urgent' : ''}`}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+          Room expires in {formatExpiry(secsLeft)}
+        </div>
+      )}
 
       <div className="lobby-inner scroll">
         <div className="room-code-box">

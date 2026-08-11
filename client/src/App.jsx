@@ -113,6 +113,29 @@ export default function App() {
         </div>
       )}
 
+      {/* Lobby expired modal — shown to all players when 15-min room expiry fires */}
+      {state.roomExpired && (
+        <div className="reconnect-overlay">
+          <div className="exit-modal">
+            <div className="exit-modal-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
+            <div className="exit-modal-title">Room expired</div>
+            <div className="exit-modal-body">
+              This room has been open for 15 minutes without starting.<br/>Create a new room to play!
+            </div>
+            <div className="exit-modal-actions">
+              <button className="exit-modal-confirm" style={{ background: 'var(--acc)' }} onClick={actions.dismissExpired}>
+                Back to home
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Host cancelled modal — shown to non-host players when game is ended */}
       {state.gameCancelled && (
         <div className="reconnect-overlay">
@@ -163,6 +186,7 @@ export default function App() {
           game={game} roomCode={roomCode}
           myId={myId} error={error}
           actions={actions}
+          lobbyExpiresAt={game?.lobbyExpiresAt}
         />
       )}
       {screen === 'game' && game && (

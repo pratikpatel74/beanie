@@ -24,7 +24,7 @@
 
 const rm = require('../rooms/roomManager');
 const { startTimer, clearTimer, DEFAULT_DURATION_MS } = require('./timers');
-const { PHASE, STATUS } = require('../game/engine');
+const { PHASE, STATUS, LOBBY_EXPIRY_MS } = require('../game/engine');
 
 const TURN_DURATION_MS     = DEFAULT_DURATION_MS;
 const RECONNECT_GRACE_MS   = 60 * 1000; // 60 seconds
@@ -40,6 +40,9 @@ const playerToSocket = new Map();
 
 // clientId → setTimeout handle (grace period timers)
 const disconnectedTimers = new Map();
+
+// roomCode → setTimeout handle (lobby expiry timers)
+const lobbyExpiryTimers = new Map();
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -91,6 +94,43 @@ module.exports = function registerHandlers(io, socket) {
     io.to(roomCode).emit('game:state:public', publicView(game));
   }
 
+  /** ── Lobby expiry ────────────────────────────────────────────────────────
+   * Starts (or re-starts after a server restart) the lobby expiry countdown.
+   * Safe to call multiple times — no-ops if a timer already exists for the room.
+   */
+  function startLobbyExpiry(roomCode) {
+    if (lobbyExpiryTimers.has(roomCode)) return; // already running
+    const game = rm.getRoom(roomCode);
+    if (!game || game.status !== STATUS.WAITING) return;
+
+    const remaining = (game.lobbyExpiresAt || 0) - Date.now();
+    if (remaining <= 0) {
+      // Already expired — fire immediately
+      _expireRoom(roomCode);
+      return;
+    }
+
+    const handle = setTimeout(() => _expireRoom(roomCode), remaining);
+    lobbyExpiryTimers.set(roomCode, handle);
+  }
+
+  function cancelLobbyExpiry(roomCode) {
+    const handle = lobbyExpiryTimers.get(roomCode);
+    if (handle) {
+      clearTimeout(handle);
+      lobbyExpiryTimers.delete(roomCode);
+    }
+  }
+
+  function _expireRoom(roomCode) {
+    lobbyExpiryTimers.delete(roomCode);
+    const game = rm.getRoom(roomCode);
+    if (!game || game.status !== STATUS.WAITING) return; // already started
+    rm.forceDeleteRoom(roomCode);
+    io.to(roomCode).emit('room:expired');
+    console.log(`[lobby-expiry] Room ${roomCode} expired`);
+  }
+
   /** Start (or restart) the turn timer for the current player. */
   function resetTimer(roomCode, game) {
     clearTimer(roomCode);
@@ -101,7 +141,7 @@ module.exports = function registerHandlers(io, socket) {
     startTimer(roomCode, TURN_DURATION_MS, () => {
       // Timer expired — force a discard (or draw+discard if still in draw phase)
       let g = rm.getRoom(roomCode);
-      if (!g || g.status !== STATUS.PLAYING) return;
+      if (!g || g.status !== STATUS.PLAYING || g.isPaused) return;
 
       let cp = g.players[g.currentPlayerIndex];
       if (!cp) return;
@@ -158,6 +198,7 @@ module.exports = function registerHandlers(io, socket) {
 
     socket.emit('room:created', { roomCode });
     broadcast(roomCode, game);
+    startLobbyExpiry(roomCode);
   });
 
   socket.on('room:join', ({ roomCode, playerName }) => {
@@ -222,6 +263,9 @@ module.exports = function registerHandlers(io, socket) {
     socket.emit('game:state', { ...sanitise(room, playerId), myPlayerId: playerId });
     io.to(currentRoom).emit('game:player-reconnected', { playerId, playerName: player.name });
 
+    // Restart lobby expiry timer if room is still in WAITING (e.g. after server restart)
+    if (room.status === STATUS.WAITING) startLobbyExpiry(currentRoom);
+
     console.log(`[rejoin] ${player.name} rejoined ${currentRoom} (server restart path)`);
   });
 
@@ -244,12 +288,21 @@ module.exports = function registerHandlers(io, socket) {
     if (!currentRoom) return sendError('Not in a room');
     const result = rm.start(currentRoom);
     if (result.error) return sendError(result.error);
+    cancelLobbyExpiry(currentRoom);
     broadcast(currentRoom, result.game);
     resetTimer(currentRoom, result.game);
   });
 
+  /** Guard helper — rejects action if game is paused */
+  function rejectIfPaused() {
+    const g = rm.getRoom(currentRoom);
+    if (g?.isPaused) { sendError('Game is paused'); return true; }
+    return false;
+  }
+
   socket.on('game:draw-pile', () => {
     if (!currentRoom) return sendError('Not in a room');
+    if (rejectIfPaused()) return;
     const result = rm.playerDrawFromPile(currentRoom, currentPlayerId);
     if (result.error) return sendError(result.error);
     broadcast(currentRoom, result.game);
@@ -257,6 +310,7 @@ module.exports = function registerHandlers(io, socket) {
 
   socket.on('game:draw-discard', () => {
     if (!currentRoom) return sendError('Not in a room');
+    if (rejectIfPaused()) return;
     const result = rm.playerDrawFromDiscard(currentRoom, currentPlayerId);
     if (result.error) return sendError(result.error);
     broadcast(currentRoom, result.game);
@@ -264,6 +318,7 @@ module.exports = function registerHandlers(io, socket) {
 
   socket.on('game:lay-set', ({ cardIds, beanieOverrides = {} }) => {
     if (!currentRoom) return sendError('Not in a room');
+    if (rejectIfPaused()) return;
     if (!Array.isArray(cardIds) || cardIds.length < 3) return sendError('Select at least 3 cards');
     const result = rm.playerLayDownSet(currentRoom, currentPlayerId, cardIds, beanieOverrides);
     if (result.error) return sendError(result.error);
@@ -273,6 +328,7 @@ module.exports = function registerHandlers(io, socket) {
 
   socket.on('game:add-to-set', ({ setIndex, cardIds }) => {
     if (!currentRoom) return sendError('Not in a room');
+    if (rejectIfPaused()) return;
     const result = rm.playerAddCardsToSet(currentRoom, currentPlayerId, setIndex, cardIds);
     if (result.error) return sendError(result.error);
     broadcast(currentRoom, result.game);
@@ -281,6 +337,7 @@ module.exports = function registerHandlers(io, socket) {
 
   socket.on('game:add-beanie-to-set', ({ setIndex, beanieCardId, rankOverride = null }) => {
     if (!currentRoom) return sendError('Not in a room');
+    if (rejectIfPaused()) return;
     const result = rm.playerAddBeanieToSet(currentRoom, currentPlayerId, setIndex, beanieCardId, rankOverride);
     if (result.error) return sendError(result.error);
     broadcast(currentRoom, result.game);
@@ -289,6 +346,7 @@ module.exports = function registerHandlers(io, socket) {
 
   socket.on('game:steal-beanie', ({ setIndex, replacementCardId, beanieCardId = null }) => {
     if (!currentRoom) return sendError('Not in a room');
+    if (rejectIfPaused()) return;
     const result = rm.playerStealBeanie(currentRoom, currentPlayerId, setIndex, replacementCardId, beanieCardId);
     if (result.error) return sendError(result.error);
     broadcast(currentRoom, result.game);
@@ -297,6 +355,7 @@ module.exports = function registerHandlers(io, socket) {
 
   socket.on('game:discard', ({ cardId }) => {
     if (!currentRoom) return sendError('Not in a room');
+    if (rejectIfPaused()) return;
     const result = rm.playerDiscard(currentRoom, currentPlayerId, cardId);
     if (result.error) return sendError(result.error);
     broadcast(currentRoom, result.game);
@@ -317,6 +376,7 @@ module.exports = function registerHandlers(io, socket) {
 
   socket.on('game:declare-draw', () => {
     if (!currentRoom) return sendError('Not in a room');
+    if (rejectIfPaused()) return;
     const result = rm.playerDeclareDraw(currentRoom, currentPlayerId);
     if (result.error) return sendError(result.error);
     broadcast(currentRoom, result.game);
@@ -327,6 +387,22 @@ module.exports = function registerHandlers(io, socket) {
     if (playerName) {
       io.to(currentRoom).emit('game:draw-vote', { playerName, voted });
     }
+  });
+
+  socket.on('game:pause', () => {
+    if (!currentRoom) return sendError('Not in a room');
+    const result = rm.pauseRoom(currentRoom, currentPlayerId);
+    if (result.error) return sendError(result.error);
+    clearTimer(currentRoom);
+    broadcast(currentRoom, result.game);
+  });
+
+  socket.on('game:resume', () => {
+    if (!currentRoom) return sendError('Not in a room');
+    const result = rm.resumeRoom(currentRoom, currentPlayerId);
+    if (result.error) return sendError(result.error);
+    broadcast(currentRoom, result.game);
+    resetTimer(currentRoom, result.game);
   });
 
   socket.on('game:exit', () => {

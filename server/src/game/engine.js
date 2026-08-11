@@ -30,6 +30,8 @@ const TOTAL_ROUNDS = 13;
 
 // ─── Game creation ──────────────────────────────────────────────────────────
 
+const LOBBY_EXPIRY_MS = 15 * 60 * 1000; // 15 minutes
+
 function createGame(roomCode) {
   return {
     roomCode,
@@ -46,6 +48,8 @@ function createGame(roomCode) {
     roundFirstTurnDone:  false, // legacy — superseded by per-player firstTurnDone
     roundWinner:         null,
     error:               null,
+    isPaused:            false,
+    lobbyExpiresAt:      Date.now() + LOBBY_EXPIRY_MS,
   };
 }
 
@@ -600,9 +604,26 @@ function err(game, msg)    { return { ...game, error: msg }; }
 
 // ─── Exports ─────────────────────────────────────────────────────────────────
 
+// ─── Pause / resume ──────────────────────────────────────────────────────────
+
+function pauseGame(game, requestingPlayerId) {
+  if (game.status !== STATUS.PLAYING) return { error: 'Game is not in progress' };
+  if (game.players[0]?.id !== requestingPlayerId) return { error: 'Only the host can pause the game' };
+  if (game.isPaused) return { error: 'Game is already paused' };
+  return { ...game, isPaused: true };
+}
+
+function resumeGame(game, requestingPlayerId) {
+  if (game.status !== STATUS.PLAYING) return { error: 'Game is not in progress' };
+  if (game.players[0]?.id !== requestingPlayerId) return { error: 'Only the host can resume the game' };
+  if (!game.isPaused) return { error: 'Game is not paused' };
+  return { ...game, isPaused: false };
+}
+
 module.exports = {
   STATUS,
   PHASE,
+  LOBBY_EXPIRY_MS,
   createGame,
   addPlayer,
   removePlayer,
@@ -616,4 +637,6 @@ module.exports = {
   stealBeanie,
   discard,
   declareDraw,
+  pauseGame,
+  resumeGame,
 };

@@ -13,6 +13,7 @@ const {
   drawFromPile, drawFromDiscard,
   layDownSet, addCardsToSet, addBeanieToSet, stealBeanie, discard,
   declareDraw,
+  pauseGame, resumeGame,
   STATUS,
 } = require('../game/engine');
 
@@ -196,6 +197,21 @@ function playerDeclareDraw(roomCode, playerId) {
   return _action(roomCode, g => declareDraw(g, playerId));
 }
 
+function pauseRoom(roomCode, playerId) {
+  return _action(roomCode, g => pauseGame(g, playerId));
+}
+
+function resumeRoom(roomCode, playerId) {
+  return _action(roomCode, g => resumeGame(g, playerId));
+}
+
+/** Force-delete a room (used for lobby expiry). No permission check. */
+function forceDeleteRoom(roomCode) {
+  rooms.delete(roomCode);
+  roomActivity.delete(roomCode);
+  persistence.deleteRoom(roomCode);
+}
+
 module.exports = {
   initRooms,
   createRoom, joinRoom, leaveRoom, getRoom, cancelGame,
@@ -203,4 +219,6 @@ module.exports = {
   playerDrawFromPile, playerDrawFromDiscard,
   playerLayDownSet, playerAddCardsToSet, playerAddBeanieToSet,
   playerStealBeanie, playerDiscard, playerDeclareDraw,
+  pauseRoom, resumeRoom,
+  forceDeleteRoom,
 };
