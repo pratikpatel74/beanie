@@ -423,6 +423,46 @@ export default function HowToPlayScreen({ actions, returnTo = 'home' }) {
 
         <div className="htp-divider" />
 
+        {/* ── Room & Controls ── */}
+        <section className="htp-section">
+          <div className="htp-section-header">
+            <span className="htp-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </span>
+            <h3>Room &amp; Controls</h3>
+          </div>
+
+          <div className="htp-rule-block">
+            <div className="htp-rule-title">⏱ Lobby countdown</div>
+            <p className="htp-rule-body">
+              A room stays open for <strong>15 minutes</strong> before it expires. A countdown is shown in the lobby from the moment it's created — get everyone in and start before time runs out. If it expires, all players are returned to the home screen.
+            </p>
+          </div>
+
+          <div className="htp-rule-block">
+            <div className="htp-rule-title">⏸ Pause &amp; resume (host only)</div>
+            <p className="htp-rule-body">
+              The host can pause the game at any time — tap <strong>Exit</strong> in the top-right corner, then choose <strong>Pause game</strong>. All players see a "Game paused" screen. The turn timer is suspended. The host can resume from the same overlay.
+            </p>
+          </div>
+
+          <div className="htp-rule-block">
+            <div className="htp-rule-title">🃏 Sorting your hand</div>
+            <p className="htp-rule-body">
+              Use the <strong>Deal / A→K / ♠♥♦♣</strong> toggle above your hand to sort cards. <em>A→K</em> sorts by rank (useful for spotting runs), <em>♠♥♦♣</em> sorts by suit then rank, and <em>Deal</em> returns to the original draw order.
+            </p>
+          </div>
+
+          <div className="htp-rule-block">
+            <div className="htp-rule-title">ⓘ How to Play (in-game)</div>
+            <p className="htp-rule-body">
+              You can open this guide mid-game by tapping the <strong>ⓘ</strong> button in the top bar. A <em>Back to game</em> button lets you return without losing your place.
+            </p>
+          </div>
+        </section>
+
+        <div className="htp-divider" />
+
         {/* ── Quick tips ── */}
         <section className="htp-section">
           <div className="htp-section-header">
@@ -439,7 +479,7 @@ export default function HowToPlayScreen({ actions, returnTo = 'home' }) {
             <li>Taking from the discard pile gives everyone a clue to what you're building — pick carefully.</li>
             <li>In later rounds (J, Q, K) the Beanies are high-value cards, so stealing pays off even more.</li>
             <li>If you're stuck and can't win, propose End Round to limit everyone's penalty points — don't let the round drag on forever.</li>
-            <li>Sort your hand with the <strong>A→K</strong> toggle to quickly spot potential runs and matches.</li>
+            <li>Sort your hand with <strong>♠♥♦♣</strong> to group by suit — great for spotting what matches and runs are possible across your whole hand.</li>
           </ul>
         </section>
 

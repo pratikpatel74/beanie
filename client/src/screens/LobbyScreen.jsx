@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 const PLAYER_COLOURS = ['var(--p1)', 'var(--p2)', 'var(--p3)', 'var(--p4)'];
-const SHOW_EXPIRY_THRESHOLD_MS = 5 * 60 * 1000; // show countdown when <5 min left
+// Always show lobby countdown so players know the room has a time limit
 
 function useExpiryCountdown(lobbyExpiresAt) {
   const [secsLeft, setSecsLeft] = useState(null);
@@ -35,7 +35,7 @@ export default function LobbyScreen({ game, roomCode, myId, error, actions, lobb
   const [codeCopied, setCodeCopied] = useState(false);
 
   const secsLeft     = useExpiryCountdown(lobbyExpiresAt);
-  const showCountdown = secsLeft !== null && secsLeft <= SHOW_EXPIRY_THRESHOLD_MS / 1000;
+  const showCountdown = secsLeft !== null && secsLeft > 0;
   const expiryUrgent  = secsLeft !== null && secsLeft <= 60;
 
   async function handleCopyCode() {
