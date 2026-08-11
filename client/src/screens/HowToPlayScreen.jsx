@@ -407,7 +407,7 @@ export default function HowToPlayScreen({ actions, returnTo = 'home' }) {
               <span>Ace</span><span>1 pt</span>
             </div>
             <div className="htp-score-row htp-score-beanie">
-              <span>★ Beanie (held)</span><span>10 pts</span>
+              <span>★ Beanie (held)</span><span>10 or 25 pts*</span>
             </div>
             <div className="htp-score-row htp-score-winner">
               <span>
@@ -418,6 +418,10 @@ export default function HowToPlayScreen({ actions, returnTo = 'home' }) {
           </div>
           <div className="htp-tip">
             After all 13 rounds, the player with the <strong>lowest total score wins</strong>.
+          </div>
+          <div className="htp-tip" style={{ marginTop: 8 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{display:'inline',verticalAlign:'middle',marginRight:5}}><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26A7.01 7.01 0 0 1 5 9a7 7 0 0 1 7-7z"/><line x1="10" y1="21" x2="14" y2="21"/></svg>
+            * The Beanie in-hand penalty is <strong>10 pts by default</strong> but the host can set it to 25 pts before the game starts.
           </div>
         </section>
 
@@ -433,9 +437,22 @@ export default function HowToPlayScreen({ actions, returnTo = 'home' }) {
           </div>
 
           <div className="htp-rule-block">
+            <div className="htp-rule-title">⚙ Game settings (host only)</div>
+            <p className="htp-rule-body">
+              Before starting, the host can configure the game on the Create room screen. Settings lock once the game starts and cannot be changed mid-game.
+            </p>
+            <ul className="htp-tips-list" style={{ marginTop: 8 }}>
+              <li><strong>Turn timer</strong> — 30 / 60 / 90 / 120 seconds per turn (default 60s)</li>
+              <li><strong>Lobby timer</strong> — 5, 10, or 15 minutes before the room expires (default 15m)</li>
+              <li><strong>Beanie in-hand value</strong> — 10 or 25 points if caught holding a Beanie at round end (default 10 pts)</li>
+              <li><strong>Reclaim own Beanie</strong> — when enabled, you can steal a Beanie back from your own sets on the table (off by default)</li>
+            </ul>
+          </div>
+
+          <div className="htp-rule-block">
             <div className="htp-rule-title">⏱ Lobby countdown</div>
             <p className="htp-rule-body">
-              A room stays open for <strong>15 minutes</strong> before it expires. A countdown is shown in the lobby from the moment it's created — get everyone in and start before time runs out. If it expires, all players are returned to the home screen.
+              A room stays open for <strong>5–15 minutes</strong> (set by the host, default 15m) before it expires. A countdown is shown in the lobby from the moment it's created — get everyone in and start before time runs out. If it expires, all players are returned to the home screen.
             </p>
           </div>
 
@@ -474,7 +491,7 @@ export default function HowToPlayScreen({ actions, returnTo = 'home' }) {
           <ul className="htp-tips-list">
             <li>Lay sets early so you can add to the table and steal Beanies.</li>
             <li>Watch what others are building — steal a Beanie before they extend the run.</li>
-            <li>Holding a Beanie is expensive (10 pts). Use it, place it on a set, or steal something with it.</li>
+            <li>Holding a Beanie is expensive (10–25 pts depending on host settings). Use it, place it on a set, or steal something with it.</li>
             <li>You can discard a Beanie if you really need to — but it's usually costly.</li>
             <li>Taking from the discard pile gives everyone a clue to what you're building — pick carefully.</li>
             <li>In later rounds (J, Q, K) the Beanies are high-value cards, so stealing pays off even more.</li>
