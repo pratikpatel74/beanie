@@ -237,7 +237,12 @@ module.exports = function registerHandlers(io, socket) {
     }
 
     const player = room.players.find(p => p.id === playerId);
-    if (!player) return;
+    if (!player) {
+      // Room exists but this player was removed (grace period expired while reconnecting).
+      // Tell the client to clear its stale session so it returns to home screen.
+      socket.emit('room:session-expired');
+      return;
+    }
 
     // Don't double-join if already handled by the session map at connect time
     if (currentRoom === code && currentPlayerId === playerId) {

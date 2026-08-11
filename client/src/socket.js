@@ -24,9 +24,18 @@ export const CLIENT_ID = getClientId();
 // Single shared socket instance — not connected until connect() is called.
 // clientId is sent as socket auth so the server can match the connection
 // to an existing session even after socket.id changes.
+//
+// Reconnection settings tuned for patchy mobile data (train, underground, etc.):
+//   - Start retrying after 500ms (default is 1000ms)
+//   - Cap backoff at 3s (default is 5000ms) so we don't burn the 60s grace window
+//     waiting between attempts
+//   - Retry indefinitely — the server holds the seat for 60 s, so keep trying
 const socket = io(SERVER_URL, {
   autoConnect: false,
   auth: { clientId: CLIENT_ID },
+  reconnectionDelay:    500,
+  reconnectionDelayMax: 3000,
+  reconnectionAttempts: Infinity,
 });
 
 export default socket;
