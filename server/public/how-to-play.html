@@ -110,16 +110,19 @@
 
     /* ─── LAYOUT ──── */
     .htp-layout {
-      display: grid;
-      grid-template-columns: 220px 1fr;
+      display: flex;
+      align-items: flex-start;
       gap: 48px;
       padding: 64px 0 80px;
-      align-items: start;
     }
 
     /* ─── SIDEBAR NAV ──── */
     .htp-sidebar {
-      position: sticky; top: 80px;
+      width: 220px;
+      min-width: 220px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 80px;
     }
     .htp-nav-label {
       font-size: 0.7rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
@@ -139,8 +142,10 @@
     }
     .htp-play-cta p { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 10px; }
 
+    .htp-nav { display: flex; flex-direction: column; }
+
     /* ─── CONTENT ──── */
-    .htp-content { min-width: 0; }
+    .htp-content { flex: 1; min-width: 0; }
 
     .htp-section {
       padding: 40px 0;
@@ -210,8 +215,13 @@
     }
     .hcard.red { color: #c0392b; }
     .hcard.black { color: #111; }
-    .hcard .pip { font-size: 1.6rem; line-height: 1; text-align: center; align-self: center; }
-    .hcard .bot { transform: rotate(180deg); align-self: flex-end; }
+    /* card corners: rank + suit stacked */
+    .hc-c { display: flex; flex-direction: column; align-items: flex-start; line-height: 1; gap: 1px; }
+    .hc-r { font-size: 0.85rem; font-weight: 800; line-height: 1; }
+    .hc-s { font-size: 0.65rem; line-height: 1; }
+    .hc-br { align-self: flex-end; transform: rotate(180deg); }
+    /* centred pip */
+    .hcard .pip { font-size: 1.5rem; line-height: 1; flex: 1; display: flex; align-items: center; justify-content: center; }
     .hcard.beanie-c {
       background: linear-gradient(135deg, #2A1600, #180D00);
       border: 1.5px solid var(--gold); color: var(--gold);
@@ -304,8 +314,8 @@
 
     /* ─── RESPONSIVE ──── */
     @media (max-width: 820px) {
-      .htp-layout { grid-template-columns: 1fr; gap: 0; }
-      .htp-sidebar { position: static; display: none; }
+      .htp-layout { flex-direction: column; gap: 0; }
+      .htp-sidebar { position: static; display: none; width: auto; min-width: 0; }
       .set-types { grid-template-columns: 1fr; }
     }
     @media (max-width: 600px) {
@@ -460,19 +470,19 @@
               <div class="set-label">Match</div>
               <div class="set-desc">3 or more cards of the <strong>same rank</strong>, each a <strong>different suit</strong>.</div>
               <div class="card-row">
-                <div class="hcard black"><span>Q</span><span class="pip">♠</span><span class="bot">Q</span></div>
-                <div class="hcard red"><span>Q</span><span class="pip">♥</span><span class="bot">Q</span></div>
-                <div class="hcard red"><span>Q</span><span class="pip">♦</span><span class="bot">Q</span></div>
+                <div class="hcard black"><div class="hc-c"><span class="hc-r">Q</span><span class="hc-s">♠</span></div><span class="pip">♠</span><div class="hc-c hc-br"><span class="hc-r">Q</span><span class="hc-s">♠</span></div></div>
+                <div class="hcard red"><div class="hc-c"><span class="hc-r">Q</span><span class="hc-s">♥</span></div><span class="pip">♥</span><div class="hc-c hc-br"><span class="hc-r">Q</span><span class="hc-s">♥</span></div></div>
+                <div class="hcard red"><div class="hc-c"><span class="hc-r">Q</span><span class="hc-s">♦</span></div><span class="pip">♦</span><div class="hc-c hc-br"><span class="hc-r">Q</span><span class="hc-s">♦</span></div></div>
               </div>
             </div>
             <div class="set-type">
               <div class="set-label">Run</div>
               <div class="set-desc">3 or more <strong>consecutive cards of the same suit</strong>. Ace is always lowest (A–2–3…), King is highest.</div>
               <div class="card-row">
-                <div class="hcard red"><span>5</span><span class="pip">♦</span><span class="bot">5</span></div>
-                <div class="hcard red"><span>6</span><span class="pip">♦</span><span class="bot">6</span></div>
-                <div class="hcard red"><span>7</span><span class="pip">♦</span><span class="bot">7</span></div>
-                <div class="hcard red"><span>8</span><span class="pip">♦</span><span class="bot">8</span></div>
+                <div class="hcard red"><div class="hc-c"><span class="hc-r">5</span><span class="hc-s">♦</span></div><span class="pip">♦</span><div class="hc-c hc-br"><span class="hc-r">5</span><span class="hc-s">♦</span></div></div>
+                <div class="hcard red"><div class="hc-c"><span class="hc-r">6</span><span class="hc-s">♦</span></div><span class="pip">♦</span><div class="hc-c hc-br"><span class="hc-r">6</span><span class="hc-s">♦</span></div></div>
+                <div class="hcard red"><div class="hc-c"><span class="hc-r">7</span><span class="hc-s">♦</span></div><span class="pip">♦</span><div class="hc-c hc-br"><span class="hc-r">7</span><span class="hc-s">♦</span></div></div>
+                <div class="hcard red"><div class="hc-c"><span class="hc-r">8</span><span class="hc-s">♦</span></div><span class="pip">♦</span><div class="hc-c hc-br"><span class="hc-r">8</span><span class="hc-s">♦</span></div></div>
               </div>
             </div>
           </div>
@@ -489,8 +499,8 @@
             <div class="rule-title">In a Match</div>
             <div class="rule-body">A Beanie fills in for a missing suit. A badge shows exactly which card it represents — useful for knowing what card could steal it.</div>
             <div class="card-row" style="margin-top:12px;">
-              <div class="hcard black"><span>J</span><span class="pip">♣</span><span class="bot">J</span></div>
-              <div class="hcard black"><span>J</span><span class="pip">♠</span><span class="bot">J</span></div>
+              <div class="hcard black"><div class="hc-c"><span class="hc-r">J</span><span class="hc-s">♣</span></div><span class="pip">♣</span><div class="hc-c hc-br"><span class="hc-r">J</span><span class="hc-s">♣</span></div></div>
+              <div class="hcard black"><div class="hc-c"><span class="hc-r">J</span><span class="hc-s">♠</span></div><span class="pip">♠</span><div class="hc-c hc-br"><span class="hc-r">J</span><span class="hc-s">♠</span></div></div>
               <div class="hcard beanie-c" style="position:relative;">★<span class="hcard-badge">J♥</span></div>
             </div>
           </div>
@@ -504,9 +514,9 @@
             <div class="rule-title">In a Run — gap Beanies</div>
             <div class="rule-body">A Beanie filling a gap in the middle is automatically placed. Its position is <strong>fixed permanently</strong>.</div>
             <div class="card-row" style="margin-top:12px;">
-              <div class="hcard red"><span>3</span><span class="pip">♦</span><span class="bot">3</span></div>
+              <div class="hcard red"><div class="hc-c"><span class="hc-r">3</span><span class="hc-s">♦</span></div><span class="pip">♦</span><div class="hc-c hc-br"><span class="hc-r">3</span><span class="hc-s">♦</span></div></div>
               <div class="hcard beanie-c" style="position:relative;">★<span class="hcard-badge">4♦</span></div>
-              <div class="hcard red"><span>5</span><span class="pip">♦</span><span class="bot">5</span></div>
+              <div class="hcard red"><div class="hc-c"><span class="hc-r">5</span><span class="hc-s">♦</span></div><span class="pip">♦</span><div class="hc-c hc-br"><span class="hc-r">5</span><span class="hc-s">♦</span></div></div>
             </div>
           </div>
 
@@ -516,13 +526,13 @@
             <div class="card-row" style="margin-top:12px; align-items:center;">
               <div style="display:flex;gap:6px;align-items:flex-end;">
                 <div class="hcard beanie-c" style="position:relative;">★<span class="hcard-badge">4♦</span></div>
-                <div class="hcard red"><span>5</span><span class="pip">♦</span><span class="bot">5</span></div>
-                <div class="hcard red"><span>6</span><span class="pip">♦</span><span class="bot">6</span></div>
+                <div class="hcard red"><div class="hc-c"><span class="hc-r">5</span><span class="hc-s">♦</span></div><span class="pip">♦</span><div class="hc-c hc-br"><span class="hc-r">5</span><span class="hc-s">♦</span></div></div>
+                <div class="hcard red"><div class="hc-c"><span class="hc-r">6</span><span class="hc-s">♦</span></div><span class="pip">♦</span><div class="hc-c hc-br"><span class="hc-r">6</span><span class="hc-s">♦</span></div></div>
               </div>
               <span class="card-sep">or</span>
               <div style="display:flex;gap:6px;align-items:flex-end;">
-                <div class="hcard red"><span>5</span><span class="pip">♦</span><span class="bot">5</span></div>
-                <div class="hcard red"><span>6</span><span class="pip">♦</span><span class="bot">6</span></div>
+                <div class="hcard red"><div class="hc-c"><span class="hc-r">5</span><span class="hc-s">♦</span></div><span class="pip">♦</span><div class="hc-c hc-br"><span class="hc-r">5</span><span class="hc-s">♦</span></div></div>
+                <div class="hcard red"><div class="hc-c"><span class="hc-r">6</span><span class="hc-s">♦</span></div><span class="pip">♦</span><div class="hc-c hc-br"><span class="hc-r">6</span><span class="hc-s">♦</span></div></div>
                 <div class="hcard beanie-c" style="position:relative;">★<span class="hcard-badge">7♦</span></div>
               </div>
             </div>
