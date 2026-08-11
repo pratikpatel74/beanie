@@ -15,17 +15,33 @@ export default function HomeScreen({ actions, playerName }) {
           <div className="home-edit-name" onClick={() => actions.goTo('name')}>✎ Edit</div>
         </div>
 
-        {/* Hero: pulsating Beanie card + logo */}
+        {/* Hero: 3-card fan + logo */}
         <div className="home-hero">
           <div className="card-fan">
-            <div className="crd beanie-card">
-              <div className="bc-star-sm">★</div>
-              <div className="bc-star-lg">★</div>
-              <div className="bc-label">BEANIE ★</div>
+            {/* Left flanking card */}
+            <div className="crd side-card side-card-left">
+              <div className="sc-top"><span className="sc-rank sc-black">K</span><span className="sc-suit sc-black">♠</span></div>
+              <div className="sc-pip sc-black">♠</div>
+              <div className="sc-bot"><span className="sc-rank sc-black">K</span><span className="sc-suit sc-black">♠</span></div>
+            </div>
+            {/* Centre Beanie card — wrapper handles positioning so float animation isn't clobbered */}
+            <div className="beanie-card-wrap">
+              <div className="crd beanie-card">
+                <div className="bc-star-sm">★</div>
+                <div className="bc-star-lg">★</div>
+                <div className="bc-label">BEANIE ★</div>
+              </div>
+            </div>
+            {/* Right flanking card */}
+            <div className="crd side-card side-card-right">
+              <div className="sc-top"><span className="sc-rank sc-red">9</span><span className="sc-suit sc-red">♦</span></div>
+              <div className="sc-pip sc-red">♦</div>
+              <div className="sc-bot"><span className="sc-rank sc-red">9</span><span className="sc-suit sc-red">♦</span></div>
             </div>
           </div>
           <div className="logo-title">BEANIE</div>
           <div className="logo-sub">Wild card rummy · 2–4 players</div>
+          <div className="home-tagline">Can you go out before the Beanie rank changes?</div>
         </div>
 
         <div className="home-divider" />

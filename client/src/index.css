@@ -135,7 +135,7 @@ html, body, #root {
 }
 
 /* ── HOME ──────────────────────────────────────────────────────────────────── */
-.home-inner { flex: 1; padding: 20px 20px 24px; display: flex; flex-direction: column; justify-content: space-between; }
+.home-inner { flex: 1; padding: 20px 20px 24px; display: flex; flex-direction: column; }
 
 .home-header { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
 .avatar {
@@ -167,20 +167,46 @@ html, body, #root {
   text-align: center; padding: 20px 0 12px;
 }
 .card-fan {
-  display: flex; justify-content: center; align-items: center;
   position: relative;
-  margin: 0 auto 36px;
+  width: 200px; height: 150px;
+  margin: 0 auto 24px;
   animation: fan-enter 0.5s ease-out both;
 }
-/* Ambient glow disc beneath the card */
+/* Ambient glow disc beneath the cards */
 .card-fan::after {
   content: '';
   position: absolute;
   bottom: -14px; left: 50%; transform: translateX(-50%);
-  width: 80px; height: 22px;
+  width: 130px; height: 22px;
   background: radial-gradient(ellipse at center, rgba(240,180,41,0.28) 0%, transparent 70%);
   border-radius: 50%;
   pointer-events: none;
+}
+
+/* Side (flanking) playing cards */
+.side-card {
+  position: absolute; bottom: 0;
+  background: #fff; border: 0.5px solid #d0ccc0;
+  z-index: 1;
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+.side-card-left  { left: 8px;  transform-origin: bottom center; transform: rotate(-16deg); }
+.side-card-right { right: 8px; transform-origin: bottom center; transform: rotate(16deg);  }
+
+/* Side card internals */
+.sc-top { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; }
+.sc-bot { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; align-self: flex-end; transform: rotate(180deg); }
+.sc-rank { font-size: 13px; font-weight: 800; line-height: 1; font-family: Georgia, serif; }
+.sc-suit { font-size: 10px; line-height: 1; }
+.sc-pip  { font-size: 34px; line-height: 1; text-align: center; }
+.sc-black { color: #1a1a2e; }
+.sc-red   { color: #c0392b; }
+
+/* Beanie card wrapper — positions the centre card; inner .beanie-card handles animation */
+.beanie-card-wrap {
+  position: absolute; bottom: 0;
+  left: 50%; transform: translateX(-50%);
+  z-index: 3;
 }
 
 /* Base card */
@@ -230,6 +256,7 @@ html, body, #root {
 
 .logo-title { font-size: 42px; font-weight: 900; color: var(--gold); letter-spacing: 6px; line-height: 1; }
 .logo-sub   { font-size: 11px; color: var(--text3); margin-top: 5px; letter-spacing: 2.5px; text-transform: uppercase; }
+.home-tagline { font-size: 11px; color: var(--text3); margin-top: 8px; font-style: italic; padding: 0 16px; line-height: 1.45; }
 
 .home-divider {
   width: 48px; height: 1px;
@@ -279,7 +306,7 @@ html, body, #root {
 .action-card-create .ac-arr { background: rgba(124,111,255,0.2); color: var(--acc); }
 .action-card-join   .ac-arr { background: rgba(255,255,255,0.06); color: var(--text3); }
 
-.home-footer { text-align: center; margin-top: 20px; }
+.home-footer { text-align: center; margin-top: auto; padding-top: 16px; }
 .home-footer button {
   background: none; border: none; color: var(--accl);
   font-size: 13px; cursor: pointer;
