@@ -115,7 +115,7 @@ export default function LobbyScreen({ game, roomCode, myId, error, actions, lobb
         <div className="players-list">
           {players.map((p, i) => (
             <div className="player-row" key={p.id}>
-              <span className="player-suit-pip" style={{ color: suitColor(playerSuit(p.name)) }}>{playerSuit(p.name)}</span>
+              <div className="player-dot" style={{ background: PLAYER_COLOURS[i] }} />
               <span className="player-row-name">{p.name}</span>
               {i === 0 && <span className="player-row-host">Host</span>}
               {p.id === myId && <span style={{ fontSize: 11, color: 'var(--text3)' }}>You</span>}

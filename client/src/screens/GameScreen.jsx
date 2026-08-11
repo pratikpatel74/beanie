@@ -798,7 +798,7 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
             style={game.currentPlayerIndex === i ? { borderColor: PLAYER_COLOURS[i] } : {}}
           >
             <div className="pchip-left">
-              <span className="pchip-suit" style={{ color: pSuitColor(p.name) }}>{pSuit(p.name)}</span>
+              <div className="pchip-dot" style={{ background: PLAYER_COLOURS[i] }} />
               <div className="pchip-name">{p.id === myId ? 'You' : p.name}</div>
             </div>
             <div className="pchip-right">
