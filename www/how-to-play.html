@@ -675,11 +675,14 @@
             <div class="score-row"><span>2 – 9</span><span class="score-pts">Face value</span></div>
             <div class="score-row"><span>10, J, Q, K</span><span class="score-pts">10 pts each</span></div>
             <div class="score-row"><span>Ace</span><span class="score-pts">1 pt</span></div>
-            <div class="score-row beanie-row"><span>★ Beanie (held in hand)</span><span class="score-pts">10 pts</span></div>
+            <div class="score-row beanie-row"><span>★ Beanie (held in hand)</span><span class="score-pts">10 or 25 pts*</span></div>
             <div class="score-row winner-row"><span>★ Round winner</span><span class="score-pts">0 pts</span></div>
           </div>
           <div class="tip">
             <span class="tip-icon">★</span> After all 13 rounds, the player with the <strong>lowest total score wins</strong>.
+          </div>
+          <div class="tip" style="margin-top:8px;">
+            <span class="tip-icon">★</span> * The Beanie in-hand penalty is <strong>10 pts by default</strong> but the host can set it to 25 pts before the game starts.
           </div>
         </section>
 
@@ -694,8 +697,21 @@
 
           <!-- NO EMOJI in rule titles — use plain text labels only -->
           <div class="rule-block">
+            <div class="rule-title">Game settings (host only)</div>
+            <div class="rule-body">
+              Before starting, the host can configure the game on the Create room screen. Settings lock once the game starts and cannot be changed mid-game.
+              <ul style="margin-top:10px;padding-left:18px;display:flex;flex-direction:column;gap:6px;">
+                <li><strong>Turn timer</strong> — 30 / 60 / 90 / 120 seconds per turn (default 60s)</li>
+                <li><strong>Lobby timer</strong> — 5, 10, or 15 minutes before the room expires (default 15m)</li>
+                <li><strong>Beanie in-hand value</strong> — 10 or 25 points if caught holding a Beanie at round end (default 10 pts)</li>
+                <li><strong>Reclaim own Beanie</strong> — when enabled, you can steal a Beanie back from your own sets on the table (off by default)</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="rule-block">
             <div class="rule-title">Lobby countdown</div>
-            <div class="rule-body">A room stays open for <strong>15 minutes</strong> before it expires. A countdown is shown in the lobby from the moment it's created — get everyone in and start before time runs out. If it expires, all players are returned to the home screen.</div>
+            <div class="rule-body">A room stays open for <strong>5–15 minutes</strong> (set by the host, default 15m) before it expires. A countdown is shown in the lobby from the moment it's created — get everyone in and start before time runs out. If it expires, all players are returned to the home screen.</div>
           </div>
 
           <div class="rule-block">
@@ -725,7 +741,7 @@
           <ul class="tips-list">
             <li>Lay sets early so you can add to the table and steal Beanies.</li>
             <li>Watch what others are building — steal a Beanie before they extend the run.</li>
-            <li>Holding a Beanie is expensive (10 pts). Use it, place it on a set, or steal something with it.</li>
+            <li>Holding a Beanie is expensive (10–25 pts depending on host settings). Use it, place it on a set, or steal something with it.</li>
             <li>You can discard a Beanie if you really need to — but it's usually costly.</li>
             <li>Taking from the discard pile gives everyone a clue to what you're building — pick carefully.</li>
             <li>In later rounds (J, Q, K) the Beanies are high-value cards, so stealing pays off even more.</li>
