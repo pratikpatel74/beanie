@@ -499,6 +499,8 @@ function sanitise(game, viewingPlayerId) {
     drawPileCount:       game.drawPile.length,
     discardTop:          game.discardPile[game.discardPile.length - 1] || null,
     drawVotes:           game.drawVotes || [],
+    isPaused:            game.isPaused || false,
+    lobbyExpiresAt:      game.lobbyExpiresAt || null,
     players: game.players.map(p => ({
       id:           p.id,
       name:         p.name,
