@@ -183,22 +183,25 @@ html, body, #root {
   pointer-events: none;
 }
 
-/* Side (flanking) playing cards */
+/* Side (flanking) playing cards — intentionally smaller than the Beanie card */
 .side-card {
   position: absolute; bottom: 0;
+  width: 74px; height: 104px;   /* smaller than .crd (90×126) so Beanie card is clearly the hero */
   background: #fff; border: 0.5px solid #d0ccc0;
   z-index: 1;
   display: flex; flex-direction: column; justify-content: space-between;
+  border-radius: 9px; padding: 5px 7px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.55);
 }
-.side-card-left  { left: 8px;  transform-origin: bottom center; transform: rotate(-16deg); }
-.side-card-right { right: 8px; transform-origin: bottom center; transform: rotate(16deg);  }
+.side-card-left  { left: 4px;  transform-origin: bottom center; transform: rotate(-16deg); }
+.side-card-right { right: 4px; transform-origin: bottom center; transform: rotate(16deg);  }
 
 /* Side card internals */
 .sc-top { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; }
 .sc-bot { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; align-self: flex-end; transform: rotate(180deg); }
-.sc-rank { font-size: 13px; font-weight: 800; line-height: 1; font-family: Georgia, serif; }
-.sc-suit { font-size: 10px; line-height: 1; }
-.sc-pip  { font-size: 34px; line-height: 1; text-align: center; }
+.sc-rank { font-size: 17px; font-weight: 800; line-height: 1; font-family: Georgia, serif; }
+.sc-suit { font-size: 13px; line-height: 1; }
+.sc-pip  { font-size: 38px; line-height: 1; text-align: center; }
 .sc-black { color: #1a1a2e; }
 .sc-red   { color: #c0392b; }
 

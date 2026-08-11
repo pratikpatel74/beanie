@@ -34,9 +34,9 @@ export default function HomeScreen({ actions, playerName }) {
             </div>
             {/* Right flanking card */}
             <div className="crd side-card side-card-right">
-              <div className="sc-top"><span className="sc-rank sc-red">9</span><span className="sc-suit sc-red">♦</span></div>
+              <div className="sc-top"><span className="sc-rank sc-red">A</span><span className="sc-suit sc-red">♦</span></div>
               <div className="sc-pip sc-red">♦</div>
-              <div className="sc-bot"><span className="sc-rank sc-red">9</span><span className="sc-suit sc-red">♦</span></div>
+              <div className="sc-bot"><span className="sc-rank sc-red">A</span><span className="sc-suit sc-red">♦</span></div>
             </div>
           </div>
           <div className="logo-title">BEANIE</div>
