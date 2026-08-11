@@ -437,7 +437,10 @@ export default function HowToPlayScreen({ actions, returnTo = 'home' }) {
           </div>
 
           <div className="htp-rule-block">
-            <div className="htp-rule-title">⚙ Game settings (host only)</div>
+            <div className="htp-rule-title" style={{display:'flex',alignItems:'center',gap:6}}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0}}><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              Game settings (host only)
+            </div>
             <p className="htp-rule-body">
               Before starting, the host can configure the game on the Create room screen. Settings lock once the game starts and cannot be changed mid-game.
             </p>
@@ -450,28 +453,40 @@ export default function HowToPlayScreen({ actions, returnTo = 'home' }) {
           </div>
 
           <div className="htp-rule-block">
-            <div className="htp-rule-title">⏱ Lobby countdown</div>
+            <div className="htp-rule-title" style={{display:'flex',alignItems:'center',gap:6}}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0}}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Lobby countdown
+            </div>
             <p className="htp-rule-body">
               A room stays open for <strong>5–15 minutes</strong> (set by the host, default 15m) before it expires. A countdown is shown in the lobby from the moment it's created — get everyone in and start before time runs out. If it expires, all players are returned to the home screen.
             </p>
           </div>
 
           <div className="htp-rule-block">
-            <div className="htp-rule-title">⏸ Pause &amp; resume (host only)</div>
+            <div className="htp-rule-title" style={{display:'flex',alignItems:'center',gap:6}}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0}}><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+              Pause &amp; resume (host only)
+            </div>
             <p className="htp-rule-body">
               The host can pause the game at any time — tap <strong>Exit</strong> in the top-right corner, then choose <strong>Pause game</strong>. All players see a "Game paused" screen. The turn timer is suspended. The host can resume from the same overlay.
             </p>
           </div>
 
           <div className="htp-rule-block">
-            <div className="htp-rule-title">🃏 Sorting your hand</div>
+            <div className="htp-rule-title" style={{display:'flex',alignItems:'center',gap:6}}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0}}><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="9" y2="18"/></svg>
+              Sorting your hand
+            </div>
             <p className="htp-rule-body">
               Use the <strong>Deal / A→K / ♠♥♦♣</strong> toggle above your hand to sort cards. <em>A→K</em> sorts by rank (useful for spotting runs), <em>♠♥♦♣</em> sorts by suit then rank, and <em>Deal</em> returns to the original draw order.
             </p>
           </div>
 
           <div className="htp-rule-block">
-            <div className="htp-rule-title">ⓘ How to Play (in-game)</div>
+            <div className="htp-rule-title" style={{display:'flex',alignItems:'center',gap:6}}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0}}><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              How to Play (in-game)
+            </div>
             <p className="htp-rule-body">
               You can open this guide mid-game by tapping the <strong>ⓘ</strong> button in the top bar. A <em>Back to game</em> button lets you return without losing your place.
             </p>
