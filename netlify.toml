@@ -1,4 +1,4 @@
 [build]
   base    = ""
   command = ""
-  publish = "server/public"
+  publish = "www"
