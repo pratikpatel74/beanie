@@ -722,6 +722,24 @@
 
           <div class="rule-block">
             <div class="rule-title" style="display:flex;align-items:center;gap:6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Turn timer &amp; timeout
+            </div>
+            <div class="rule-body">
+              Each turn has a countdown timer (30 / 60 / 90 / 120 s, default 60 s — set by the host before the game starts). The timer appears in the top bar when it's your turn and turns red in the last 10 seconds.
+              <br><br>
+              <strong>If time runs out, the game acts for you automatically:</strong>
+              <ul style="margin-top:8px;padding-left:18px;display:flex;flex-direction:column;gap:6px;">
+                <li><strong>Haven't drawn yet</strong> — the game draws a card from the pile and immediately discards it. Your hand count stays the same.</li>
+                <li><strong>Already drawn</strong> — the drawn card is discarded for you.</li>
+              </ul>
+              <br>
+              You'll see a <strong>"Turn timed out"</strong> notice on your screen — tap <em>Got it</em> to dismiss it. Other players see a brief notification and the game moves on automatically.
+            </div>
+          </div>
+
+          <div class="rule-block">
+            <div class="rule-title" style="display:flex;align-items:center;gap:6px;">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
               Pause &amp; resume (host only)
             </div>

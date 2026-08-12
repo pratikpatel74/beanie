@@ -464,6 +464,32 @@ export default function HowToPlayScreen({ actions, returnTo = 'home' }) {
 
           <div className="htp-rule-block">
             <div className="htp-rule-title" style={{display:'flex',alignItems:'center',gap:6}}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0}}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Turn timer &amp; timeout
+            </div>
+            <p className="htp-rule-body">
+              Each turn has a countdown timer (30 / 60 / 90 / 120 s, default 60 s — set by the host). The timer appears in the top bar when it's your turn and turns red in the last 10 seconds.
+            </p>
+            <p className="htp-rule-body" style={{ marginTop: 6 }}>
+              <strong>If time runs out, the game acts for you:</strong>
+            </p>
+            <div className="htp-steps" style={{ marginTop: 6 }}>
+              <div className="htp-step">
+                <div className="htp-step-num">A</div>
+                <div className="htp-step-body"><strong>Haven't drawn yet</strong> — the game draws from the pile and immediately discards that card. Your hand count stays the same.</div>
+              </div>
+              <div className="htp-step">
+                <div className="htp-step-num">B</div>
+                <div className="htp-step-body"><strong>Already drawn</strong> — the drawn card is discarded for you.</div>
+              </div>
+            </div>
+            <p className="htp-rule-body" style={{ marginTop: 6 }}>
+              You'll see a <strong>"Turn timed out"</strong> modal — tap <em>Got it</em> to dismiss it and continue watching the game. Other players see a brief notification.
+            </p>
+          </div>
+
+          <div className="htp-rule-block">
+            <div className="htp-rule-title" style={{display:'flex',alignItems:'center',gap:6}}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0}}><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
               Pause &amp; resume (host only)
             </div>

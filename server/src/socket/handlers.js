@@ -166,7 +166,7 @@ module.exports = function registerHandlers(io, socket) {
       if (g.phase === PHASE.ACTION) {
         const cpHand = g.players.find(p => p.id === cp.id)?.hand || [];
         if (cpHand.length === 0) return;
-        const forced = rm.playerDiscard(roomCode, cp.id, cpHand[0].id);
+        const forced = rm.playerDiscard(roomCode, cp.id, cpHand[cpHand.length - 1].id);
         if (!forced.error) {
           broadcast(roomCode, forced.game);
           resetTimer(roomCode, forced.game);
