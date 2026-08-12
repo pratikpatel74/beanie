@@ -856,7 +856,7 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
                 onClick={() => sendReaction(key)}
                 title={key}
               >
-                <Icon />
+                {Icon()}
               </button>
             ))}
           </div>
@@ -873,7 +873,7 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
               <div key={r.id} className="reaction-toast">
                 <div className="reaction-toast-dot" style={{ background: colour }} />
                 <span style={{ color: colour, fontWeight: 600, fontSize: 11 }}>{r.playerName}</span>
-                {Icon && <Icon color={colour} />}
+                {Icon && Icon(colour)}
               </div>
             );
           })}
