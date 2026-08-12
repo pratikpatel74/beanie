@@ -398,7 +398,7 @@ module.exports = function registerHandlers(io, socket) {
   const REACTION_COOLDOWN_MS = 5000;
   const reactionLastSent = new Map(); // playerId → timestamp
 
-  const VALID_REACTIONS = new Set(['nice', 'fire', 'shocked', 'skull', 'zap']);
+  const VALID_REACTIONS = new Set(['nice', 'fire', 'shocked', 'skull', 'zap', 'waiting', 'angry']);
 
   socket.on('game:react', ({ reaction } = {}) => {
     if (!currentRoom || !VALID_REACTIONS.has(reaction)) return;
