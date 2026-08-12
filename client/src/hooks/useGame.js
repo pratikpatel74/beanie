@@ -324,6 +324,8 @@ export function useGame() {
       socket.emit('game:exit');
     }, []),
 
+    sendReaction: useCallback(reaction => socket.emit('game:react', { reaction }), []),
+
     pauseGame:   useCallback(() => socket.emit('game:pause'),  []),
     resumeGame:  useCallback(() => socket.emit('game:resume'), []),
 

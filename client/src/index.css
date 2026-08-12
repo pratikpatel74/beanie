@@ -405,6 +405,7 @@ html, body, #root {
 /* ── GAME TABLE ────────────────────────────────────────────────────────────── */
 .game-screen {
   flex: 1;
+  position: relative;
   background: var(--tbl-bg);
   display: flex; flex-direction: column;
   gap: 8px; padding: 10px 14px 14px;
@@ -985,6 +986,39 @@ html, body, #root {
 .score-win-cell { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
 .score-win-total { font-size: 13px; font-weight: 700; color: var(--gold); line-height: 1.2; }
 .score-win-badge { font-size: 9px; font-weight: 600; color: rgba(240,180,41,0.55); background: rgba(240,180,41,0.1); border-radius: 3px; padding: 1px 4px; }
+
+/* ── REACTIONS ─────────────────────────────────────────────────────────────── */
+.reaction-picker {
+  position: absolute; top: 44px; right: 8px;
+  background: var(--surf2); border: 0.5px solid var(--border);
+  border-radius: 14px; padding: 6px;
+  display: flex; gap: 4px; z-index: 50;
+}
+.reaction-opt {
+  width: 38px; height: 38px; border-radius: 10px;
+  background: rgba(255,255,255,0.05); border: 0.5px solid rgba(255,255,255,0.08);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--text2); transition: background 0.1s, transform 0.1s;
+}
+.reaction-opt:hover  { background: rgba(255,255,255,0.13); transform: scale(1.12); }
+.reaction-opt:active { transform: scale(0.95); }
+.reaction-toasts {
+  position: absolute; top: 52px; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  z-index: 45; pointer-events: none; width: max-content; max-width: 240px;
+}
+.reaction-toast {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--surf2); border: 0.5px solid var(--border);
+  border-radius: 20px; padding: 5px 12px 5px 7px;
+  font-size: 12px; color: var(--text2);
+  animation: reaction-in 0.18s ease, reaction-out 0.25s ease 2.55s forwards;
+}
+.reaction-toast-dot {
+  width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0;
+}
+@keyframes reaction-in  { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+@keyframes reaction-out { from { opacity:1; } to { opacity:0; transform:translateY(-6px); } }
 
 /* ── GAME END ──────────────────────────────────────────────────────────────── */
 .game-end-inner {

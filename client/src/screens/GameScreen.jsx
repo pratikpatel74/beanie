@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Card, { EmptyCard } from '../components/Card';
+import socket from '../socket';
 
 const PLAYER_COLOURS = ['var(--p1)', 'var(--p2)', 'var(--p3)', 'var(--p4)'];
 const RANK_ORDER = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
@@ -418,6 +419,15 @@ function computeAddBeanieOptions(set, beanieRank) {
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
+// ─── Reaction icons (SVG, no emoji) ──────────────────────────────────────────
+const REACTION_ICONS = {
+  nice:    (color='currentColor') => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>,
+  fire:    (color='currentColor') => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>,
+  shocked: (color='currentColor') => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>,
+  skull:   (color='currentColor') => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2C8.69 2 6 4.69 6 8c0 2.1.88 3.98 2.29 5.32L9 22h6l.71-8.68C17.12 11.98 18 10.1 18 8c0-3.31-2.69-6-6-6z"/><line x1="9" y1="17" x2="9" y2="22"/><line x1="12" y1="17" x2="12" y2="22"/><line x1="15" y1="17" x2="15" y2="22"/></svg>,
+  zap:     (color='currentColor') => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
+};
+
 export default function GameScreen({ game, myId, isMyTurn, timer, error, notice, actions }) {
   const [selectedCards, setSelectedCards]     = useState([]);
   const [mode, setMode]                       = useState('normal');
@@ -427,6 +437,30 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
   const [showExitModal, setShowExitModal]     = useState(false);
   const [newCardId, setNewCardId]             = useState(null);
   const prevHandRef                           = useRef([]);
+
+  // ─── Reactions ─────────────────────────────────────────────────────────────
+  const [reactions, setReactions]       = useState([]);   // [{id, playerName, playerIndex, reaction}]
+  const [pickerOpen, setPickerOpen]     = useState(false);
+  const [cooldown, setCooldown]         = useState(false); // 5s lockout after sending
+  const reactionIdRef                   = useRef(0);
+
+  useEffect(() => {
+    function onReaction({ playerId, playerName, playerIndex, reaction }) {
+      const id = ++reactionIdRef.current;
+      setReactions(prev => [...prev, { id, playerName, playerIndex, reaction }]);
+      setTimeout(() => setReactions(prev => prev.filter(r => r.id !== id)), 2800);
+    }
+    socket.on('game:reaction', onReaction);
+    return () => socket.off('game:reaction', onReaction);
+  }, []);
+
+  const sendReaction = useCallback((reaction) => {
+    if (cooldown) return;
+    actions.sendReaction(reaction);
+    setPickerOpen(false);
+    setCooldown(true);
+    setTimeout(() => setCooldown(false), 5000);
+  }, [cooldown, actions]);
   // beanieChoice shape:    { cardIds, options: [{ label, overrides }] }
   // addBeanieChoice shape: { setIndex, cardId, options: [{ label, override }] }
 
@@ -784,12 +818,67 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
             <line x1="12" y1="16" x2="12.01" y2="16"/>
           </svg>
         </button>
+        {/* React button */}
+        <button
+          className={`btn-info${cooldown ? ' muted' : ''}`}
+          title={cooldown ? 'Reacting too fast…' : 'React'}
+          onClick={() => setPickerOpen(p => !p)}
+          style={{ position: 'relative' }}
+        >
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+            <line x1="9" y1="9" x2="9.01" y2="9"/>
+            <line x1="15" y1="9" x2="15.01" y2="9"/>
+          </svg>
+        </button>
         {isHost && (
           <button className="btn-exit" onClick={() => setShowExitModal(true)}>
             Exit
           </button>
         )}
       </div>
+
+      {/* Reaction picker — shown when pickerOpen, closes on outside tap */}
+      {pickerOpen && (
+        <div
+          style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 40 }}
+          onClick={() => setPickerOpen(false)}
+        >
+          <div
+            className="reaction-picker"
+            onClick={e => e.stopPropagation()}
+          >
+            {Object.entries(REACTION_ICONS).map(([key, Icon]) => (
+              <button
+                key={key}
+                className="reaction-opt"
+                onClick={() => sendReaction(key)}
+                title={key}
+              >
+                <Icon />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Reaction toasts */}
+      {reactions.length > 0 && (
+        <div className="reaction-toasts">
+          {reactions.map(r => {
+            const colour = PLAYER_COLOURS[r.playerIndex] || 'var(--text2)';
+            const Icon   = REACTION_ICONS[r.reaction];
+            return (
+              <div key={r.id} className="reaction-toast">
+                <div className="reaction-toast-dot" style={{ background: colour }} />
+                <span style={{ color: colour, fontWeight: 600, fontSize: 11 }}>{r.playerName}</span>
+                {Icon && <Icon color={colour} />}
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Left column — in landscape this becomes the left panel */}
       <div className="ls-left">

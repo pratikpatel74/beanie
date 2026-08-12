@@ -394,6 +394,25 @@ module.exports = function registerHandlers(io, socket) {
     }
   });
 
+  // Reactions — ephemeral, no game state change. Rate-limited to 1 per 5s per player.
+  const REACTION_COOLDOWN_MS = 5000;
+  const reactionLastSent = new Map(); // playerId → timestamp
+
+  const VALID_REACTIONS = new Set(['nice', 'fire', 'shocked', 'skull', 'zap']);
+
+  socket.on('game:react', ({ reaction } = {}) => {
+    if (!currentRoom || !VALID_REACTIONS.has(reaction)) return;
+    const game = rm.getRoom(currentRoom);
+    if (!game || game.status !== 'PLAYING') return;
+    const now = Date.now();
+    if (now - (reactionLastSent.get(currentPlayerId) || 0) < REACTION_COOLDOWN_MS) return;
+    reactionLastSent.set(currentPlayerId, now);
+    const player = game.players.find(p => p.id === currentPlayerId);
+    const playerName  = player?.name || 'Player';
+    const playerIndex = game.players.findIndex(p => p.id === currentPlayerId);
+    io.to(currentRoom).emit('game:reaction', { playerId: currentPlayerId, playerName, playerIndex, reaction });
+  });
+
   socket.on('game:pause', () => {
     if (!currentRoom) return sendError('Not in a room');
     const result = rm.pauseRoom(currentRoom, currentPlayerId);
