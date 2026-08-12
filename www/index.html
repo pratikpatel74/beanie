@@ -297,7 +297,7 @@
       justify-content: center;
       font-weight: 800;
       font-size: 1.3rem;
-      bottom: 0;
+      bottom: 28px; /* raised so rotated corners (±28°) don't overflow container */
       left: 50%;
       transform-origin: bottom center;
       transition: transform 0.3s ease;
@@ -344,7 +344,7 @@
       border: 2px solid var(--gold);
       color: var(--gold);
       z-index: 10;
-      transform: translateX(-50%) translateY(-28px) rotate(0deg) scale(1.08);
+      transform: translateX(-50%) translateY(0px) rotate(0deg) scale(1.08);
       box-shadow: 0 0 0 4px rgba(240,180,41,0.18), 0 16px 48px rgba(0,0,0,0.6);
       animation: float-card 3.5s ease-in-out infinite;
     }
@@ -358,8 +358,8 @@
     }
 
     @keyframes float-card {
-      0%, 100% { transform: translateX(-50%) translateY(-28px) rotate(0deg) scale(1.08); }
-      50%       { transform: translateX(-50%) translateY(-40px) rotate(0deg) scale(1.08); }
+      0%, 100% { transform: translateX(-50%) translateY(0px)   rotate(0deg) scale(1.08); }
+      50%       { transform: translateX(-50%) translateY(-12px) rotate(0deg) scale(1.08); }
     }
 
     .card-fan-wrapper .glow-ring {
