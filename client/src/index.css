@@ -176,7 +176,7 @@ html, body, #root {
 }
 .card-fan {
   position: relative;
-  width: 200px; height: 150px;
+  width: 200px; height: 160px;
   margin: 0 auto 24px;
   animation: fan-enter 0.5s ease-out both;
 }
@@ -193,7 +193,7 @@ html, body, #root {
 
 /* Side (flanking) playing cards — intentionally smaller than the Beanie card */
 .side-card {
-  position: absolute; bottom: 11px; /* raised so rotated corners (±16°) stay in bounds */
+  position: absolute; bottom: 20px; /* raised so rotated corners (±16°) stay in bounds */
   background: #fff; border: 0.5px solid #d0ccc0;
   z-index: 1;
   display: flex; flex-direction: column; justify-content: space-between;
