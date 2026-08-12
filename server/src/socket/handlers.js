@@ -170,7 +170,7 @@ module.exports = function registerHandlers(io, socket) {
         if (!forced.error) {
           broadcast(roomCode, forced.game);
           resetTimer(roomCode, forced.game);
-          io.to(roomCode).emit('game:timer-expired', { playerName: cp.name });
+          io.to(roomCode).emit('game:timer-expired', { playerName: cp.name, playerId: cp.id });
         }
       }
     });

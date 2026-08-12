@@ -430,7 +430,7 @@ const REACTIONS = {
   angry:   { color: '#ff8c42', icon: (c, sz=22) => <svg width={sz} height={sz} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M7 9.5 L10 11.5 L14 11.5 L17 9.5"/><circle cx="9.5" cy="13.5" r="1" fill={c} stroke="none"/><circle cx="14.5" cy="13.5" r="1" fill={c} stroke="none"/><path d="M9 17.5 Q12 15.5 15 17.5"/></svg> },
 };
 
-export default function GameScreen({ game, myId, isMyTurn, timer, error, notice, actions }) {
+export default function GameScreen({ game, myId, isMyTurn, timer, error, notice, timedOut, actions }) {
   const [selectedCards, setSelectedCards]     = useState([]);
   const [mode, setMode]                       = useState('normal');
   const [beanieChoice, setBeanieChoice]       = useState(null);
@@ -786,17 +786,40 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
         </div>
       )}
 
+      {/* Turn timed-out modal — shown only to the player whose turn expired */}
+      {timedOut && (
+        <div className="timeout-overlay">
+          <div className="timeout-modal">
+            <div className="timeout-modal-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
+            <div className="timeout-modal-title">Turn timed out</div>
+            <div className="timeout-modal-sub">A card was discarded for you — the game has moved on.</div>
+            <button className="timeout-modal-btn" onClick={actions.dismissTimeout}>Got it</button>
+          </div>
+        </div>
+      )}
+
       {/* Top bar */}
       <div className="game-topbar">
-        <div className="round-badge">
-          Round {game.round} of 13
-          <span className="rb-sep">·</span>
-          <span className="rb-beanie">★ {game.beanieRank} Beanie</span>
-        </div>
+        <div className="round-badge">Rd {game.round}/13</div>
+        <div className="beanie-pill">★ {game.beanieRank}</div>
         {!game.isPaused && timer && isMyTurn ? (
-          <div className={`timer-badge${timerUrgent ? ' urgent' : ''}`}>⏱ {timer.seconds}s</div>
+          <div className={`timer-badge${timerUrgent ? ' urgent' : ''}`}>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+            {timer.seconds}s
+          </div>
         ) : !game.isPaused && timer ? (
-          <div className="timer-badge">⏱ {timer.seconds}s</div>
+          <div className="timer-badge">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+            {timer.seconds}s
+          </div>
         ) : null}
         {/* Mute toggle */}
         <button className={`btn-mute${muted ? ' muted' : ''}`} onClick={toggleMute} title={muted ? 'Unmute' : 'Mute'}>

@@ -63,7 +63,7 @@ import HowToPlayScreen   from './screens/HowToPlayScreen';
 
 export default function App() {
   const { state, actions, myPlayer, isMyTurn } = useGame();
-  const { screen, roomCode, myId, game, error, timer, notice } = state;
+  const { screen, roomCode, myId, game, error, timer, notice, timedOut } = state;
 
   const [showWinCelebration, setShowWinCelebration] = useState(false);
   const prevScreenRef = useRef(null);
@@ -197,6 +197,7 @@ export default function App() {
           game={game} myId={myId}
           isMyTurn={isMyTurn} timer={timer}
           error={error} notice={notice}
+          timedOut={timedOut}
           actions={actions}
         />
       )}

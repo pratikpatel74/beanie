@@ -193,12 +193,24 @@ html, body, #root {
 
 /* Side (flanking) playing cards — intentionally smaller than the Beanie card */
 .side-card {
-  position: absolute; bottom: 20px; /* raised so rotated corners (±16°) stay in bounds */
+  position: absolute; bottom: 20px;
   background: #fff; border: 0.5px solid #d0ccc0;
   z-index: 1;
   display: flex; flex-direction: column; justify-content: space-between;
   border-radius: 9px; padding: 5px 7px;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.55);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.45);
+  overflow: hidden; /* needed for fade ::after to respect border-radius */
+}
+/* Fade the bottom of each side card into the background — hides the inverted corner */
+.side-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 44px;
+  background: linear-gradient(to bottom, transparent, #0D1F1A);
+  border-radius: 0 0 9px 9px;
+  pointer-events: none;
+  z-index: 2;
 }
 /* Use .card-fan .side-card (specificity 0-2-0) so it beats .crd (0-1-0) regardless of order */
 .card-fan .side-card { width: 74px; height: 104px; }
@@ -517,11 +529,17 @@ html, body, #root {
   background: rgba(240,180,41,0.1); border: 1px solid rgba(240,180,41,0.3);
   border-radius: 20px; padding: 0 12px;
   font-size: 11px; font-weight: 700; color: var(--gold);
-  white-space: nowrap; flex-shrink: 1; min-width: 0; overflow: hidden;
+  white-space: nowrap; flex-shrink: 0;
   display: flex; align-items: center;
 }
-.rb-sep    { opacity: 0.45; margin: 0 5px; font-weight: 400; }
-.rb-beanie { opacity: 0.85; font-weight: 700; }
+.beanie-pill {
+  background: rgba(240,180,41,0.18); border: 1px solid rgba(240,180,41,0.45);
+  border-radius: 20px; padding: 0 10px;
+  font-size: 12px; font-weight: 800; color: var(--gold);
+  white-space: nowrap; flex-shrink: 0;
+  height: 30px; box-sizing: border-box;
+  display: flex; align-items: center; letter-spacing: 0.02em;
+}
 .timer-badge {
   background: var(--goldbg); border: 1px solid var(--goldbdr);
   border-radius: 20px; padding: 0 10px;
@@ -1257,9 +1275,9 @@ html, body, #root {
 
   /* ── Compact top bar ── */
   .game-topbar { gap: 6px; }
-  .round-badge, .timer-badge, .btn-exit, .btn-mute, .btn-info { height: 26px; }
+  .round-badge, .beanie-pill, .timer-badge, .btn-exit, .btn-mute, .btn-info { height: 26px; }
   .round-badge { padding: 0 8px; font-size: 9px; }
-  .rb-sep      { margin: 0 3px; }
+  .beanie-pill { padding: 0 8px; font-size: 10px; }
   .timer-badge { padding: 0 8px; font-size: 10px; min-width: 50px; }
   .btn-exit    { padding: 0 10px; font-size: 11px; }
 
@@ -1461,6 +1479,32 @@ html, body, #root {
   border-color: rgba(232,84,128,0.35);
   color: var(--danger);
 }
+
+/* ─── Turn timed-out modal ───────────────────────────────────────────────── */
+.timeout-overlay {
+  position: absolute; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.72);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.timeout-modal {
+  background: var(--surf); border: 1px solid var(--goldbdr);
+  border-radius: 20px; padding: 32px 28px 24px;
+  width: 100%; max-width: 300px;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  text-align: center;
+}
+.timeout-modal-icon { margin-bottom: 4px; }
+.timeout-modal-title { font-size: 18px; font-weight: 700; color: var(--text); }
+.timeout-modal-sub   { font-size: 13px; color: var(--text2); line-height: 1.5; }
+.timeout-modal-btn {
+  margin-top: 8px; width: 100%; padding: 14px;
+  border-radius: 12px; border: none;
+  background: rgba(240,180,41,0.2); border: 1px solid rgba(240,180,41,0.4);
+  color: var(--gold); font-size: 15px; font-weight: 700; cursor: pointer;
+  transition: background 0.15s;
+}
+.timeout-modal-btn:active { background: rgba(240,180,41,0.35); }
 
 /* ─── Game paused overlay ────────────────────────────────────────────────── */
 .pause-overlay {

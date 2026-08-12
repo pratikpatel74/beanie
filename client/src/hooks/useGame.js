@@ -70,6 +70,7 @@ const INITIAL = {
   error:         null,
   timer:         null,    // { seconds, playerName }
   notice:        null,    // transient notification (disconnect, timer expired, etc.)
+  timedOut:      false,   // true when this player's own turn was auto-expired
 };
 
 function reducer(state, action) {
@@ -112,6 +113,10 @@ function reducer(state, action) {
       return { ...state, notice: action.message };
     case 'CLEAR_NOTICE':
       return { ...state, notice: null };
+    case 'TIMED_OUT':
+      return { ...state, timedOut: true };
+    case 'DISMISS_TIMEOUT':
+      return { ...state, timedOut: false };
     case 'SET_NAME':
       return { ...state, playerName: action.name, screen: state.inviteCode ? 'join' : 'home' };
     case 'GAME_CANCELLED':
@@ -204,8 +209,13 @@ export function useGame() {
     socket.on('game:timer', ({ playerName, seconds }) =>
       dispatch({ type: 'TIMER', playerName, seconds }));
 
-    socket.on('game:timer-expired', ({ playerName }) =>
-      dispatch({ type: 'NOTICE', message: `${playerName}'s turn timed out` }));
+    socket.on('game:timer-expired', ({ playerName, playerId }) => {
+      if (playerId && stateRef.current?.myId === playerId) {
+        dispatch({ type: 'TIMED_OUT' });
+      } else {
+        dispatch({ type: 'NOTICE', message: `${playerName}'s turn timed out` });
+      }
+    });
 
     socket.on('game:player-disconnected', ({ playerName }) =>
       dispatch({ type: 'NOTICE', message: `${playerName} disconnected` }));
@@ -325,6 +335,8 @@ export function useGame() {
     }, []),
 
     sendReaction: useCallback(reaction => socket.emit('game:react', { reaction }), []),
+
+    dismissTimeout: useCallback(() => dispatch({ type: 'DISMISS_TIMEOUT' }), []),
 
     pauseGame:   useCallback(() => socket.emit('game:pause'),  []),
     resumeGame:  useCallback(() => socket.emit('game:resume'), []),
