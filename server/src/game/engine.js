@@ -85,12 +85,13 @@ function addPlayer(game, playerId, playerName) {
   }
 
   const player = {
-    id:          playerId,
-    name:        playerName,
-    hand:        [],
-    hasLaidSet:  false,   // true once first set is on the table this round
-    totalScore:  0,
-    roundScores: [],
+    id:            playerId,
+    name:          playerName,
+    hand:          [],
+    hasLaidSet:    false,   // true once first set is on the table this round
+    totalScore:    0,
+    roundScores:   [],
+    beaniesStolen: 0,
   };
 
   return ok({ ...game, players: [...game.players, player] });
@@ -337,7 +338,7 @@ function stealBeanie(game, playerId, setIndex, replacementCardId, beanieCardId =
     .concat(stolenBeanie);
 
   const players    = game.players.map(p =>
-    p.id === playerId ? { ...p, hand: newHand } : p
+    p.id === playerId ? { ...p, hand: newHand, beaniesStolen: (p.beaniesStolen || 0) + 1 } : p
   );
   const publicSets = game.publicSets.map((s, i) =>
     i === setIndex ? { ...s, cards: newSetCards } : s

@@ -514,7 +514,8 @@ function sanitise(game, viewingPlayerId) {
       firstTurnDone: p.firstTurnDone || false,
       totalScore:   p.totalScore,
       roundScores:  p.roundScores,
-      handCount:    p.hand.length,
+      handCount:     p.hand.length,
+      beaniesStolen: p.beaniesStolen || 0,
       hand: p.id === viewingPlayerId ? p.hand : [],
     })),
   };

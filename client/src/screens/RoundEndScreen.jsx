@@ -1,6 +1,17 @@
 const PLAYER_COLOURS = ['var(--p1)', 'var(--p2)', 'var(--p3)', 'var(--p4)'];
 const BEANIE_RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 
+// Trophy icon reused for round-win pips
+const TrophyIcon = ({ size = 11, color = 'var(--gold)' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M6 2h12v6a6 6 0 0 1-12 0V2z"/>
+    <path d="M6 4H2v4a4 4 0 0 0 4 4"/>
+    <path d="M18 4h4v4a4 4 0 0 1-4 4"/>
+    <path d="M12 14v4"/>
+    <path d="M8 22h8"/>
+  </svg>
+);
+
 export default function RoundEndScreen({ game, myId, actions }) {
   // Sort by total score ascending (lower = better)
   const players = [...game.players].sort((a, b) => a.totalScore - b.totalScore);
@@ -111,6 +122,51 @@ export default function RoundEndScreen({ game, myId, actions }) {
             </tbody>
           </table>
         </div>
+
+        {/* Game standings — same visual language as GameEndScreen for natural transition */}
+        {(() => {
+          const sorted = [...game.players].sort((a, b) => a.totalScore - b.totalScore);
+          const maxScore = sorted[sorted.length - 1]?.totalScore || 1;
+          return (
+            <div>
+              <div className="section-label">Game standings</div>
+              {sorted.map(p => {
+                const origIdx = game.players.findIndex(gp => gp.id === p.id);
+                const lastDelta = p.roundScores[p.roundScores.length - 1] ?? null;
+                const isRoundWinner = lastDelta === 0 && !!game.roundWinner;
+                const barWidth = maxScore > 0 ? Math.round((p.totalScore / maxScore) * 100) : 0;
+                return (
+                  <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                    <div style={{ width: 52, flexShrink: 0, textAlign: 'right' }}>
+                      <span style={{ fontSize: 10, color: PLAYER_COLOURS[origIdx], whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'block' }}>
+                        {p.id === myId ? `${p.name.split(' ')[0]} (you)` : p.name.split(' ')[0]}
+                      </span>
+                    </div>
+                    <div style={{ flex: 1, height: 4, background: 'rgba(255,255,255,0.07)', borderRadius: 2, overflow: 'hidden' }}>
+                      <div style={{ width: `${barWidth}%`, height: '100%', background: PLAYER_COLOURS[origIdx], opacity: 0.65, borderRadius: 2 }} />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2, minWidth: 44 }}>
+                      <span style={{ fontSize: 11, fontWeight: 600, color: p.totalScore === sorted[0].totalScore ? 'var(--ok)' : 'var(--text)', lineHeight: 1 }}>
+                        {p.totalScore}
+                      </span>
+                      {lastDelta !== null && (
+                        isRoundWinner ? (
+                          <span style={{ fontSize: 9, fontWeight: 600, color: 'rgba(240,180,41,0.7)', background: 'rgba(240,180,41,0.1)', borderRadius: 3, padding: '1px 4px', lineHeight: 1, display: 'flex', alignItems: 'center', gap: 2 }}>
+                            <TrophyIcon size={8} /> +0
+                          </span>
+                        ) : (
+                          <span style={{ fontSize: 9, fontWeight: 600, color: 'var(--text3)', background: 'rgba(255,255,255,0.06)', borderRadius: 3, padding: '1px 4px', lineHeight: 1 }}>
+                            +{lastDelta}
+                          </span>
+                        )
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })()}
 
         {game.round < 13 && (
           <div style={{ fontSize: 12, color: 'var(--text2)', textAlign: 'center' }}>
