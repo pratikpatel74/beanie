@@ -419,13 +419,13 @@ function computeAddBeanieOptions(set, beanieRank) {
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-// ─── Reaction icons (SVG, no emoji) ──────────────────────────────────────────
-const REACTION_ICONS = {
-  nice:    (color='currentColor') => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>,
-  fire:    (color='currentColor') => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>,
-  shocked: (color='currentColor') => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>,
-  skull:   (color='currentColor') => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2C8.69 2 6 4.69 6 8c0 2.1.88 3.98 2.29 5.32L9 22h6l.71-8.68C17.12 11.98 18 10.1 18 8c0-3.31-2.69-6-6-6z"/><line x1="9" y1="17" x2="9" y2="22"/><line x1="12" y1="17" x2="12" y2="22"/><line x1="15" y1="17" x2="15" y2="22"/></svg>,
-  zap:     (color='currentColor') => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
+// ─── Reactions — icon C style (large circles) + toast C style (card + border) ─
+const REACTIONS = {
+  nice:    { color: '#4ec98a', icon: (c, sz=26) => <svg width={sz} height={sz} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg> },
+  fire:    { color: '#f0a500', icon: (c, sz=26) => <svg width={sz} height={sz} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg> },
+  shocked: { color: '#c47be8', icon: (c, sz=26) => <svg width={sz} height={sz} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> },
+  skull:   { color: '#e05555', icon: (c, sz=26) => <svg width={sz} height={sz} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2C8.69 2 6 4.69 6 8c0 2.1.88 3.98 2.29 5.32L9 22h6l.71-8.68C17.12 11.98 18 10.1 18 8c0-3.31-2.69-6-6-6z"/><line x1="9" y1="17" x2="9" y2="22"/><line x1="12" y1="17" x2="12" y2="22"/><line x1="15" y1="17" x2="15" y2="22"/></svg> },
+  zap:     { color: '#6399e8', icon: (c, sz=26) => <svg width={sz} height={sz} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> },
 };
 
 export default function GameScreen({ game, myId, isMyTurn, timer, error, notice, actions }) {
@@ -849,31 +849,55 @@ export default function GameScreen({ game, myId, isMyTurn, timer, error, notice,
             className="reaction-picker"
             onClick={e => e.stopPropagation()}
           >
-            {Object.entries(REACTION_ICONS).map(([key, Icon]) => (
+            {Object.entries(REACTIONS).map(([key, { color, icon }]) => (
               <button
                 key={key}
                 className="reaction-opt"
                 onClick={() => sendReaction(key)}
                 title={key}
+                style={{
+                  background: `${color}22`,
+                  border: `1.5px solid ${color}66`,
+                  borderRadius: '50%',
+                  width: 52, height: 52,
+                }}
               >
-                {Icon()}
+                {icon(color)}
               </button>
             ))}
           </div>
         </div>
       )}
 
-      {/* Reaction toasts */}
+      {/* Reaction toasts — Toast C: card with coloured left border + icon square */}
       {reactions.length > 0 && (
         <div className="reaction-toasts">
           {reactions.map(r => {
-            const colour = PLAYER_COLOURS[r.playerIndex] || 'var(--text2)';
-            const Icon   = REACTION_ICONS[r.reaction];
+            const playerColour   = PLAYER_COLOURS[r.playerIndex] || 'var(--text2)';
+            const { color, icon } = REACTIONS[r.reaction] || {};
             return (
-              <div key={r.id} className="reaction-toast">
-                <div className="reaction-toast-dot" style={{ background: colour }} />
-                <span style={{ color: colour, fontWeight: 600, fontSize: 11 }}>{r.playerName}</span>
-                {Icon && Icon(colour)}
+              <div
+                key={r.id}
+                className="reaction-toast"
+                style={{ borderLeftColor: playerColour }}
+              >
+                {color && (
+                  <div style={{
+                    width: 36, height: 36, borderRadius: 10, flexShrink: 0,
+                    background: `${color}22`, border: `0.5px solid ${color}55`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    {icon(color, 22)}
+                  </div>
+                )}
+                <div>
+                  <div style={{ color: playerColour, fontWeight: 600, fontSize: 14, lineHeight: 1.2 }}>
+                    {r.playerName}
+                  </div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>
+                    reacted
+                  </div>
+                </div>
               </div>
             );
           })}
