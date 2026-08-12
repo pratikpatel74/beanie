@@ -371,14 +371,18 @@ function discard(game, playerId, cardId) {
     console.log(`[engine] Draw pile empty after discard — reshuffled ${drawPile.length} cards`);
   }
 
-  // Mark this player as having completed their first turn — from this point on
-  // they are allowed to go out (the "no win on first turn" rule is lifted for them).
+  // Run the win check with the player's ORIGINAL firstTurnDone value — setting it
+  // to true before the check would incorrectly allow a win on the very first turn.
+  const playersForWinCheck = game.players.map(p =>
+    p.id === playerId ? { ...p, hand: newHand } : p
+  );
+  const gameForWinCheck = { ...game, players: playersForWinCheck, drawPile, discardPile };
+  const winCheck = _checkWin(gameForWinCheck, playerId);
+
+  // Now mark firstTurnDone: true for the ongoing/next-turn state.
   const players = game.players.map(p =>
     p.id === playerId ? { ...p, hand: newHand, firstTurnDone: true } : p
   );
-
-  const gameForWinCheck = { ...game, players, drawPile, discardPile };
-  const winCheck = _checkWin(gameForWinCheck, playerId);
   if (winCheck.status === STATUS.ROUND_END || winCheck.status === STATUS.GAME_END) {
     return winCheck;
   }
