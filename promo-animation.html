@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Beanie — Promo Animation</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --bg:     #0d1f1a;
+  --bg2:    #1a2e28;
+  --bg3:    #243b33;
+  --gold:   #F0B429;
+  --purple: #7C6FFF;
+  --red:    #c0392b;
+  --text:   #f0f4f2;
+  --muted:  #8aada1;
+  --border: rgba(255,255,255,0.08);
+}
+
+body {
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+
+/* ── Stage: 9:16 at 450×800 ─────────────────────────────── */
+.stage {
+  width: 450px;
+  height: 800px;
+  background: var(--bg);
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* Ambient background glows */
+.stage::before {
+  content: '';
+  position: absolute;
+  top: -120px; left: 50%; transform: translateX(-50%);
+  width: 600px; height: 400px;
+  background: radial-gradient(ellipse, rgba(124,111,255,0.07) 0%, transparent 65%);
+  pointer-events: none; z-index: 0;
+}
+.stage::after {
+  content: '';
+  position: absolute;
+  bottom: -80px; left: 50%; transform: translateX(-50%);
+  width: 500px; height: 300px;
+  background: radial-gradient(ellipse, rgba(240,180,41,0.06) 0%, transparent 65%);
+  pointer-events: none; z-index: 0;
+}
+
+/* ── Scene system ────────────────────────────────────────── */
+.scene {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.55s ease;
+  padding: 48px 32px;
+  z-index: 1;
+}
+.scene.active { opacity: 1; }
+
+/* ── Playing cards ───────────────────────────────────────── */
+.card {
+  width: 62px; height: 90px;
+  background: #fff;
+  border-radius: 10px;
+  border: 0.5px solid rgba(0,0,0,0.1);
+  box-shadow: 0 6px 22px rgba(0,0,0,0.55);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Georgia, serif;
+  flex-shrink: 0;
+  transition: transform 0.4s ease, box-shadow 0.4s ease, opacity 0.4s ease;
+}
+.card .cr {
+  position: absolute;
+  display: flex; flex-direction: column;
+  align-items: flex-start; line-height: 1; gap: 1px;
+}
+.card .cr.tl { top: 6px; left: 7px; }
+.card .cr.br { bottom: 6px; right: 7px; transform: rotate(180deg); }
+.card .cr .r { font-size: 13px; font-weight: 800; line-height: 1; }
+.card .cr .s { font-size: 10px; line-height: 1; }
+.card .pip   { font-size: 26px; line-height: 1; }
+.red { color: #c0392b; }
+.blk { color: #1a1a2e; }
+
+/* Beanie (wild) card */
+.card.bc {
+  background: linear-gradient(135deg, #2d200a, #1c1408);
+  border: 2px solid var(--gold);
+}
+.card.bc .pip { color: var(--gold); font-size: 30px; }
+.card.bc .cr  { color: var(--gold); }
+.card.bc .bl  {
+  position: absolute; bottom: 7px;
+  left: 0; right: 0; text-align: center;
+  font-size: 7px; font-weight: 800;
+  letter-spacing: 1.5px;
+  font-family: 'Inter', sans-serif;
+  color: var(--gold);
+}
+.beanie-badge {
+  position: absolute;
+  bottom: -13px; left: 50%;
+  transform: translateX(-50%);
+  background: var(--gold);
+  color: #1a0e00;
+  font-size: 9px; font-weight: 800;
+  padding: 2px 6px; border-radius: 4px;
+  white-space: nowrap;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.3px;
+}
+
+/* Card state modifiers */
+.card.selected {
+  box-shadow: 0 0 0 3px var(--purple), 0 8px 28px rgba(0,0,0,0.6);
+  transform: translateY(-12px);
+}
+.card.glow-gold {
+  box-shadow: 0 0 0 3px var(--gold), 0 8px 28px rgba(240,180,41,0.45);
+  transform: translateY(-12px);
+}
+.card.dim { opacity: 0.35; }
+
+/* ── Shared UI atoms ─────────────────────────────────────── */
+.round-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--purple);
+  color: #fff;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.8px; text-transform: uppercase;
+  padding: 5px 14px; border-radius: 100px;
+}
+.wild-row {
+  font-size: 20px; font-weight: 800;
+  color: var(--text); margin-top: 8px;
+}
+.wild-row .wg { color: var(--gold); }
+
+.section-label {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 10px;
+}
+
+.card-row {
+  display: flex; align-items: flex-end;
+  justify-content: center; gap: 9px;
+}
+
+/* ── Flash banners ───────────────────────────────────────── */
+.banner {
+  border-radius: 12px;
+  padding: 13px 22px;
+  text-align: center;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.banner.purple {
+  background: rgba(124,111,255,0.12);
+  border: 1px solid rgba(124,111,255,0.35);
+}
+.banner.gold {
+  background: rgba(240,180,41,0.1);
+  border: 1px solid rgba(240,180,41,0.3);
+}
+.banner .bn-title { font-size: 15px; font-weight: 800; margin-bottom: 3px; }
+.banner .bn-sub   { font-size: 12px; color: var(--muted); }
+.banner.purple .bn-title { color: var(--purple); }
+.banner.gold   .bn-title { color: var(--gold); }
+.banner.hidden { opacity: 0; transform: translateY(8px); pointer-events: none; }
+
+/* ── Steal action button ─────────────────────────────────── */
+.steal-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(240,180,41,0.14);
+  border: 1.5px solid rgba(240,180,41,0.5);
+  border-radius: 10px;
+  padding: 11px 22px;
+  font-size: 14px; font-weight: 800;
+  color: var(--gold);
+  letter-spacing: 0.2px;
+  transition: opacity 0.4s ease;
+}
+.steal-btn.hidden { opacity: 0; pointer-events: none; }
+
+/* ── SCENE 1: Intro ──────────────────────────────────────── */
+#s1 { gap: 0; }
+
+.s1-logo {
+  width: 100px; height: 100px;
+  background: var(--gold);
+  border-radius: 26px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 56px; color: #1a0e00;
+  margin-bottom: 26px;
+  animation: logoPulse 2.6s ease-in-out infinite;
+}
+@keyframes logoPulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(240,180,41,0.45); }
+  50%     { box-shadow: 0 0 0 18px rgba(240,180,41,0); }
+}
+
+.s1-title {
+  font-size: 68px; font-weight: 900;
+  color: var(--gold); letter-spacing: -2.5px;
+  line-height: 1; margin-bottom: 10px;
+}
+.s1-sub {
+  font-size: 15px; color: var(--muted);
+  margin-bottom: 42px; letter-spacing: 0.2px;
+}
+.s1-pill {
+  background: rgba(240,180,41,0.1);
+  border: 1px solid rgba(240,180,41,0.28);
+  border-radius: 100px;
+  padding: 11px 24px;
+  font-size: 13px; font-weight: 700;
+  color: var(--gold); text-align: center;
+  line-height: 1.4;
+  max-width: 280px;
+}
+
+/* ── SCENE 2: Deal ───────────────────────────────────────── */
+#s2 { justify-content: flex-start; padding-top: 80px; gap: 0; }
+
+.s2-top { text-align: center; margin-bottom: 32px; }
+
+.s2-mid {
+  flex: 1;
+  display: flex; align-items: center;
+  justify-content: center;
+}
+
+.hand-wrap {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 14px;
+  width: 100%;
+}
+.hand-label-row {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  width: 100%; padding: 0 4px;
+}
+.hand-count {
+  font-size: 12px; color: var(--muted);
+  font-weight: 600;
+}
+
+#hand {
+  display: flex; justify-content: center;
+  gap: 6px; width: 100%;
+}
+
+/* ── SCENE 3: Lay set ────────────────────────────────────── */
+#s3 { justify-content: flex-start; padding-top: 80px; gap: 0; }
+
+.s3-top { text-align: center; margin-bottom: 28px; }
+
+.table-box {
+  width: 100%;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 16px 26px;
+  margin-bottom: 20px;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 14px;
+}
+
+#s3-hand {
+  display: flex; justify-content: center;
+  gap: 9px; margin-top: 6px;
+}
+
+/* ── SCENE 4: Steal ──────────────────────────────────────── */
+#s4 { justify-content: flex-start; padding-top: 72px; gap: 0; }
+
+.s4-top { text-align: center; margin-bottom: 22px; }
+.s4-opp-label {
+  font-size: 11px; color: var(--muted);
+  font-weight: 600; letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.opp-box {
+  width: 100%;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px 16px 24px;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 12px;
+  margin-bottom: 16px;
+}
+
+.s4-actions {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 14px;
+  margin-bottom: 20px;
+  width: 100%;
+  padding: 0 8px;
+}
+
+.s4-my-label {
+  font-size: 11px; color: var(--muted);
+  font-weight: 600; letter-spacing: 0.5px;
+  margin-bottom: 6px; text-align: center;
+}
+
+#s4-hand {
+  display: flex; justify-content: center;
+  gap: 9px; margin-top: 4px;
+}
+
+/* ── SCENE 5: CTA ────────────────────────────────────────── */
+#s5 { gap: 0; }
+
+.cta-logo {
+  width: 88px; height: 88px;
+  background: var(--gold);
+  border-radius: 22px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 50px; color: #1a0e00;
+  margin-bottom: 24px;
+  animation: logoPulse 2.6s ease-in-out infinite;
+}
+.cta-free-tag {
+  font-size: 12px; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 1.2px;
+  font-weight: 700; margin-bottom: 8px;
+}
+.cta-title {
+  font-size: 58px; font-weight: 900;
+  color: var(--gold); letter-spacing: -2px;
+  line-height: 1; margin-bottom: 12px;
+}
+.cta-url {
+  font-size: 20px; font-weight: 800;
+  color: var(--purple); margin-bottom: 38px;
+  letter-spacing: -0.3px;
+}
+.cta-btn {
+  background: var(--purple);
+  color: #fff;
+  font-size: 16px; font-weight: 800;
+  padding: 15px 42px; border-radius: 10px;
+  letter-spacing: -0.2px;
+  margin-bottom: 14px;
+  box-shadow: 0 4px 20px rgba(124,111,255,0.4);
+}
+.cta-note {
+  font-size: 12px; color: var(--muted);
+}
+
+/* ── Progress bar ────────────────────────────────────────── */
+.progress-bar {
+  position: absolute;
+  bottom: 0; left: 0;
+  height: 3px;
+  background: var(--gold);
+  opacity: 0.5;
+  transition: width 0.1s linear;
+  z-index: 10;
+}
+
+/* ── Hint ────────────────────────────────────────────────── */
+.hint {
+  position: fixed;
+  bottom: 16px; left: 50%; transform: translateX(-50%);
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.4);
+  font-size: 11px; padding: 5px 14px;
+  border-radius: 100px; white-space: nowrap;
+  font-family: 'Inter', sans-serif;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+</style>
+</head>
+<body>
+
+<div class="stage" id="stage">
+
+  <!-- ── SCENE 1: Intro ─────────────────────────────────────── -->
+  <div class="scene active" id="s1">
+    <div class="s1-logo">★</div>
+    <div class="s1-title">BEANIE</div>
+    <div class="s1-sub">Wild card rummy · 2–4 players</div>
+    <div class="s1-pill">★ The wild card rank changes every single round</div>
+  </div>
+
+  <!-- ── SCENE 2: Deal ──────────────────────────────────────── -->
+  <div class="scene" id="s2">
+    <div class="s2-top">
+      <div class="round-pill">Round 7</div>
+      <div class="wild-row">7s are <span class="wg">wild ★</span></div>
+    </div>
+    <div class="s2-mid">
+      <div class="hand-wrap">
+        <div class="hand-label-row">
+          <span class="section-label">Your hand</span>
+          <span class="hand-count">6 cards</span>
+        </div>
+        <div id="hand"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SCENE 3: Lay a set ─────────────────────────────────── -->
+  <div class="scene" id="s3">
+    <div class="s3-top">
+      <div class="round-pill">Round 7</div>
+      <div class="wild-row">7s are <span class="wg">wild ★</span></div>
+    </div>
+    <div class="table-box">
+      <div class="section-label">Set on the table</div>
+      <div class="card-row" id="s3-set"></div>
+    </div>
+    <div id="s3-flash" class="banner purple hidden" style="width:100%">
+      <div class="bn-title">✓ Set laid!</div>
+      <div class="bn-sub">Now you can steal Beanies from anyone</div>
+    </div>
+    <div style="height:18px"></div>
+    <div class="section-label" style="align-self:flex-start;padding-left:4px">Your hand</div>
+    <div id="s3-hand"></div>
+  </div>
+
+  <!-- ── SCENE 4: Steal ─────────────────────────────────────── -->
+  <div class="scene" id="s4">
+    <div class="s4-top">
+      <div class="round-pill" style="background:rgba(240,180,41,0.15);color:var(--gold);border:1px solid rgba(240,180,41,0.3)">Steal Beanie ★</div>
+    </div>
+    <div class="opp-box">
+      <div class="s4-opp-label">Opponent's set — Beanie acting as Q♥</div>
+      <div class="card-row" id="s4-opp-set"></div>
+    </div>
+    <div class="s4-actions">
+      <div id="steal-btn" class="steal-btn hidden">Steal Beanie ★</div>
+      <div id="steal-banner" class="banner gold hidden" style="width:100%">
+        <div class="bn-title">Beanie stolen! ★</div>
+        <div class="bn-sub">Your Q♥ takes its place — Beanie is yours</div>
+      </div>
+    </div>
+    <div class="s4-my-label">Your hand</div>
+    <div id="s4-hand"></div>
+  </div>
+
+  <!-- ── SCENE 5: CTA ───────────────────────────────────────── -->
+  <div class="scene" id="s5">
+    <div class="cta-logo">★</div>
+    <div class="cta-free-tag">Free · No download · Any browser</div>
+    <div class="cta-title">BEANIE</div>
+    <div class="cta-url">playbeanie.com</div>
+    <div class="cta-btn">Play Now →</div>
+    <div class="cta-note">Share a 4-letter code with friends</div>
+  </div>
+
+  <div class="progress-bar" id="prog"></div>
+</div>
+
+<div class="hint" id="hint">Press F for fullscreen · 20s loop</div>
+
+<script>
+// ── Card factory ─────────────────────────────────────────────
+function makeCard(opts = {}) {
+  const { rank, suit, red, beanie, badge, selected, glowGold, dim } = opts;
+  const d = document.createElement('div');
+  let cls = 'card';
+  if (beanie)   cls += ' bc';
+  if (selected) cls += ' selected';
+  if (glowGold) cls += ' glow-gold';
+  if (dim)      cls += ' dim';
+  d.className = cls;
+
+  if (beanie) {
+    d.innerHTML = `
+      <div class="cr tl" style="color:var(--gold)"><span class="r">★</span></div>
+      <span class="pip">★</span>
+      <span class="bl">BEANIE</span>
+      ${badge ? `<div class="beanie-badge">${badge}</div>` : ''}
+    `;
+  } else {
+    const col = red ? 'red' : 'blk';
+    d.innerHTML = `
+      <div class="cr tl ${col}"><span class="r">${rank}</span><span class="s">${suit}</span></div>
+      <span class="pip ${col}">${suit}</span>
+      <div class="cr br ${col}"><span class="r">${rank}</span><span class="s">${suit}</span></div>
+    `;
+  }
+  return d;
+}
+
+function clearEl(id) { document.getElementById(id).innerHTML = ''; }
+function append(id, ...cards) { const el = document.getElementById(id); cards.forEach(c => el.appendChild(c)); }
+
+// ── Scene builders ───────────────────────────────────────────
+function buildS2() {
+  clearEl('hand');
+  const cards = [
+    { rank: 'Q', suit: '♥', red: true },
+    { rank: '3', suit: '♠', red: false },
+    { rank: 'Q', suit: '♠', red: false },
+    { rank: 'Q', suit: '♦', red: true },
+    { rank: 'K', suit: '♣', red: false },
+    { beanie: true },
+  ];
+  cards.forEach((c, i) => {
+    const el = makeCard(c);
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(50px)';
+    el.style.transition = `opacity 0.35s ease ${i * 0.1}s, transform 0.35s ease ${i * 0.1}s`;
+    document.getElementById('hand').appendChild(el);
+  });
+}
+
+function buildS3(showSet, showFlash) {
+  clearEl('s3-set');
+  clearEl('s3-hand');
+
+  // Table: Q♠ Q♥ Q♦ (the set laid)
+  append('s3-set',
+    makeCard({ rank: 'Q', suit: '♠', red: false }),
+    makeCard({ rank: 'Q', suit: '♥', red: true }),
+    makeCard({ rank: 'Q', suit: '♦', red: true })
+  );
+
+  // Remaining hand
+  append('s3-hand',
+    makeCard({ rank: '3', suit: '♠', red: false }),
+    makeCard({ rank: 'K', suit: '♣', red: false }),
+    makeCard({ beanie: true })
+  );
+
+  const flash = document.getElementById('s3-flash');
+  if (showFlash) { flash.classList.remove('hidden'); }
+  else           { flash.classList.add('hidden'); }
+}
+
+function buildS4(phase) {
+  clearEl('s4-opp-set');
+  clearEl('s4-hand');
+
+  const btn    = document.getElementById('steal-btn');
+  const banner = document.getElementById('steal-banner');
+
+  if (phase === 'before') {
+    // Opponent's set: Q♣ Q♠ ★(Q♥)
+    append('s4-opp-set',
+      makeCard({ rank: 'Q', suit: '♣', red: false }),
+      makeCard({ rank: 'Q', suit: '♠', red: false }),
+      makeCard({ beanie: true, badge: 'Q♥' })
+    );
+    // Player hand: 3♠, K♣, ★Beanie, Q♥ (glowing — can steal)
+    append('s4-hand',
+      makeCard({ rank: '3', suit: '♠', red: false }),
+      makeCard({ rank: 'K', suit: '♣', red: false }),
+      makeCard({ beanie: true }),
+      makeCard({ rank: 'Q', suit: '♥', red: true, glowGold: true })
+    );
+    btn.classList.remove('hidden');
+    banner.classList.add('hidden');
+  } else {
+    // After steal: set now has real Q♥, Beanie is in player's hand
+    append('s4-opp-set',
+      makeCard({ rank: 'Q', suit: '♣', red: false }),
+      makeCard({ rank: 'Q', suit: '♠', red: false }),
+      makeCard({ rank: 'Q', suit: '♥', red: true })
+    );
+    append('s4-hand',
+      makeCard({ rank: '3', suit: '♠', red: false }),
+      makeCard({ rank: 'K', suit: '♣', red: false }),
+      makeCard({ beanie: true }),          // original beanie
+      makeCard({ beanie: true })           // stolen beanie
+    );
+    btn.classList.add('hidden');
+    banner.classList.remove('hidden');
+  }
+}
+
+// ── Scene sequencer ──────────────────────────────────────────
+// Total: 20 000 ms
+// Scene 1 (Intro):   0       – 4 500
+// Scene 2 (Deal):    4 200   – 9 000
+// Scene 3 (Set):     8 700   – 13 500
+// Scene 4 (Steal):   13 200  – 17 500
+// Scene 5 (CTA):     17 200  – 20 000 → loop
+
+const TOTAL = 20000;
+
+const SCENES = [
+  { id: 's1', start: 0,     end: 4500  },
+  { id: 's2', start: 4200,  end: 9000  },
+  { id: 's3', start: 8700,  end: 13500 },
+  { id: 's4', start: 13200, end: 17500 },
+  { id: 's5', start: 17200, end: 20000 },
+];
+
+let t0 = null;
+let activeId = 's1';
+let timers = [];
+
+function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
+
+function activate(id, elapsed) {
+  if (id === activeId) return;
+  activeId = id;
+  clearTimers();
+
+  // Deactivate all
+  document.querySelectorAll('.scene').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById(id);
+  if (el) el.classList.add('active');
+
+  // Per-scene init
+  if (id === 's2') {
+    buildS2();
+    later(() => {
+      document.querySelectorAll('#hand .card').forEach(c => {
+        c.style.opacity = '1';
+        c.style.transform = 'translateY(0)';
+      });
+    }, 60);
+  }
+
+  if (id === 's3') {
+    buildS3(true, false);
+    later(() => buildS3(true, true), 2500);
+  }
+
+  if (id === 's4') {
+    buildS4('before');
+    later(() => buildS4('after'), 3000);
+  }
+}
+
+function tick(ts) {
+  if (!t0) t0 = ts;
+  const elapsed = (ts - t0) % TOTAL;
+
+  // Progress bar
+  document.getElementById('prog').style.width = ((elapsed / TOTAL) * 100) + '%';
+
+  // Scene activation
+  let hit = null;
+  for (const s of SCENES) {
+    if (elapsed >= s.start && elapsed < s.end) { hit = s.id; break; }
+  }
+  if (hit) activate(hit, elapsed);
+
+  requestAnimationFrame(tick);
+}
+
+requestAnimationFrame(tick);
+
+// Fullscreen toggle (F key)
+document.addEventListener('keydown', e => {
+  if (e.key !== 'f' && e.key !== 'F') return;
+  if (!document.fullscreenElement) {
+    document.getElementById('stage').requestFullscreen().catch(() => {});
+  } else {
+    document.exitFullscreen();
+  }
+});
+
+// Hide hint after 5s
+setTimeout(() => { document.getElementById('hint').style.opacity = '0'; }, 5000);
+</script>
+</body>
+</html>
