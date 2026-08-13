@@ -14,6 +14,167 @@ const TrophyIcon = ({ size = 11, color = 'var(--gold)' }) => (
   </svg>
 );
 
+// Canvas helper: draws a rounded-rect path (no native roundRect on older Safari)
+function canvasRoundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+// Render the full scorecard to a PNG then share via native sheet (mobile)
+// or trigger a download (desktop fallback).
+function shareScorecard(sorted, winner, gamePlayers) {
+  const RANKS  = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+  const P_COLS = ['#7C6FFF','#E85480','#2DD4A7','#F5A623'];
+  const SANS   = "-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif";
+  const numRounds = sorted[0]?.roundScores?.length || 13;
+  const ranks  = RANKS.slice(0, numRounds);
+
+  const W      = 680, PAD = 28;
+  const NAME_W = 118, TOT_W = 52;
+  const RD_W   = Math.floor((W - PAD * 2 - NAME_W - TOT_W) / ranks.length);
+  const TABLE_W = NAME_W + RD_W * ranks.length + TOT_W;
+  const HDR_H  = 98, LBL_H = 30, TBL_H = 30, ROW_H = 42, FOOT_H = 44;
+  const H      = PAD + HDR_H + 16 + LBL_H + TBL_H + ROW_H * sorted.length + FOOT_H;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = W * 2; canvas.height = H * 2;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(2, 2);
+
+  // Background
+  ctx.fillStyle = '#0D1F1A';
+  ctx.fillRect(0, 0, W, H);
+
+  // Header card
+  ctx.fillStyle = '#1A2E28';
+  canvasRoundRect(ctx, PAD, PAD, W - PAD * 2, HDR_H, 14); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.07)'; ctx.lineWidth = 0.5;
+  canvasRoundRect(ctx, PAD, PAD, W - PAD * 2, HDR_H, 14); ctx.stroke();
+
+  ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  ctx.font = `600 11px ${SANS}`;
+  ctx.fillText('BEANIE', W / 2, PAD + 24);
+
+  ctx.fillStyle = '#F0B429';
+  ctx.font = `700 22px ${SANS}`;
+  ctx.fillText(`${winner.name} wins!`, W / 2, PAD + 52);
+
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.font = `400 13px ${SANS}`;
+  ctx.fillText(`${winner.totalScore} pts — lowest after 13 rounds`, W / 2, PAD + 76);
+
+  // Section label
+  const secY = PAD + HDR_H + 20;
+  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  ctx.font = `600 10px ${SANS}`;
+  ctx.textAlign = 'left';
+  ctx.fillText('ROUND BY ROUND', PAD, secY + 16);
+
+  // Table header
+  const tblY = secY + LBL_H;
+  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  ctx.font = `500 10px ${SANS}`;
+  ctx.textAlign = 'left';
+  ctx.fillText('Player', PAD + 12, tblY + 20);
+  ranks.forEach((r, i) => {
+    ctx.textAlign = 'center';
+    ctx.fillText(`★${r}`, PAD + NAME_W + RD_W * i + RD_W / 2, tblY + 20);
+  });
+  ctx.textAlign = 'center';
+  ctx.fillText('Total', PAD + NAME_W + RD_W * ranks.length + TOT_W / 2, tblY + 20);
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 0.5;
+  ctx.beginPath();
+  ctx.moveTo(PAD, tblY + TBL_H); ctx.lineTo(PAD + TABLE_W, tblY + TBL_H);
+  ctx.stroke();
+
+  // Player rows
+  sorted.forEach((p, pi) => {
+    const rowY    = tblY + TBL_H + ROW_H * pi;
+    const origIdx = gamePlayers.findIndex(gp => gp.id === p.id);
+    const pCol    = P_COLS[origIdx] || '#7C6FFF';
+    const isWin   = p.id === winner.id;
+
+    if (isWin) {
+      ctx.fillStyle = 'rgba(240,180,41,0.06)';
+      ctx.fillRect(PAD - 4, rowY, TABLE_W + 8, ROW_H);
+    }
+
+    ctx.fillStyle = pCol;
+    ctx.beginPath();
+    ctx.arc(PAD + 7, rowY + ROW_H / 2, 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    const displayName = p.name.length > 14 ? p.name.slice(0, 13) + '…' : p.name;
+    ctx.fillStyle = '#ffffff';
+    ctx.font = `500 13px ${SANS}`;
+    ctx.textAlign = 'left';
+    ctx.fillText(displayName, PAD + 18, rowY + ROW_H / 2 + 5);
+
+    p.roundScores?.forEach((score, ri) => {
+      const cx = PAD + NAME_W + RD_W * ri + RD_W / 2;
+      const cy = rowY + ROW_H / 2;
+      if (score === 0) {
+        const pw = Math.min(RD_W - 4, 28), ph = 18;
+        ctx.fillStyle = 'rgba(240,165,0,0.15)';
+        canvasRoundRect(ctx, cx - pw / 2, cy - ph / 2, pw, ph, 4); ctx.fill();
+        ctx.fillStyle = '#F0B429';
+        ctx.font = `700 11px ${SANS}`;
+        ctx.textAlign = 'center';
+        ctx.fillText('W', cx, cy + 4);
+      } else {
+        ctx.fillStyle = 'rgba(255,255,255,0.55)';
+        ctx.font = `400 12px ${SANS}`;
+        ctx.textAlign = 'center';
+        ctx.fillText(String(score), cx, cy + 4);
+      }
+    });
+
+    ctx.fillStyle = isWin ? '#2DD4A7' : 'rgba(168,155,255,0.85)';
+    ctx.font = `700 14px ${SANS}`;
+    ctx.textAlign = 'center';
+    ctx.fillText(String(p.totalScore), PAD + NAME_W + RD_W * ranks.length + TOT_W / 2, rowY + ROW_H / 2 + 5);
+
+    if (pi < sorted.length - 1) {
+      ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 0.5;
+      ctx.beginPath();
+      ctx.moveTo(PAD, rowY + ROW_H); ctx.lineTo(PAD + TABLE_W, rowY + ROW_H);
+      ctx.stroke();
+    }
+  });
+
+  // Footer
+  const footY = tblY + TBL_H + ROW_H * sorted.length;
+  ctx.fillStyle = 'rgba(255,255,255,0.25)';
+  ctx.font = `400 12px ${SANS}`;
+  ctx.textAlign = 'center';
+  ctx.fillText('play.playbeanie.com', W / 2, footY + 26);
+
+  // Share or download
+  canvas.toBlob(blob => {
+    const file = new File([blob], 'beanie-scorecard.png', { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({ files: [file], title: 'Beanie scorecard' }).catch(() => {});
+    } else {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'beanie-scorecard.png';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+  }, 'image/png');
+}
+
 // Share the result as plain text via navigator.share or clipboard fallback.
 // When includeRounds is true, appends a full round-by-round table.
 function shareResult(players, winner, includeRounds) {
@@ -335,7 +496,7 @@ export default function GameEndScreen({ game, myId, actions }) {
 
         {/* Share */}
         <button
-          onClick={() => shareResult(sorted, winner, showScorecard)}
+          onClick={() => showScorecard ? shareScorecard(sorted, winner, game.players) : shareResult(sorted, winner, false)}
           style={{ background: 'none', border: 'none', color: 'var(--text3)', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, padding: '4px 0' }}
         >
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
