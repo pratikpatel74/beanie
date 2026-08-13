@@ -1005,6 +1005,30 @@ html, body, #root {
 .score-win-total { font-size: 13px; font-weight: 700; color: var(--gold); line-height: 1.2; }
 .score-win-badge { font-size: 9px; font-weight: 600; color: rgba(240,180,41,0.55); background: rgba(240,180,41,0.1); border-radius: 3px; padding: 1px 4px; }
 
+/* ── SCORECARD TABS (GameEndScreen) ────────────────────────────────────────── */
+.scorecard-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.scorecard-tab {
+  flex: 1;
+  padding: 8px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 0.5px solid rgba(255,255,255,0.08);
+  background: transparent;
+  color: var(--text3);
+  cursor: pointer;
+  font-family: inherit;
+}
+.scorecard-tab.active {
+  background: var(--surf);
+  color: var(--text);
+  border-color: rgba(255,255,255,0.12);
+}
+
 /* ── REACTIONS ─────────────────────────────────────────────────────────────── */
 .reaction-picker {
   position: absolute; top: 44px; right: 8px;
