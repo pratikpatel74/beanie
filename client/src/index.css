@@ -1,17 +1,17 @@
 /* ── Design tokens ─────────────────────────────────────────────────────────── */
 :root {
-  --bg:      #0D1F1A;  /* Forest Night — aligned with www */
-  --surf:    #1A2E28;
-  --surf2:   #243B33;
+  --bg:      #080F1A;  /* Midnight Ocean — Steel Blue */
+  --surf:    #0F1D2E;
+  --surf2:   #192C42;
   --border:  rgba(255,255,255,0.08);
-  --acc:     #7C6FFF;
-  --accl:    #A89BFF;
+  --acc:     #5B8FD6;
+  --accl:    #89B3E8;
   --gold:    #F0B429;
   --goldbg:  rgba(240,180,41,0.10);
   --goldbdr: rgba(240,180,41,0.28);
   --ok:      #2DD4A7;
   --danger:  #E85480;
-  --p1:      #7C6FFF;
+  --p1:      #5B8FD6;
   --p2:      #E85480;
   --p3:      #2DD4A7;
   --p4:      #F5A623;
@@ -19,7 +19,7 @@
   --text2:   rgba(255,255,255,0.6);
   --text3:   rgba(255,255,255,0.35);
   --radius:  12px;
-  --tbl-bg:  #07140F;
+  --tbl-bg:  #040A12;
 }
 
 /* ── Reset ─────────────────────────────────────────────────────────────────── */
@@ -207,7 +207,7 @@ html, body, #root {
   position: absolute;
   bottom: 0; left: 0; right: 0;
   height: 44px;
-  background: linear-gradient(to bottom, transparent, #0D1F1A);
+  background: linear-gradient(to bottom, transparent, #080F1A);
   border-radius: 0 0 9px 9px;
   pointer-events: none;
   z-index: 2;

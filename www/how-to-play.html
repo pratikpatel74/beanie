@@ -13,16 +13,16 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg-deep:      #0d1f1a;
-      --bg-surface:   #1a2e28;
-      --bg-elevated:  #243b33;
+      --bg-deep:      #080F1A;
+      --bg-surface:   #0F1D2E;
+      --bg-elevated:  #192C42;
       --gold:         #F0B429;
       --gold-light:   #FFD166;
-      --purple:       #7C6FFF;
-      --purple-hover: #6558e8;
+      --purple:       #5B8FD6;
+      --purple-hover: #4a7ec5;
       --red:          #E85480;
       --text:         #f0f4f2;
-      --text-muted:   #8aada1;
+      --text-muted:   #7a9ab8;
       --border:       rgba(255,255,255,0.08);
       --card-radius:  14px;
       --btn-radius:   8px;
@@ -48,9 +48,9 @@
       padding: 14px 28px; border-radius: var(--btn-radius); border: none;
       cursor: pointer; text-decoration: none;
       transition: background 0.18s, transform 0.12s, box-shadow 0.18s;
-      box-shadow: 0 4px 20px rgba(124,111,255,0.35); white-space: nowrap;
+      box-shadow: 0 4px 20px rgba(91,143,214,0.35); white-space: nowrap;
     }
-    .btn-primary:hover { background: var(--purple-hover); transform: translateY(-1px); box-shadow: 0 6px 28px rgba(124,111,255,0.5); }
+    .btn-primary:hover { background: var(--purple-hover); transform: translateY(-1px); box-shadow: 0 6px 28px rgba(91,143,214,0.5); }
     .btn-ghost {
       display: inline-flex; align-items: center; gap: 6px;
       background: transparent; color: var(--text-muted);
@@ -64,7 +64,7 @@
     /* ─── HEADER ──── */
     header {
       position: sticky; top: 0; z-index: 100;
-      background: rgba(13,31,26,0.85);
+      background: rgba(8,15,26,0.85);
       backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
       border-bottom: 1px solid var(--border);
     }
