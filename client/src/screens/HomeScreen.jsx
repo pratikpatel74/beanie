@@ -30,11 +30,9 @@ export default function HomeScreen({ actions, playerName }) {
         {/* Hero: 3-card fan + logo */}
         <div className="home-hero">
           <div className="card-fan">
-            {/* Left flanking card */}
-            <div className="crd side-card side-card-left">
-              <div className="sc-top"><span className="sc-rank sc-black">K</span><span className="sc-suit sc-black">♠</span></div>
-              <div className="sc-pip sc-black">♠</div>
-              <div className="sc-bot"><span className="sc-rank sc-black">K</span><span className="sc-suit sc-black">♠</span></div>
+            {/* Left flanking card — Ko-fi style dark card */}
+            <div className="side-card side-card-left kofi-card">
+              <div className="kofi-suit" style={{ color: 'var(--acc)' }}>♠</div>
             </div>
             {/* Centre Beanie card — wrapper handles positioning so float animation isn't clobbered */}
             <div className="beanie-card-wrap">
@@ -44,11 +42,9 @@ export default function HomeScreen({ actions, playerName }) {
                 <div className="bc-label">BEANIE ★</div>
               </div>
             </div>
-            {/* Right flanking card */}
-            <div className="crd side-card side-card-right">
-              <div className="sc-top"><span className="sc-rank sc-red">A</span><span className="sc-suit sc-red">♦</span></div>
-              <div className="sc-pip sc-red">♦</div>
-              <div className="sc-bot"><span className="sc-rank sc-red">A</span><span className="sc-suit sc-red">♦</span></div>
+            {/* Right flanking card — Ko-fi style dark card */}
+            <div className="side-card side-card-right kofi-card">
+              <div className="kofi-suit" style={{ color: 'var(--danger)' }}>♥</div>
             </div>
           </div>
           <div className="logo-title">BEANIE</div>
