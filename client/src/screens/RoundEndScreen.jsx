@@ -138,8 +138,8 @@ export default function RoundEndScreen({ game, myId, actions }) {
                 return (
                   <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                     <div style={{ width: 52, flexShrink: 0, textAlign: 'right' }}>
-                      <span style={{ fontSize: 10, color: PLAYER_COLOURS[origIdx], whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'block' }}>
-                        {p.id === myId ? `${p.name.split(' ')[0]} (you)` : p.name.split(' ')[0]}
+                      <span style={{ fontSize: 10, color: PLAYER_COLOURS[origIdx], whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'block', fontWeight: p.id === myId ? 700 : 400 }}>
+                        {p.name.split(' ')[0]}
                       </span>
                     </div>
                     <div style={{ flex: 1, height: 4, background: 'rgba(255,255,255,0.07)', borderRadius: 2, overflow: 'hidden' }}>
