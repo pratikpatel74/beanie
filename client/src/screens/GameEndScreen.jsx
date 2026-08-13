@@ -458,9 +458,9 @@ export default function GameEndScreen({ game, myId, actions }) {
                     const isGameWinner = p.id === winner?.id;
                     return (
                       <tr key={p.id}>
-                        <td>
+                        <td style={{ fontWeight: p.id === myId ? 600 : undefined }}>
                           <div style={{ width: 8, height: 8, borderRadius: '50%', background: PLAYER_COLOURS[origIdx], flexShrink: 0 }} />
-                          {p.id === myId ? `${p.name} (you)` : p.name}
+                          {p.name}
                         </td>
                         {p.roundScores?.map((score, i) => {
                           const isWin = score === 0;
