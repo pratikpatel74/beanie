@@ -24,7 +24,8 @@ function savePlayerName(name) {
   catch {}
 }
 
-// Read ?join=XXXX from URL and immediately clean the URL so it doesn't persist
+// Read ?join=XXXX from URL and immediately clean the URL so it doesn't persist.
+// Called once at hook init via useRef — avoids calling replaceState on every render.
 function getInviteCode() {
   try {
     const params = new URLSearchParams(window.location.search);
@@ -134,7 +135,15 @@ function reducer(state, action) {
 
 export function useGame() {
   const storedName   = loadPlayerName();
-  const inviteCode   = getInviteCode();
+
+  // getInviteCode() calls window.history.replaceState — run it only once at
+  // hook initialisation, not on every render.
+  const inviteCodeRef = useRef(undefined);
+  if (inviteCodeRef.current === undefined) {
+    inviteCodeRef.current = getInviteCode();
+  }
+  const inviteCode = inviteCodeRef.current;
+
   const selfExiting  = useRef(false); // true when this player triggered exitGame
   const stateRef     = useRef(null);  // always points to latest state for use inside socket closures
   const [state, dispatch] = useReducer(reducer, {

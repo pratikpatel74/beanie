@@ -1,13 +1,7 @@
 import { useState, useEffect } from 'react';
+import { PLAYER_COLOURS, pSuit } from '../constants';
 
-const PLAYER_COLOURS = ['var(--p1)', 'var(--p2)', 'var(--p3)', 'var(--p4)'];
-
-function playerSuit(name) {
-  const h = (name || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0);
-  return ['♠', '♥', '♦', '♣'][h % 4];
-}
 function suitColor(s) { return (s === '♥' || s === '♦') ? '#c0392b' : '#1a1a2e'; }
-// Always show lobby countdown so players know the room has a time limit
 
 function useExpiryCountdown(lobbyExpiresAt) {
   const [secsLeft, setSecsLeft] = useState(null);
@@ -76,7 +70,6 @@ export default function LobbyScreen({ game, roomCode, myId, error, actions, lobb
         await navigator.share({ title: 'Beanie', text, url });
       } catch {}
     } else {
-      // Fallback: copy link to clipboard
       try {
         await navigator.clipboard.writeText(url);
         setCopied(true);

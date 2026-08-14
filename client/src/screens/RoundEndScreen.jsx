@@ -1,7 +1,5 @@
-const PLAYER_COLOURS = ['var(--p1)', 'var(--p2)', 'var(--p3)', 'var(--p4)'];
-const BEANIE_RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+import { PLAYER_COLOURS, BEANIE_RANKS } from '../constants';
 
-// Trophy icon reused for round-win pips
 const TrophyIcon = ({ size = 11, color = 'var(--gold)' }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M6 2h12v6a6 6 0 0 1-12 0V2z"/>
@@ -13,7 +11,6 @@ const TrophyIcon = ({ size = 11, color = 'var(--gold)' }) => (
 );
 
 export default function RoundEndScreen({ game, myId, actions }) {
-  // Sort by total score ascending (lower = better)
   const players = [...game.players].sort((a, b) => a.totalScore - b.totalScore);
   const roundsPlayed = game.players[0]?.roundScores?.length || 0;
 
@@ -56,7 +53,6 @@ export default function RoundEndScreen({ game, myId, actions }) {
 
         <div className="section-label">Scores after round {game.round}</div>
 
-        {/* Horizontally scrollable so all round columns fit on mobile */}
         <div style={{ overflowX: 'auto', width: '100%' }}>
           <table className="score-table" style={{ minWidth: roundsPlayed > 4 ? `${180 + roundsPlayed * 44}px` : undefined }}>
             <thead>
@@ -123,7 +119,6 @@ export default function RoundEndScreen({ game, myId, actions }) {
           </table>
         </div>
 
-        {/* Game standings — same visual language as GameEndScreen for natural transition */}
         {(() => {
           const sorted = [...game.players].sort((a, b) => a.totalScore - b.totalScore);
           const maxScore = sorted[sorted.length - 1]?.totalScore || 1;

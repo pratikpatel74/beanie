@@ -1,7 +1,5 @@
 import { useState } from 'react';
-
-const PLAYER_COLOURS = ['var(--p1)', 'var(--p2)', 'var(--p3)', 'var(--p4)'];
-const BEANIE_RANKS   = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+import { PLAYER_COLOURS, BEANIE_RANKS } from '../constants';
 
 // Small inline trophy icon
 const TrophyIcon = ({ size = 11, color = 'var(--gold)' }) => (

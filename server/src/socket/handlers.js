@@ -27,6 +27,8 @@ const { startTimer, clearTimer } = require('./timers');
 const { PHASE, STATUS, LOBBY_EXPIRY_MS } = require('../game/engine');
 
 const RECONNECT_GRACE_MS   = 60 * 1000; // 60 seconds
+const REACTION_COOLDOWN_MS = 5000;
+const VALID_REACTIONS = new Set(['nice', 'fire', 'shocked', 'skull', 'zap', 'waiting', 'angry']);
 
 // ─── Module-level session maps ────────────────────────────────────────────────
 // These survive across individual socket connections.
@@ -42,6 +44,9 @@ const disconnectedTimers = new Map();
 
 // roomCode → setTimeout handle (lobby expiry timers)
 const lobbyExpiryTimers = new Map();
+
+// playerId → timestamp of last reaction (module-level so it persists across reconnects)
+const reactionLastSent = new Map();
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -394,12 +399,9 @@ module.exports = function registerHandlers(io, socket) {
     }
   });
 
-  // Reactions — ephemeral, no game state change. Rate-limited to 1 per 5s per player.
-  const REACTION_COOLDOWN_MS = 5000;
-  const reactionLastSent = new Map(); // playerId → timestamp
-
-  const VALID_REACTIONS = new Set(['nice', 'fire', 'shocked', 'skull', 'zap', 'waiting', 'angry']);
-
+  // Reactions — ephemeral, no game state change.
+  // Rate-limited to 1 per 5s per player (reactionLastSent is module-level,
+  // so the cooldown persists even if the player reconnects with a new socket).
   socket.on('game:react', ({ reaction } = {}) => {
     if (!currentRoom || !VALID_REACTIONS.has(reaction)) return;
     const game = rm.getRoom(currentRoom);
