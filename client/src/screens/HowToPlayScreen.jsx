@@ -330,6 +330,10 @@ export default function HowToPlayScreen({ actions, returnTo = 'home' }) {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{display:'inline',verticalAlign:'middle',marginRight:5}}><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26A7.01 7.01 0 0 1 5 9a7 7 0 0 1 7-7z"/><line x1="10" y1="21" x2="14" y2="21"/></svg>
             You must have already laid a set of your own before you can steal.
           </div>
+          <div className="htp-tip" style={{marginTop:8}}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{display:'inline',verticalAlign:'middle',marginRight:5}}><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26A7.01 7.01 0 0 1 5 9a7 7 0 0 1 7-7z"/><line x1="10" y1="21" x2="14" y2="21"/></svg>
+            By default you can only steal from <strong>other players'</strong> sets — not your own. The host can enable <strong>Reclaim own Beanie</strong> in game settings to allow this.
+          </div>
         </section>
 
         <div className="htp-divider" />
