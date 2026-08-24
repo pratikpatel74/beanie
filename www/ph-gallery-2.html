@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  width: 1270px; height: 760px; overflow: hidden;
+  background: #0d1f1a;
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+.stage {
+  width: 1270px; height: 760px;
+  background: #0d1f1a;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+  gap: 0;
+}
+.stage::before {
+  content: '';
+  position: absolute; top: -80px; left: 50%; transform: translateX(-50%);
+  width: 900px; height: 500px;
+  background: radial-gradient(ellipse, rgba(124,111,255,0.06) 0%, transparent 60%);
+}
+.top-bar {
+  display: flex; align-items: center; justify-content: center;
+  gap: 16px; margin-bottom: 36px; z-index: 1;
+}
+.round-pill {
+  background: #7C6FFF;
+  color: #fff;
+  font-size: 12px; font-weight: 700;
+  letter-spacing: 0.8px; text-transform: uppercase;
+  padding: 6px 18px; border-radius: 100px;
+}
+.wild-text {
+  font-size: 22px; font-weight: 800;
+  color: #f0f4f2;
+}
+.wild-text span { color: #F0B429; }
+.caption {
+  font-size: 13px; font-weight: 600;
+  color: #8aada1; letter-spacing: 1.2px;
+  text-transform: uppercase;
+  margin-bottom: 22px; z-index: 1;
+}
+.hand {
+  display: flex; align-items: flex-end;
+  justify-content: center; gap: 12px;
+  z-index: 1;
+}
+.card {
+  width: 100px; height: 144px;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 10px 32px rgba(0,0,0,0.55);
+  display: flex; align-items: center; justify-content: center;
+  font-family: Georgia, serif;
+  position: relative;
+  transition: transform 0.3s ease;
+}
+.card .cr {
+  position: absolute;
+  display: flex; flex-direction: column;
+  align-items: flex-start; line-height: 1; gap: 2px;
+}
+.card .cr.tl { top: 9px; left: 11px; }
+.card .cr.br { bottom: 9px; right: 11px; transform: rotate(180deg); }
+.card .cr .r { font-size: 18px; font-weight: 800; }
+.card .cr .s { font-size: 13px; }
+.card .pip { font-size: 40px; line-height: 1; }
+.red { color: #c0392b; }
+.blk { color: #1a1a2e; }
+.card.bc {
+  background: linear-gradient(135deg, #2d200a, #1c1408);
+  border: 3px solid #F0B429;
+  box-shadow: 0 0 0 1px rgba(240,180,41,0.25), 0 10px 32px rgba(0,0,0,0.7), 0 0 24px rgba(240,180,41,0.2);
+}
+.card.bc .pip { color: #F0B429; font-size: 48px; }
+.card.bc .cr { color: #F0B429; }
+.card.bc .label {
+  position: absolute; bottom: 9px;
+  left: 0; right: 0; text-align: center;
+  font-size: 8px; font-weight: 800; letter-spacing: 2px;
+  font-family: 'Inter', sans-serif; color: #F0B429;
+}
+.card.lifted { transform: translateY(-20px); }
+.card.selected {
+  transform: translateY(-20px);
+  box-shadow: 0 0 0 3px #7C6FFF, 0 10px 32px rgba(0,0,0,0.6);
+}
+.table-area {
+  margin-top: 40px; z-index: 1;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+.table-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; color: #8aada1;
+}
+.table-row {
+  display: flex; gap: 10px; align-items: center;
+}
+.table-card {
+  width: 80px; height: 116px;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+  display: flex; align-items: center; justify-content: center;
+  font-family: Georgia, serif;
+  position: relative;
+}
+.table-card .cr { position: absolute; display: flex; flex-direction: column; align-items: flex-start; line-height: 1; gap: 1px; }
+.table-card .cr.tl { top: 7px; left: 8px; }
+.table-card .cr.br { bottom: 7px; right: 8px; transform: rotate(180deg); }
+.table-card .cr .r { font-size: 15px; font-weight: 800; }
+.table-card .cr .s { font-size: 11px; }
+.table-card .pip { font-size: 32px; line-height: 1; }
+.set-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; color: #8aada1;
+  margin-right: 6px;
+}
+.url {
+  position: absolute; bottom: 28px; right: 60px;
+  font-size: 14px; font-weight: 700;
+  color: rgba(255,255,255,0.18);
+  z-index: 1;
+}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="top-bar">
+    <div class="round-pill">Round 5</div>
+    <div class="wild-text">5s are <span>wild ★</span></div>
+  </div>
+
+  <div class="caption">Your hand</div>
+
+  <div class="hand">
+    <div class="card">
+      <div class="cr tl red"><span class="r">J</span><span class="s">♥</span></div>
+      <span class="pip red">♥</span>
+      <div class="cr br red"><span class="r">J</span><span class="s">♥</span></div>
+    </div>
+    <div class="card">
+      <div class="cr tl blk"><span class="r">J</span><span class="s">♠</span></div>
+      <span class="pip blk">♠</span>
+      <div class="cr br blk"><span class="r">J</span><span class="s">♠</span></div>
+    </div>
+    <div class="card bc lifted">
+      <div class="cr tl"><span class="r">★</span></div>
+      <span class="pip">★</span>
+      <span class="label">BEANIE</span>
+    </div>
+    <div class="card selected">
+      <div class="cr tl red"><span class="r">J</span><span class="s">♦</span></div>
+      <span class="pip red">♦</span>
+      <div class="cr br red"><span class="r">J</span><span class="s">♦</span></div>
+    </div>
+    <div class="card">
+      <div class="cr tl blk"><span class="r">8</span><span class="s">♣</span></div>
+      <span class="pip blk">♣</span>
+      <div class="cr br blk"><span class="r">8</span><span class="s">♣</span></div>
+    </div>
+    <div class="card">
+      <div class="cr tl red"><span class="r">K</span><span class="s">♦</span></div>
+      <span class="pip red">♦</span>
+      <div class="cr br red"><span class="r">K</span><span class="s">♦</span></div>
+    </div>
+  </div>
+
+  <div class="table-area">
+    <div class="table-label">Sets on table</div>
+    <div class="table-row">
+      <span class="set-label">Nisha</span>
+      <div class="table-card">
+        <div class="cr tl blk"><span class="r">9</span><span class="s">♠</span></div>
+        <span class="pip blk">♠</span>
+        <div class="cr br blk"><span class="r">9</span><span class="s">♠</span></div>
+      </div>
+      <div class="table-card">
+        <div class="cr tl red"><span class="r">9</span><span class="s">♥</span></div>
+        <span class="pip red">♥</span>
+        <div class="cr br red"><span class="r">9</span><span class="s">♥</span></div>
+      </div>
+      <div class="table-card" style="background:linear-gradient(135deg,#2d200a,#1c1408);border:2px solid #F0B429;">
+        <div class="cr tl" style="color:#F0B429"><span class="r">★</span></div>
+        <span class="pip" style="color:#F0B429;font-size:28px">★</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="url">playbeanie.com</div>
+</div>
+</body>
+</html>

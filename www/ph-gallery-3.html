@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  width: 1270px; height: 760px; overflow: hidden;
+  background: #0d1f1a;
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+.stage {
+  width: 1270px; height: 760px;
+  background: #0d1f1a;
+  display: flex; align-items: center; justify-content: center;
+  gap: 80px;
+  position: relative; overflow: hidden;
+}
+.stage::before {
+  content: '';
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  width: 800px; height: 600px;
+  background: radial-gradient(ellipse, rgba(240,180,41,0.06) 0%, transparent 60%);
+}
+.col {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 0;
+  z-index: 1;
+}
+.player-label {
+  font-size: 12px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: #8aada1; margin-bottom: 14px;
+}
+.set-box {
+  background: #1a2e28;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 18px;
+  padding: 22px 24px 28px;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 14px;
+}
+.set-box.highlighted {
+  border-color: rgba(240,180,41,0.4);
+  box-shadow: 0 0 0 1px rgba(240,180,41,0.15);
+}
+.set-row { display: flex; gap: 10px; align-items: flex-end; }
+.card {
+  width: 90px; height: 130px;
+  background: #fff;
+  border-radius: 11px;
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+  font-family: Georgia, serif;
+  position: relative;
+}
+.card .cr { position: absolute; display: flex; flex-direction: column; align-items: flex-start; line-height: 1; gap: 1px; }
+.card .cr.tl { top: 8px; left: 10px; }
+.card .cr.br { bottom: 8px; right: 10px; transform: rotate(180deg); }
+.card .cr .r { font-size: 17px; font-weight: 800; }
+.card .cr .s { font-size: 12px; }
+.card .pip { font-size: 36px; line-height: 1; }
+.red { color: #c0392b; }
+.blk { color: #1a1a2e; }
+.card.bc {
+  background: linear-gradient(135deg, #2d200a, #1c1408);
+  border: 3px solid #F0B429;
+  box-shadow: 0 0 0 1px rgba(240,180,41,0.3), 0 8px 24px rgba(0,0,0,0.7);
+}
+.card.bc .pip { color: #F0B429; font-size: 42px; }
+.card.bc .cr { color: #F0B429; }
+.card.bc .label {
+  position: absolute; bottom: 8px;
+  left: 0; right: 0; text-align: center;
+  font-size: 8px; font-weight: 800; letter-spacing: 2px;
+  font-family: 'Inter', sans-serif; color: #F0B429;
+}
+.badge {
+  position: absolute; bottom: -12px; left: 50%;
+  transform: translateX(-50%);
+  background: #F0B429; color: #1a0e00;
+  font-size: 9px; font-weight: 800;
+  padding: 2px 8px; border-radius: 4px;
+  white-space: nowrap; font-family: 'Inter', sans-serif;
+  letter-spacing: 0.3px;
+}
+.arrow-col {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 14px; z-index: 1;
+}
+.steal-pill {
+  background: rgba(240,180,41,0.12);
+  border: 1.5px solid rgba(240,180,41,0.45);
+  border-radius: 12px;
+  padding: 13px 22px;
+  font-size: 15px; font-weight: 800;
+  color: #F0B429;
+  text-align: center;
+}
+.steal-pill .sub {
+  font-size: 12px; font-weight: 500;
+  color: #8aada1; margin-top: 4px;
+}
+.arrow {
+  font-size: 36px; color: rgba(240,180,41,0.5);
+}
+.hand-label {
+  font-size: 12px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: #8aada1; margin-bottom: 14px; margin-top: 28px;
+}
+.hand-row { display: flex; gap: 10px; }
+.card.glow {
+  transform: translateY(-14px);
+  box-shadow: 0 0 0 3px #F0B429, 0 10px 30px rgba(240,180,41,0.4);
+}
+.url {
+  position: absolute; bottom: 28px; right: 60px;
+  font-size: 14px; font-weight: 700;
+  color: rgba(255,255,255,0.18); z-index: 1;
+}
+.big-label {
+  position: absolute; top: 42px; left: 50%; transform: translateX(-50%);
+  font-size: 13px; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; color: rgba(240,180,41,0.5);
+  white-space: nowrap; z-index: 1;
+}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="big-label">★ Steal the Beanie — the move that changes everything</div>
+
+  <div class="col">
+    <div class="player-label">Opponent's set</div>
+    <div class="set-box highlighted">
+      <div class="set-row">
+        <div class="card">
+          <div class="cr tl blk"><span class="r">Q</span><span class="s">♣</span></div>
+          <span class="pip blk">♣</span>
+          <div class="cr br blk"><span class="r">Q</span><span class="s">♣</span></div>
+        </div>
+        <div class="card">
+          <div class="cr tl blk"><span class="r">Q</span><span class="s">♠</span></div>
+          <span class="pip blk">♠</span>
+          <div class="cr br blk"><span class="r">Q</span><span class="s">♠</span></div>
+        </div>
+        <div class="card bc" style="position:relative">
+          <div class="cr tl"><span class="r">★</span></div>
+          <span class="pip">★</span>
+          <span class="label">BEANIE</span>
+          <div class="badge">= Q♥</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hand-label">Your hand</div>
+    <div class="hand-row">
+      <div class="card">
+        <div class="cr tl blk"><span class="r">K</span><span class="s">♣</span></div>
+        <span class="pip blk">♣</span>
+        <div class="cr br blk"><span class="r">K</span><span class="s">♣</span></div>
+      </div>
+      <div class="card">
+        <div class="cr tl blk"><span class="r">3</span><span class="s">♠</span></div>
+        <span class="pip blk">♠</span>
+        <div class="cr br blk"><span class="r">3</span><span class="s">♠</span></div>
+      </div>
+      <div class="card glow">
+        <div class="cr tl red"><span class="r">Q</span><span class="s">♥</span></div>
+        <span class="pip red">♥</span>
+        <div class="cr br red"><span class="r">Q</span><span class="s">♥</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow-col">
+    <div class="steal-pill">
+      Steal Beanie ★
+      <div class="sub">Replace it with your Q♥</div>
+    </div>
+    <div class="arrow">→</div>
+  </div>
+
+  <div class="col">
+    <div class="player-label">After the steal</div>
+    <div class="set-box">
+      <div class="set-row">
+        <div class="card">
+          <div class="cr tl blk"><span class="r">Q</span><span class="s">♣</span></div>
+          <span class="pip blk">♣</span>
+          <div class="cr br blk"><span class="r">Q</span><span class="s">♣</span></div>
+        </div>
+        <div class="card">
+          <div class="cr tl blk"><span class="r">Q</span><span class="s">♠</span></div>
+          <span class="pip blk">♠</span>
+          <div class="cr br blk"><span class="r">Q</span><span class="s">♠</span></div>
+        </div>
+        <div class="card">
+          <div class="cr tl red"><span class="r">Q</span><span class="s">♥</span></div>
+          <span class="pip red">♥</span>
+          <div class="cr br red"><span class="r">Q</span><span class="s">♥</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hand-label">Your hand now</div>
+    <div class="hand-row">
+      <div class="card">
+        <div class="cr tl blk"><span class="r">K</span><span class="s">♣</span></div>
+        <span class="pip blk">♣</span>
+        <div class="cr br blk"><span class="r">K</span><span class="s">♣</span></div>
+      </div>
+      <div class="card">
+        <div class="cr tl blk"><span class="r">3</span><span class="s">♠</span></div>
+        <span class="pip blk">♠</span>
+        <div class="cr br blk"><span class="r">3</span><span class="s">♠</span></div>
+      </div>
+      <div class="card bc" style="box-shadow:0 0 0 2px rgba(240,180,41,0.4),0 8px 24px rgba(0,0,0,0.6)">
+        <div class="cr tl"><span class="r">★</span></div>
+        <span class="pip">★</span>
+        <span class="label">BEANIE</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="url">playbeanie.com</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  width: 1270px; height: 760px; overflow: hidden;
+  background: #0d1f1a;
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+.stage {
+  width: 1270px; height: 760px;
+  background: #0d1f1a;
+  display: flex; align-items: center; justify-content: center;
+  gap: 100px;
+  position: relative; overflow: hidden;
+}
+.stage::before {
+  content: '';
+  position: absolute; top: 50%; left: 30%; transform: translate(-50%,-50%);
+  width: 700px; height: 600px;
+  background: radial-gradient(ellipse, rgba(124,111,255,0.07) 0%, transparent 60%);
+}
+.stage::after {
+  content: '';
+  position: absolute; bottom: -80px; right: 100px;
+  width: 400px; height: 400px;
+  background: radial-gradient(ellipse, rgba(240,180,41,0.06) 0%, transparent 60%);
+}
+.left {
+  display: flex; flex-direction: column;
+  align-items: flex-start; gap: 0;
+  z-index: 1; max-width: 480px;
+}
+.logo-row {
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 32px;
+}
+.logo-icon {
+  width: 64px; height: 64px;
+  background: #F0B429;
+  border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px; color: #1a0e00;
+}
+.logo-name {
+  font-size: 36px; font-weight: 900;
+  color: #F0B429; letter-spacing: -1.5px;
+}
+.headline {
+  font-size: 46px; font-weight: 900;
+  color: #f0f4f2; letter-spacing: -1.5px;
+  line-height: 1.05; margin-bottom: 18px;
+}
+.headline span { color: #7C6FFF; }
+.sub {
+  font-size: 18px; color: #8aada1;
+  line-height: 1.5; margin-bottom: 40px;
+  max-width: 400px;
+}
+.feature-list {
+  display: flex; flex-direction: column; gap: 14px;
+  margin-bottom: 44px;
+}
+.feature {
+  display: flex; align-items: center; gap: 14px;
+}
+.feature-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #F0B429; flex-shrink: 0;
+}
+.feature-text {
+  font-size: 16px; font-weight: 600; color: #f0f4f2;
+}
+.cta-row {
+  display: flex; align-items: center; gap: 16px;
+}
+.cta-btn {
+  background: #7C6FFF;
+  color: #fff;
+  font-size: 17px; font-weight: 800;
+  padding: 16px 36px; border-radius: 12px;
+  letter-spacing: -0.2px;
+}
+.cta-url {
+  font-size: 18px; font-weight: 800;
+  color: rgba(255,255,255,0.3);
+}
+.right {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 12px;
+  z-index: 1;
+}
+.device {
+  width: 200px; height: 360px;
+  background: #1a2e28;
+  border: 2px solid rgba(255,255,255,0.1);
+  border-radius: 28px;
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+}
+.device-screen {
+  width: 100%; flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 10px;
+}
+.device-pill {
+  background: #7C6FFF;
+  color: #fff; font-size: 8px; font-weight: 700;
+  letter-spacing: 0.5px; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 100px;
+}
+.device-title {
+  font-size: 11px; font-weight: 800;
+  color: #f0f4f2;
+}
+.device-cards {
+  display: flex; gap: 5px;
+}
+.dcard {
+  width: 34px; height: 50px;
+  background: #fff;
+  border-radius: 5px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: Georgia, serif;
+  font-size: 14px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+}
+.dcard.db {
+  background: linear-gradient(135deg,#2d200a,#1c1408);
+  border: 1.5px solid #F0B429;
+  color: #F0B429;
+}
+.device-code {
+  font-size: 20px; font-weight: 900;
+  color: #F0B429; letter-spacing: 6px;
+}
+.device-code-label {
+  font-size: 8px; font-weight: 600;
+  color: #8aada1; letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.share-tag {
+  font-size: 11px; font-weight: 700;
+  color: #8aada1; text-align: center;
+}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="left">
+    <div class="logo-row">
+      <div class="logo-icon">★</div>
+      <div class="logo-name">BEANIE</div>
+    </div>
+    <div class="headline">Play anywhere,<br><span>share instantly</span></div>
+    <div class="sub">No app store. No account. Just open a link and play wild card rummy with anyone, anywhere.</div>
+    <div class="feature-list">
+      <div class="feature"><div class="feature-dot"></div><div class="feature-text">Works in any browser — phone, tablet, desktop</div></div>
+      <div class="feature"><div class="feature-dot"></div><div class="feature-text">Create a room, share a 4-letter code</div></div>
+      <div class="feature"><div class="feature-dot"></div><div class="feature-text">2–4 players · completely free · no ads</div></div>
+    </div>
+    <div class="cta-row">
+      <div class="cta-btn">Play free →</div>
+      <div class="cta-url">playbeanie.com</div>
+    </div>
+  </div>
+
+  <div class="right">
+    <div class="device">
+      <div class="device-screen">
+        <div class="device-pill">Round 3</div>
+        <div class="device-title">3s are wild ★</div>
+        <div class="device-cards">
+          <div class="dcard red">♥</div>
+          <div class="dcard db">★</div>
+          <div class="dcard blk">♠</div>
+        </div>
+        <div class="device-code-label">Room code</div>
+        <div class="device-code">BNJX</div>
+      </div>
+    </div>
+    <div class="share-tag">Share the code · friends join instantly</div>
+  </div>
+</div>
+</body>
+</html>
