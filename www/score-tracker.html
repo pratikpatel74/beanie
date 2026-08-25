@@ -1,0 +1,1366 @@
+<!doctype html>
+<title>Beanie Score Tracker</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#080F1A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:     #080F1A;
+  --surf:   #0F1D2E;
+  --surf2:  #192C42;
+  --surf3:  #1E3450;
+  --acc:    #5B8FD6;
+  --gold:   #F0B429;
+  --danger: #E85480;
+  --good:   #2DD4A7;
+  --text:   #E8EDF4;
+  --muted:  #7A93AE;
+  --dim:    #3A5570;
+  --border: rgba(255,255,255,0.07);
+  --r:      12px;
+  --font:   'IBM Plex Sans', system-ui, sans-serif;
+  --mono:   'IBM Plex Mono', monospace;
+}
+
+html { background: var(--bg); }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  min-height: 100dvh;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Screen ── */
+.screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Header ── */
+.hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  flex-shrink: 0;
+}
+.hdr-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.hdr-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+.hdr-title {
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.hdr-right {
+  text-align: right;
+}
+.hdr-rank-label {
+  font-family: var(--mono);
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--gold);
+  line-height: 1;
+}
+.hdr-rank-name {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+/* ── Round strip ── */
+.round-strip-wrap {
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.round-strip {
+  display: flex;
+  gap: 5px;
+  padding: 10px 20px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.round-strip::-webkit-scrollbar { display: none; }
+.rchip {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--surf);
+  color: var(--dim);
+  border: 1.5px solid transparent;
+  cursor: default;
+  transition: all 0.15s;
+  user-select: none;
+  position: relative;
+}
+.rchip.done {
+  color: var(--acc);
+  border-color: rgba(91,143,214,0.35);
+  background: rgba(91,143,214,0.1);
+  cursor: pointer;
+}
+.rchip.done::after {
+  content: '';
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--acc);
+}
+.rchip.current {
+  color: var(--gold);
+  border-color: var(--gold);
+  background: rgba(240,180,41,0.12);
+  box-shadow: 0 0 12px rgba(240,180,41,0.2);
+}
+/* When reviewing a past round: the chip you're viewing */
+.rchip.viewing {
+  color: #fff;
+  border-color: rgba(255,255,255,0.9);
+  background: rgba(255,255,255,0.12);
+  cursor: default;
+  box-shadow: 0 0 10px rgba(255,255,255,0.15);
+}
+/* Current game position while in edit mode — dimmed gold */
+.rchip.game-pos {
+  color: rgba(240,180,41,0.5);
+  border-color: rgba(240,180,41,0.25);
+  background: rgba(240,180,41,0.06);
+  cursor: pointer;
+}
+
+/* ── Hint bar ── */
+.hint-bar {
+  padding: 8px 20px;
+  font-size: 12px;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.hint-bar strong { color: var(--gold); font-weight: 600; }
+
+/* ── Scrollable body ── */
+.body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overscroll-behavior: contain;
+}
+
+/* ── Section label ── */
+.slabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+/* ── Setup: player rows ── */
+.player-list { display: flex; flex-direction: column; gap: 8px; }
+.player-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surf);
+  border-radius: var(--r);
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  transition: border-color 0.15s;
+}
+.player-row:focus-within { border-color: rgba(91,143,214,0.4); }
+
+.color-wrap { position: relative; flex-shrink: 0; }
+.color-dot-btn {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 2.5px solid rgba(255,255,255,0.18);
+  cursor: pointer;
+  transition: transform 0.12s, border-color 0.15s;
+  background: var(--acc);
+  padding: 0;
+}
+.color-dot-btn:active { transform: scale(0.88); }
+.color-dot-btn:hover { border-color: rgba(255,255,255,0.4); }
+
+.color-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: -4px;
+  background: var(--surf2);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px;
+  padding: 10px;
+  display: grid;
+  grid-template-columns: repeat(4, 28px);
+  gap: 8px;
+  z-index: 50;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  animation: pop-in 0.12s ease;
+}
+@keyframes pop-in {
+  from { opacity: 0; transform: scale(0.92) translateY(-4px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.cswatch {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 2.5px solid transparent;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+.cswatch:active { transform: scale(0.85); }
+.cswatch.sel { border-color: white; }
+
+.name-input {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 15px;
+  font-weight: 500;
+  outline: none;
+  min-width: 0;
+}
+.name-input::placeholder { color: var(--dim); }
+
+.rm-btn {
+  background: none;
+  border: none;
+  color: var(--dim);
+  cursor: pointer;
+  padding: 6px;
+  line-height: 1;
+  font-size: 16px;
+  transition: color 0.15s;
+  flex-shrink: 0;
+  border-radius: 6px;
+}
+.rm-btn:hover { color: var(--danger); }
+
+/* ── Add player button ── */
+.add-player-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+  background: none;
+  border: 1.5px dashed var(--surf3);
+  border-radius: var(--r);
+  color: var(--muted);
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  transition: border-color 0.15s, color 0.15s;
+}
+.add-player-btn:hover:not(:disabled) { border-color: var(--acc); color: var(--acc); }
+.add-player-btn:disabled { opacity: 0.35; cursor: default; }
+.add-circle {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; line-height: 1;
+  flex-shrink: 0;
+}
+
+/* ── Info card ── */
+.info-card {
+  background: var(--surf);
+  border-radius: var(--r);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.info-card-hdr {
+  padding: 12px 14px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+}
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 14px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+}
+.info-row:last-child { border-bottom: none; }
+.info-k { color: var(--muted); }
+.info-v { font-family: var(--mono); font-weight: 600; font-size: 13px; }
+
+/* ── Bottom bar ── */
+.btm {
+  padding: 14px 20px calc(14px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: var(--r);
+  font-family: var(--font);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  border: none;
+  letter-spacing: 0.01em;
+}
+.btn:active:not(:disabled) { transform: scale(0.98); }
+.btn:disabled { opacity: 0.35; cursor: default; }
+.btn-acc  { background: var(--acc);   color: #fff; }
+.btn-gold { background: var(--gold);  color: #1a1000; }
+.btn-ghost {
+  background: none;
+  border: 1.5px solid var(--surf3);
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 11px;
+}
+.btn-ghost:hover:not(:disabled) { border-color: var(--acc); color: var(--acc); }
+.btn-row { display: flex; gap: 10px; }
+.btn-row .btn { flex: 1; }
+
+/* ── Score rows ── */
+.score-list { display: flex; flex-direction: column; gap: 8px; }
+.score-row {
+  background: var(--surf);
+  border-radius: var(--r);
+  border: 1px solid var(--border);
+  padding: 11px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: border-color 0.15s;
+}
+.score-row.entered { border-color: rgba(91,143,214,0.3); }
+.score-row.winner-row { border-color: rgba(240,180,41,0.4); background: rgba(240,180,41,0.04); }
+
+/* Round winner / tied badge */
+.round-winner-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold);
+  background: rgba(240,180,41,0.14);
+  border: 1px solid rgba(240,180,41,0.3);
+  border-radius: 6px;
+  padding: 3px 7px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.tied-badge {
+  color: var(--muted);
+  background: rgba(122,147,174,0.12);
+  border-color: rgba(122,147,174,0.3);
+}
+.rank-pill {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  background: rgba(122,147,174,0.1);
+  border: 1px solid rgba(122,147,174,0.25);
+  border-radius: 6px;
+  padding: 3px 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.rank-pill.rank-first {
+  color: var(--gold);
+  background: rgba(240,180,41,0.14);
+  border-color: rgba(240,180,41,0.35);
+}
+.rank-pill.rank-tied {
+  /* no extra styling needed beyond rank-first override */
+}
+/* Keep the original tied-badge close */
+}
+
+/* Validation message */
+.validation-msg {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: rgba(232,84,128,0.08);
+  border: 1px solid rgba(232,84,128,0.25);
+  border-radius: var(--r);
+  font-size: 13px;
+  color: var(--danger);
+}
+
+.sdot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.sname-wrap { flex: 1; min-width: 0; }
+.sname {
+  font-size: 15px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.stotal {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.stotal strong { color: var(--text); font-size: 13px; }
+
+.sinput {
+  width: 76px;
+  height: 44px;
+  background: var(--surf2);
+  border: 1.5px solid var(--surf3);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 600;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.15s;
+  flex-shrink: 0;
+  -moz-appearance: textfield;
+}
+.sinput::-webkit-outer-spin-button,
+.sinput::-webkit-inner-spin-button { -webkit-appearance: none; }
+.sinput:focus { border-color: var(--acc); }
+.sinput.has-val { border-color: rgba(91,143,214,0.45); }
+.sinput.winner-input { border-color: rgba(240,180,41,0.5); color: var(--gold); }
+
+/* ── Edit mode nav bar ── */
+.edit-nav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--r);
+}
+.edit-nav-left {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.edit-nav-chip {
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  background: rgba(255,255,255,0.12);
+  border: 1.5px solid rgba(255,255,255,0.5);
+  flex-shrink: 0;
+}
+.edit-nav-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+}
+.edit-nav-return {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: 1px solid rgba(91,143,214,0.35);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--acc);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+}
+.edit-nav-return:hover {
+  background: rgba(91,143,214,0.1);
+  border-color: var(--acc);
+}
+
+/* ── Game over ── */
+.winner-banner {
+  background: linear-gradient(135deg, rgba(240,180,41,0.14) 0%, rgba(240,180,41,0.04) 100%);
+  border: 1px solid rgba(240,180,41,0.3);
+  border-radius: var(--r);
+  padding: 22px 20px;
+  text-align: center;
+}
+.wb-star {
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: center;
+}
+.wb-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+.wb-name {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 5px;
+}
+.wb-score {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.lb-list { display: flex; flex-direction: column; gap: 7px; }
+.lb-row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 14px;
+  background: var(--surf);
+  border-radius: var(--r);
+  border: 1px solid var(--border);
+}
+.lb-row.lb-first { border-color: rgba(240,180,41,0.3); }
+.lb-rank {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.lb-rank.gold { color: var(--gold); }
+.lb-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.lb-name { flex: 1; font-size: 15px; font-weight: 500; }
+.lb-pts {
+  font-family: var(--mono);
+  font-size: 16px;
+  font-weight: 600;
+}
+.lb-pts.gold { color: var(--gold); }
+.lb-gap {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--danger);
+  min-width: 42px;
+  text-align: right;
+}
+
+/* ── Scorecard ── */
+.scorecard-outer {
+  overflow-x: auto;
+  border-radius: var(--r);
+  border: 1px solid var(--border);
+  scrollbar-width: thin;
+  scrollbar-color: var(--surf3) transparent;
+}
+.sc-table {
+  border-collapse: collapse;
+  min-width: 100%;
+  font-family: var(--mono);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.sc-table th {
+  padding: 8px 14px;
+  background: var(--surf2);
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-align: right;
+  border-bottom: 1px solid var(--border);
+}
+.sc-table th:first-child { text-align: left; position: sticky; left: 0; background: var(--surf2); }
+.sc-table td {
+  padding: 7px 14px;
+  text-align: right;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--muted);
+}
+.sc-table td:first-child {
+  text-align: left;
+  color: var(--muted);
+  position: sticky;
+  left: 0;
+  background: var(--surf);
+  font-size: 11px;
+}
+.sc-table tr:last-child td {
+  border-bottom: none;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--surf2);
+  font-size: 13px;
+}
+.sc-table tr:last-child td:first-child { color: var(--muted); font-size: 11px; }
+
+.toggle-card-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: none;
+  border: none;
+  color: var(--acc);
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px 0;
+}
+.toggle-card-btn:hover { color: var(--text); }
+
+/* ── Animations ── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.anim { animation: fade-up 0.18s ease both; }
+
+@media (prefers-reduced-motion: reduce) { .anim { animation: none; } }
+</style>
+<div id="app"></div>
+<script>
+const ROUNDS      = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+const ROUND_NAMES = ['Aces','Twos','Threes','Fours','Fives','Sixes','Sevens','Eights','Nines','Tens','Jacks','Queens','Kings'];
+const COLORS      = ['#5B8FD6','#E85480','#2DD4A7','#F5A623','#A855F7','#22D3EE','#F97316','#84CC16'];
+
+const SK = 'beanie-tracker-v1';
+
+// ── State ──────────────────────────────────────────────────────────────────
+let openPicker = null; // playerIdx of open colour picker, or null
+
+function freshState() {
+  return {
+    screen: 'setup',
+    players: [
+      { name: 'Player 1', colorIdx: 0 },
+      { name: 'Player 2', colorIdx: 1 },
+    ],
+    scores: Array.from({ length: 13 }, () => []),
+    currentRound: 0,
+    viewingRound: 0,
+    showCard: false,
+  };
+}
+
+function load() {
+  try {
+    const s = JSON.parse(localStorage.getItem(SK));
+    if (s && s.screen && s.players) return s;
+  } catch {}
+  return null;
+}
+
+function save() {
+  try { localStorage.setItem(SK, JSON.stringify(state)); } catch {}
+}
+
+let state = load() || freshState();
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+function esc(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function total(pIdx, upTo) {
+  let t = 0;
+  for (let r = 0; r < upTo; r++) {
+    const v = state.scores[r] && state.scores[r][pIdx];
+    if (typeof v === 'number') t += v;
+  }
+  return t;
+}
+
+function allEntered(roundIdx) {
+  const row = state.scores[roundIdx];
+  if (!row) return false;
+  return state.players.every((_, i) => typeof row[i] === 'number');
+}
+
+function sorted(upTo) {
+  return state.players
+    .map((p, i) => ({ ...p, idx: i, pts: total(i, upTo) }))
+    .sort((a, b) => a.pts - b.pts);
+}
+
+function roundsWon(pIdx, upTo) {
+  let wins = 0;
+  for (let r = 0; r < upTo; r++) {
+    const row = state.scores[r];
+    if (!row) continue;
+    const vals = row.map(v => (typeof v === 'number' ? v : Infinity));
+    const min = Math.min(...vals);
+    if (min < Infinity && typeof row[pIdx] === 'number' && row[pIdx] === min) wins++;
+  }
+  return wins;
+}
+
+function roundWinner(roundIdx) {
+  const row = state.scores[roundIdx];
+  if (!row) return -1;
+  const vals = row.map(v => (typeof v === 'number' ? v : Infinity));
+  const min = Math.min(...vals);
+  return min < Infinity ? vals.indexOf(min) : -1;
+}
+
+function ordinal(n) {
+  const s = ['th','st','nd','rd'];
+  const v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
+function getRoundRanks(roundIdx) {
+  const row = state.scores[roundIdx] || [];
+  const ps = state.players.map((_, i) => ({
+    idx: i, score: typeof row[i] === 'number' ? row[i] : Infinity
+  }));
+  ps.sort((a, b) => a.score - b.score);
+  const ranks = {};
+  let rank = 1;
+  for (let i = 0; i < ps.length; i++) {
+    if (i > 0 && ps[i].score !== ps[i - 1].score) rank = i + 1;
+    ranks[ps[i].idx] = rank;
+  }
+  // Count how many share each rank
+  const rankCounts = {};
+  Object.values(ranks).forEach(r => { rankCounts[r] = (rankCounts[r] || 0) + 1; });
+  return { ranks, rankCounts };
+}
+
+// ── Render: Setup ──────────────────────────────────────────────────────────
+function renderSetup() {
+  const { players } = state;
+  const canStart = players.length >= 2 && players.every(p => p.name.trim());
+  const canAdd   = players.length < 8;
+
+  const rows = players.map((p, i) => `
+    <div class="player-row anim" style="animation-delay:${i*0.05}s">
+      <div class="color-wrap">
+        <button class="color-dot-btn" data-act="open-picker" data-i="${i}"
+          style="background:${COLORS[p.colorIdx]}" aria-label="Change colour"></button>
+        ${openPicker === i ? `
+          <div class="color-popover" data-picker="${i}">
+            ${COLORS.map((c, ci) => `
+              <div class="cswatch${ci===p.colorIdx?' sel':''}" style="background:${c}"
+                data-act="pick-color" data-i="${i}" data-ci="${ci}"></div>
+            `).join('')}
+          </div>
+        ` : ''}
+      </div>
+      <input class="name-input" type="text" inputmode="text" autocomplete="off"
+        placeholder="Name" value="${esc(p.name)}"
+        data-act="set-name" data-i="${i}" maxlength="18">
+      ${players.length > 2
+        ? `<button class="rm-btn" data-act="remove-player" data-i="${i}" aria-label="Remove">✕</button>`
+        : ''}
+    </div>
+  `).join('');
+
+  return `
+    <div class="screen">
+      <div class="hdr">
+        <div class="hdr-brand">
+          <div class="hdr-eyebrow">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="var(--gold)">
+              <polygon points="6,0.5 7.6,4.2 11.8,4.2 8.4,6.9 9.7,11.2 6,8.7 2.3,11.2 3.6,6.9 0.2,4.2 4.4,4.2"/>
+            </svg>
+            Beanie
+          </div>
+          <div class="hdr-title">Score Tracker</div>
+        </div>
+      </div>
+      <div class="body">
+        <div>
+          <div class="slabel">Players — ${players.length} of 8</div>
+          <div class="player-list">${rows}</div>
+          <div style="margin-top:8px">
+            <button class="add-player-btn" data-act="add-player" ${!canAdd?'disabled':''}>
+              <span class="add-circle">+</span>
+              Add player
+            </button>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-card-hdr">Game rules</div>
+          <div class="info-row">
+            <span class="info-k">Rounds</span>
+            <span class="info-v">13 &nbsp;A → K</span>
+          </div>
+          <div class="info-row">
+            <span class="info-k">Wild card</span>
+            <span class="info-v">Changes each round</span>
+          </div>
+          <div class="info-row">
+            <span class="info-k">Winner</span>
+            <span class="info-v">Lowest total wins</span>
+          </div>
+        </div>
+      </div>
+      <div class="btm">
+        <button class="btn btn-acc" data-act="start-game" ${!canStart?'disabled':''}>
+          Start game
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+// ── Render: Scoring ────────────────────────────────────────────────────────
+function renderScoring() {
+  const { players, currentRound, viewingRound, scores } = state;
+  const isEdit = viewingRound < currentRound;
+  const rLabel = ROUNDS[viewingRound];
+  const rName  = ROUND_NAMES[viewingRound];
+  const isLast = currentRound === 12;
+
+  // Strip — three visual states when editing: viewing (white), game-pos (dim gold), done (blue)
+  const strip = ROUNDS.map((r, i) => {
+    let cls = '';
+    if (i < currentRound) cls = 'done';
+    else if (i === currentRound) cls = 'current';
+
+    if (isEdit) {
+      if (i === viewingRound) cls = 'done viewing';          // actively viewing this past round
+      else if (i === currentRound) cls = 'game-pos';         // current game position, dimmed
+    }
+
+    // Tappable: completed rounds (not currently viewing), and game-pos chip to jump back
+    const tappable = (i < currentRound && i !== viewingRound) || (isEdit && i === currentRound);
+    return `<div class="rchip ${cls}" ${tappable?`data-act="view-round" data-r="${i}"`:''} title="${ROUND_NAMES[i]}">${r}</div>`;
+  }).join('');
+
+  // Find lowest score this round and count how many share it
+  const roundScores = scores[viewingRound] || [];
+  const allIn = allEntered(viewingRound);
+
+  let minScore = Infinity;
+  if (allIn) {
+    players.forEach((_, i) => {
+      const v = roundScores[i];
+      if (typeof v === 'number' && v < minScore) minScore = v;
+    });
+  }
+  const winnerCount = allIn ? players.filter((_, i) => roundScores[i] === minScore).length : 0;
+  const hasZero = players.some((_, i) => roundScores[i] === 0);
+
+  // Must have a 0 (someone went out) to advance — only enforced on current round, not edit
+  const canGo  = isEdit ? allIn : (allIn && hasZero);
+  const allInButNoZero = !isEdit && allIn && !hasZero;
+
+  // Compute rankings when all scores are in and valid
+  const { ranks, rankCounts } = canGo ? getRoundRanks(viewingRound) : { ranks: {}, rankCounts: {} };
+
+  const rows = players.map((p, i) => {
+    const v = roundScores[i];
+    const hasVal = typeof v === 'number';
+    const isLow  = allIn && hasVal && v === minScore;
+    const isTied = isLow && winnerCount > 1;
+    const runningTotal = total(i, viewingRound);
+
+    let badge = '';
+    if (canGo && hasVal) {
+      const rank = ranks[i];
+      const tied = rankCounts[rank] > 1;
+      const isFirst = rank === 1;
+      const label = ordinal(rank) + (tied ? '=' : '');
+      badge = `<div class="rank-pill${isFirst ? ' rank-first' : ''}${tied ? ' rank-tied' : ''}">${label}</div>`;
+    } else if (allIn && !canGo && isLow) {
+      // scores all in but waiting for zero validation — still show winner badge
+      badge = isTied
+        ? `<div class="round-winner-badge tied-badge">= Tied</div>`
+        : `<div class="round-winner-badge">★ Round winner</div>`;
+    }
+
+    return `
+      <div class="score-row${hasVal?' entered':''}${isLow&&!isTied?' winner-row':''} anim" style="animation-delay:${i*0.05}s">
+        <div class="sdot" style="background:${COLORS[p.colorIdx]}"></div>
+        <div class="sname-wrap">
+          <div class="sname">${esc(p.name)}</div>
+          <div class="stotal">Total: <strong>${runningTotal}</strong> pts</div>
+        </div>
+        ${badge}
+        <input type="number" inputmode="numeric" pattern="[0-9]*"
+          class="sinput${hasVal?' has-val':''}${isLow&&!isTied?' winner-input':''}"
+          placeholder="—"
+          min="0" max="999"
+          value="${hasVal ? v : ''}"
+          data-act="set-score" data-r="${viewingRound}" data-pi="${i}"
+          aria-label="${esc(p.name)} score">
+      </div>
+    `;
+  }).join('');
+
+  let actionLabel, actionAct;
+  if (isEdit) { actionLabel = 'Save changes'; actionAct = 'save-edit'; }
+  else if (isLast) { actionLabel = 'Finish game'; actionAct = 'finish-game'; }
+  else { actionLabel = `Next — ${ROUNDS[currentRound + 1]}`; actionAct = 'next-round'; }
+
+  return `
+    <div class="screen">
+      <div class="hdr">
+        <div class="hdr-brand">
+          <div class="hdr-eyebrow">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="var(--gold)">
+              <polygon points="6,0.5 7.6,4.2 11.8,4.2 8.4,6.9 9.7,11.2 6,8.7 2.3,11.2 3.6,6.9 0.2,4.2 4.4,4.2"/>
+            </svg>
+            ${isEdit ? 'Editing Round ' + (viewingRound + 1) : 'Round ' + (currentRound + 1) + ' of 13'}
+          </div>
+          <div class="hdr-title" style="color:${isEdit?'var(--muted)':'var(--text)'}">
+            ${isEdit ? rName : 'Enter scores'}
+          </div>
+        </div>
+        <div class="hdr-right">
+          <div class="hdr-rank-label">${rLabel}</div>
+          <div class="hdr-rank-name">${rName}</div>
+        </div>
+      </div>
+
+      <div class="round-strip-wrap">
+        <div class="round-strip" id="round-strip">${strip}</div>
+      </div>
+
+      <div class="hint-bar">
+        Beanie is <strong>${rName}</strong> this round — <strong>${rLabel}</strong> is wild
+      </div>
+
+      <div class="body">
+        ${isEdit ? `
+          <div class="edit-nav-bar">
+            <div class="edit-nav-left">
+              <div class="edit-nav-chip">${rLabel}</div>
+              <div class="edit-nav-text">
+                <div>Beanie is <strong style="color:var(--gold)">${rLabel}</strong> · Round ${viewingRound + 1}</div>
+                <div style="font-size:11px;margin-top:2px;color:var(--dim)">Tap any score to correct it</div>
+              </div>
+            </div>
+            <button class="edit-nav-return" data-act="save-edit">
+              Back to round ${currentRound + 1}
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <line x1="2" y1="6" x2="10" y2="6"/>
+                <polyline points="7,3 10,6 7,9"/>
+              </svg>
+            </button>
+          </div>
+        ` : ''}
+        <div>
+          <div class="slabel">Round ${viewingRound + 1} scores</div>
+          <div class="score-list">${rows}</div>
+        </div>
+        ${allInButNoZero ? `
+          <div class="validation-msg">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8">
+              <circle cx="7" cy="7" r="6"/>
+              <line x1="7" y1="4" x2="7" y2="7.5"/>
+              <circle cx="7" cy="10" r="0.8" fill="currentColor" stroke="none"/>
+            </svg>
+            Someone must score 0 — the player who went out
+          </div>
+        ` : canGo && !isEdit ? `
+          <div style="font-size:12px;color:var(--muted);text-align:center;padding:4px 0">
+            All scores entered — tap below to advance
+          </div>
+        ` : ''}
+      </div>
+
+      <div class="btm">
+        <button class="btn ${isLast&&!isEdit?'btn-gold':'btn-acc'}"
+          data-act="${actionAct}" ${!canGo?'disabled':''}>
+          ${actionLabel}
+        </button>
+        ${isEdit
+          ? `<button class="btn btn-ghost" data-act="cancel-edit">Discard changes</button>`
+          : `<button class="btn btn-ghost" data-act="end-game-early">End game early</button>`
+        }
+      </div>
+    </div>
+  `;
+}
+
+// ── Render: Game Over ──────────────────────────────────────────────────────
+function renderGameOver() {
+  const { players, showCard } = state;
+  const ranking  = sorted(13);
+  const winner   = ranking[0];
+  const winPts   = winner.pts;
+
+  const totalRounds = state.currentRound; // rounds completed
+  const lbRows = ranking.map((p, rank) => {
+    const won = roundsWon(p.idx, totalRounds);
+    return `
+    <div class="lb-row${rank===0?' lb-first':''} anim" style="animation-delay:${rank*0.07}s">
+      <div class="lb-rank${rank===0?' gold':''}">${rank===0?'★':rank+1}</div>
+      <div class="lb-dot" style="background:${COLORS[p.colorIdx]}"></div>
+      <div class="lb-name">
+        ${esc(p.name)}
+        ${won > 0 ? `<div style="font-size:11px;color:var(--muted);margin-top:1px">${won} round${won!==1?'s':''} won</div>` : ''}
+      </div>
+      <div class="lb-pts${rank===0?' gold':''}">${p.pts}</div>
+      <div class="lb-gap">${rank>0 ? '+' + (p.pts - winPts) : ''}</div>
+    </div>
+  `}).join('');
+
+  let scorecardHtml = '';
+  if (showCard) {
+    const hcols = players.map(p =>
+      `<th style="color:${COLORS[p.colorIdx]}">${esc(p.name)}</th>`).join('');
+    const rrows = ROUNDS.map((r, ri) => {
+      const winnerIdx = roundWinner(ri);
+      const cells = players.map((_, pi) => {
+        const v = state.scores[ri] && state.scores[ri][pi];
+        const isLow = pi === winnerIdx && typeof v === 'number';
+        return `<td style="${isLow ? 'color:var(--gold);font-weight:700' : ''}">${typeof v === 'number' ? v : '—'}</td>`;
+      }).join('');
+      return `<tr><td>${r} · ${ROUND_NAMES[ri]}</td>${cells}</tr>`;
+    }).join('');
+    const tcells = players.map((_, pi) =>
+      `<td>${total(pi, 13)}</td>`).join('');
+
+    scorecardHtml = `
+      <div class="scorecard-outer anim">
+        <table class="sc-table">
+          <thead><tr><th>Round</th>${hcols}</tr></thead>
+          <tbody>${rrows}<tr><td>Total</td>${tcells}</tr></tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="screen">
+      <div class="hdr">
+        <div class="hdr-brand">
+          <div class="hdr-eyebrow">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="var(--gold)">
+              <polygon points="6,0.5 7.6,4.2 11.8,4.2 8.4,6.9 9.7,11.2 6,8.7 2.3,11.2 3.6,6.9 0.2,4.2 4.4,4.2"/>
+            </svg>
+            Beanie
+          </div>
+          <div class="hdr-title">Game Over</div>
+        </div>
+      </div>
+
+      <div class="body">
+        <div class="winner-banner anim">
+          <div class="wb-star">
+            <svg width="44" height="44" viewBox="0 0 44 44" fill="var(--gold)" opacity="0.92">
+              <polygon points="22,2 27,16 42,16 30,25 35,40 22,31 9,40 14,25 2,16 17,16"/>
+            </svg>
+          </div>
+          <div class="wb-label">Winner</div>
+          <div class="wb-name" style="color:${COLORS[winner.colorIdx]}">${esc(winner.name)}</div>
+          <div class="wb-score">${winPts} points total &middot; lowest score wins</div>
+        </div>
+
+        <div>
+          <div class="slabel">Final standings</div>
+          <div class="lb-list">${lbRows}</div>
+        </div>
+
+        <div>
+          <button class="toggle-card-btn" data-act="toggle-card">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+              <rect x="1" y="1" width="12" height="12" rx="2"/>
+              <line x1="1" y1="4.5" x2="13" y2="4.5"/>
+              <line x1="4.5" y1="4.5" x2="4.5" y2="13"/>
+            </svg>
+            ${showCard ? 'Hide full scorecard' : 'View full scorecard'}
+          </button>
+          ${scorecardHtml}
+        </div>
+      </div>
+
+      <div class="btm">
+        <div class="btn-row">
+          <button class="btn btn-acc" data-act="play-again">Play again</button>
+          <button class="btn btn-ghost" data-act="new-game">New game</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ── Render ─────────────────────────────────────────────────────────────────
+function render() {
+  const app = document.getElementById('app');
+  if      (state.screen === 'setup')    app.innerHTML = renderSetup();
+  else if (state.screen === 'scoring')  app.innerHTML = renderScoring();
+  else                                  app.innerHTML = renderGameOver();
+
+  // Scroll current round chip into view
+  if (state.screen === 'scoring') {
+    requestAnimationFrame(() => {
+      const cur = document.querySelector('.rchip.current');
+      if (cur) cur.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+    });
+  }
+}
+
+// ── Event handlers ─────────────────────────────────────────────────────────
+const app = document.getElementById('app');
+
+app.addEventListener('click', e => {
+  // Close colour picker on outside click
+  if (openPicker !== null && !e.target.closest('.color-wrap')) {
+    openPicker = null;
+    render();
+  }
+
+  const el = e.target.closest('[data-act]');
+  if (!el) return;
+  const act = el.dataset.act;
+  const i   = parseInt(el.dataset.i);
+
+  switch (act) {
+
+    case 'open-picker':
+      openPicker = openPicker === i ? null : i;
+      render();
+      break;
+
+    case 'pick-color': {
+      const ci = parseInt(el.dataset.ci);
+      state.players[i].colorIdx = ci;
+      openPicker = null;
+      save(); render();
+      break;
+    }
+
+    case 'add-player':
+      if (state.players.length < 8) {
+        const used = new Set(state.players.map(p => p.colorIdx));
+        const next = COLORS.findIndex((_, ci) => !used.has(ci));
+        state.players.push({ name: 'Player ' + (state.players.length + 1), colorIdx: next >= 0 ? next : 0 });
+        save(); render();
+      }
+      break;
+
+    case 'remove-player':
+      if (state.players.length > 2) {
+        state.players.splice(i, 1);
+        save(); render();
+      }
+      break;
+
+    case 'start-game': {
+      const n = state.players.length;
+      state.screen      = 'scoring';
+      state.scores      = Array.from({ length: 13 }, () => new Array(n).fill(null));
+      state.currentRound = 0;
+      state.viewingRound = 0;
+      save(); render();
+      break;
+    }
+
+    case 'view-round': {
+      const r = parseInt(el.dataset.r);
+      if (r <= state.currentRound) {
+        state.viewingRound = r;
+        // Snapshot this round's scores so Discard can revert them
+        if (r < state.currentRound) {
+          state._snap = { round: r, scores: [...(state.scores[r] || [])] };
+        } else {
+          state._snap = null;
+        }
+        render();
+      }
+      break;
+    }
+
+    case 'next-round':
+      if (allEntered(state.currentRound) && state.currentRound < 12) {
+        state.currentRound++;
+        state.viewingRound = state.currentRound;
+        save(); render();
+      }
+      break;
+
+    case 'finish-game':
+      if (allEntered(12)) {
+        state.screen = 'gameover';
+        state.showCard = false;
+        save(); render();
+      }
+      break;
+
+    case 'save-edit':
+      state._snap = null;
+      state.viewingRound = state.currentRound;
+      save(); render();
+      break;
+
+    case 'cancel-edit':
+      if (state._snap) {
+        state.scores[state._snap.round] = [...state._snap.scores];
+        state._snap = null;
+      }
+      state.viewingRound = state.currentRound;
+      save(); render();
+      break;
+
+    case 'end-game-early':
+      // Jump to game over with however many rounds are done
+      if (state.currentRound > 0) {
+        state.screen = 'gameover';
+        state.showCard = false;
+        save(); render();
+      }
+      break;
+
+    case 'toggle-card':
+      state.showCard = !state.showCard;
+      render();
+      break;
+
+    case 'play-again': {
+      const n = state.players.length;
+      state.screen       = 'scoring';
+      state.scores       = Array.from({ length: 13 }, () => new Array(n).fill(null));
+      state.currentRound = 0;
+      state.viewingRound = 0;
+      state.showCard     = false;
+      save(); render();
+      break;
+    }
+
+    case 'new-game':
+      state = freshState();
+      openPicker = null;
+      save(); render();
+      break;
+  }
+});
+
+app.addEventListener('input', e => {
+  const el = e.target;
+  if (!el.dataset.act) return;
+
+  if (el.dataset.act === 'set-name') {
+    const idx = parseInt(el.dataset.i);
+    state.players[idx].name = el.value;
+    save();
+    // Update start button without full re-render
+    const btn = document.querySelector('[data-act="start-game"]');
+    if (btn) btn.disabled = !(state.players.length >= 2 && state.players.every(p => p.name.trim()));
+  }
+
+  if (el.dataset.act === 'set-score') {
+    const r   = parseInt(el.dataset.r);
+    const pi  = parseInt(el.dataset.pi);
+    const raw = el.value.trim();
+    const val = raw === '' ? null : Math.max(0, Math.min(999, parseInt(raw) || 0));
+
+    if (!state.scores[r]) state.scores[r] = new Array(state.players.length).fill(null);
+    state.scores[r][pi] = val;
+    save();
+
+    // Lightweight DOM update — no full re-render
+    el.classList.toggle('has-val', val !== null);
+    el.closest('.score-row')?.classList.toggle('entered', val !== null);
+
+    // Update proceed button — also requires a 0 for current round
+    const allIn = allEntered(r);
+    const isEditMode = state.viewingRound < state.currentRound;
+    const hasZero = state.players.some((_, pi) => state.scores[r]?.[pi] === 0);
+    const can = isEditMode ? allIn : (allIn && hasZero);
+    const btn = document.querySelector('[data-act="next-round"],[data-act="finish-game"],[data-act="save-edit"]');
+    if (btn) btn.disabled = !can;
+
+    // Re-render to update totals, winner highlight, and validation message
+    if (allIn) render();
+  }
+});
+
+// Enter key → next score input
+app.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.classList.contains('sinput')) {
+    const inputs = [...document.querySelectorAll('.sinput')];
+    const idx    = inputs.indexOf(e.target);
+    if (idx < inputs.length - 1) inputs[idx + 1].focus();
+    else e.target.blur();
+  }
+});
+
+// ── Init ───────────────────────────────────────────────────────────────────
+render();
+</script>
