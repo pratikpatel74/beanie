@@ -276,12 +276,15 @@ body {
   border: none;
   color: var(--dim);
   cursor: pointer;
-  padding: 6px;
-  line-height: 1;
-  font-size: 16px;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: color 0.15s;
   flex-shrink: 0;
-  border-radius: 6px;
+  border-radius: 8px;
+  margin-right: -8px;
 }
 .rm-btn:hover { color: var(--danger); }
 
@@ -964,7 +967,13 @@ function renderSetup() {
         placeholder="Name" value="${esc(p.name)}"
         data-act="set-name" data-i="${i}" maxlength="18">
       ${players.length > 2
-        ? `<button class="rm-btn" data-act="remove-player" data-i="${i}" aria-label="Remove">✕</button>`
+        ? `<button class="rm-btn" data-act="remove-player" data-i="${i}" aria-label="Remove">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+              <circle cx="10" cy="10" r="8"/>
+              <line x1="7" y1="7" x2="13" y2="13"/>
+              <line x1="13" y1="7" x2="7" y2="13"/>
+            </svg>
+           </button>`
         : ''}
     </div>
   `).join('');
