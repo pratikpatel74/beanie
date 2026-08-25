@@ -689,7 +689,12 @@ body {
 .toggle-card-btn:hover { color: var(--text); }
 
 /* ── Help button ── */
+.hdr { position: relative; }
 .help-btn {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
   width: 30px; height: 30px;
   border-radius: 50%;
   border: 1.5px solid var(--surf3);
@@ -1133,13 +1138,11 @@ function renderScoring() {
             ${isEdit ? rName : 'Enter scores'}
           </div>
         </div>
-        <div class="hdr-right" style="display:flex;align-items:center;gap:10px;">
-          <div style="text-align:right;">
-            <div class="hdr-rank-label">${rLabel}</div>
-            <div class="hdr-rank-name">${rName}</div>
-          </div>
-          <button class="help-btn" data-act="open-help" aria-label="Help">?</button>
+        <div class="hdr-right">
+          <div class="hdr-rank-label">${rLabel}</div>
+          <div class="hdr-rank-name">${rName}</div>
         </div>
+        <button class="help-btn" data-act="open-help" aria-label="Help">?</button>
       </div>
 
       <div class="round-strip-wrap">
