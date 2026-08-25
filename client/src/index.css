@@ -335,12 +335,28 @@ html, body, #root {
 .action-card-create .ac-arr { background: rgba(91,143,214,0.2); color: var(--acc); }
 .action-card-join   .ac-arr { background: rgba(255,255,255,0.06); color: var(--text3); }
 
-.home-footer { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: auto; padding-top: 16px; }
-.home-footer button, .home-footer a {
-  background: none; border: none; color: var(--accl);
-  font-size: 13px; cursor: pointer; text-decoration: none;
+.home-mini-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: auto; padding-top: 10px; }
+.mini-card {
+  border-radius: 12px; padding: 11px 12px;
+  cursor: pointer; border: 1px solid var(--border);
+  background: var(--surf);
+  display: flex; align-items: center; gap: 9px;
+  text-decoration: none;
 }
-.home-footer-divider { color: var(--accl); opacity: 0.4; font-size: 13px; }
+.mini-card-score {
+  background: rgba(240,180,41,0.07);
+  border-color: rgba(240,180,41,0.25);
+}
+.mini-card-icon {
+  width: 30px; height: 30px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; flex-shrink: 0;
+  background: rgba(255,255,255,0.06);
+}
+.mini-card-score .mini-card-icon { background: rgba(240,180,41,0.12); color: var(--gold); }
+.mini-card-label { font-size: 12px; font-weight: 600; color: var(--text); line-height: 1.2; }
+.mini-card-sub   { font-size: 10px; color: var(--text2); margin-top: 1px; }
+.mini-card-score .mini-card-label { color: var(--gold); }
 
 /* ── NAME SCREEN ─────────────────────────────────────────────────────────────── */
 .name-screen-inner {

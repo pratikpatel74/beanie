@@ -85,10 +85,26 @@ export default function HomeScreen({ actions, playerName }) {
           <div className="ac-arr">›</div>
         </div>
 
-        <div className="home-footer">
-          <button onClick={() => actions.goTo('howtoplay')}>How to play ›</button>
-          <span className="home-footer-divider">·</span>
-          <a href="https://www.playbeanie.com/score-tracker.html" target="_blank" rel="noopener noreferrer">Score tracker ›</a>
+        <div className="home-mini-cards">
+          <button className="mini-card" onClick={() => actions.goTo('howtoplay')}>
+            <div className="mini-card-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accl)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+              </svg>
+            </div>
+            <div>
+              <div className="mini-card-label">How to play</div>
+              <div className="mini-card-sub">Rules &amp; tips</div>
+            </div>
+          </button>
+          <a className="mini-card mini-card-score" href="https://www.playbeanie.com/score-tracker.html" target="_blank" rel="noopener noreferrer">
+            <div className="mini-card-icon">★</div>
+            <div>
+              <div className="mini-card-label">Score tracker</div>
+              <div className="mini-card-sub">Track 13 rounds</div>
+            </div>
+          </a>
         </div>
 
       </div>
