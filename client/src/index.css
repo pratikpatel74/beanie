@@ -336,9 +336,9 @@ html, body, #root {
 .action-card-join   .ac-arr { background: rgba(255,255,255,0.06); color: var(--text3); }
 
 .home-footer { text-align: center; margin-top: auto; padding-top: 16px; }
-.home-footer button {
+.home-footer button, .home-footer a {
   background: none; border: none; color: var(--accl);
-  font-size: 13px; cursor: pointer;
+  font-size: 13px; cursor: pointer; text-decoration: none;
 }
 
 /* ── NAME SCREEN ─────────────────────────────────────────────────────────────── */
