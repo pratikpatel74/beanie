@@ -106,7 +106,7 @@ export default function HowToPlayScreen({ actions, returnTo = 'home' }) {
           </div>
           <div className="htp-tip" style={{ marginTop: 8 }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{display:'inline',verticalAlign:'middle',marginRight:5}}><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26A7.01 7.01 0 0 1 5 9a7 7 0 0 1 7-7z"/><line x1="10" y1="21" x2="14" y2="21"/></svg>
-            Use the <strong>Deal / A→K</strong> toggle above your hand to sort your cards by rank — useful for spotting runs. Tap <strong>Deal</strong> to return to the original draw order.
+            Use the <strong>Deal / A→K / ♠♥♦♣</strong> toggle above your hand to sort your cards. <em>A→K</em> sorts by rank (great for spotting runs), <em>♠♥♦♣</em> sorts by suit then rank, and <em>Deal</em> returns to the original draw order.
           </div>
           <div className="htp-tip" style={{ marginTop: 8, borderColor: 'rgba(240,180,41,0.35)' }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{display:'inline',verticalAlign:'middle',marginRight:5}}><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26A7.01 7.01 0 0 1 5 9a7 7 0 0 1 7-7z"/><line x1="10" y1="21" x2="14" y2="21"/></svg>
@@ -230,7 +230,9 @@ export default function HowToPlayScreen({ actions, returnTo = 'home' }) {
         {/* ── Adding to Sets ── */}
         <section className="htp-section">
           <div className="htp-section-header">
-            <span className="htp-icon">➕</span>
+            <span className="htp-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </span>
             <h3>Adding to Sets</h3>
           </div>
           <p className="htp-body">

@@ -9,6 +9,16 @@
 | Game server | Node / Socket.io | Railway (`play.playbeanie.com`) |
 | State | Upstash Redis (REST) | — |
 
+## Client Source Structure
+
+Key shared modules under `client/src/` — always import from these rather than re-defining locally:
+
+- **`constants.js`** — `PLAYER_COLOURS`, `BEANIE_RANKS`, `RANK_ORDER`, `SUIT_ORDER`, `pSuit(name)`, `pSuitColor(name)`
+- **`audio.js`** — all Web Audio synthesis: `playThwack`, `playShimmer`, `playTick`, `playDraw`, `playFanfare`, `playWhoosh`, `isMuted`. Single shared `_actx` AudioContext.
+- **`gameHelpers.js`** — client-side game logic: `buildRunOptions`, `computeGapLabel`, `canStealBeanie`, `sortedRunCards`, `canAddCardsToSet`, `computeAddBeanieOptions`
+
+These modules were centralised in a refactor; do not re-introduce inline duplicates in any screen component.
+
 ## Critical Rules — Never Break These
 
 - **NO emoji anywhere** — SVG line icons only, project-wide

@@ -1,14 +1,9 @@
-// Deterministic suit from player name — ♠♣ black, ♥♦ red (traditional card colours)
-function playerSuit(name) {
-  const h = (name || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0);
-  return ['♠', '♥', '♦', '♣'][h % 4];
-}
-function suitColor(s) { return (s === '♥' || s === '♦') ? '#c0392b' : '#1a1a2e'; }
+import { pSuit, pSuitColor } from '../constants';
 
 export default function HomeScreen({ actions, playerName }) {
   const initial = playerName ? playerName[0].toUpperCase() : 'P';
-  const suit    = playerSuit(playerName);
-  const pipCol  = suitColor(suit);
+  const suit    = pSuit(playerName);
+  const pipCol  = pSuitColor(playerName);
 
   return (
     <div className="screen">
