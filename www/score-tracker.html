@@ -439,8 +439,6 @@ body {
 .rank-pill.rank-tied {
   /* no extra styling needed beyond rank-first override */
 }
-/* Keep the original tied-badge close */
-}
 
 /* Validation message */
 .validation-msg {
@@ -1050,7 +1048,7 @@ function renderScoring() {
         </button>
         ${isEdit
           ? `<button class="btn btn-ghost" data-act="cancel-edit">Discard changes</button>`
-          : `<button class="btn btn-ghost" data-act="end-game-early">End game early</button>`
+          : `<button class="btn btn-ghost" data-act="end-game-early">${currentRound === 0 ? 'Back to setup' : 'End game early'}</button>`
         }
       </div>
     </div>
@@ -1279,8 +1277,12 @@ app.addEventListener('click', e => {
       break;
 
     case 'end-game-early':
-      // Jump to game over with however many rounds are done
-      if (state.currentRound > 0) {
+      if (state.currentRound === 0) {
+        // No rounds played yet — return to setup
+        state.screen = 'setup';
+        save(); render();
+      } else {
+        // Jump to game over with however many rounds are done
         state.screen = 'gameover';
         state.showCard = false;
         save(); render();
