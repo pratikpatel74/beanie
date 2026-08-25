@@ -685,6 +685,100 @@ body {
 }
 .toggle-card-btn:hover { color: var(--text); }
 
+/* ── Help button ── */
+.help-btn {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  border: 1.5px solid var(--surf3);
+  background: none;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: border-color 0.15s, color 0.15s;
+}
+.help-btn:hover { border-color: var(--acc); color: var(--acc); }
+
+/* ── Help overlay ── */
+.help-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.help-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(2px);
+}
+.help-panel {
+  position: relative;
+  background: var(--surf);
+  border-radius: 20px 20px 0 0;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  max-height: 85dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  animation: slide-up 0.22s ease;
+}
+@keyframes slide-up {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+.help-panel-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--surf);
+  z-index: 1;
+}
+.help-panel-title {
+  font-size: 16px;
+  font-weight: 700;
+}
+.help-close {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 6px;
+  line-height: 1;
+  border-radius: 6px;
+  transition: color 0.15s;
+}
+.help-close:hover { color: var(--text); }
+.help-body {
+  padding: 18px 20px calc(24px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.help-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+.help-section-body {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.help-section-body strong { color: var(--text); font-weight: 600; }
+
 /* ── Animations ── */
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(10px); }
@@ -695,6 +789,44 @@ body {
 @media (prefers-reduced-motion: reduce) { .anim { animation: none; } }
 </style>
 <div id="app"></div>
+
+<!-- ── Help overlay ── -->
+<div id="help-overlay" class="help-overlay" style="display:none" aria-modal="true" role="dialog">
+  <div class="help-backdrop" data-act="close-help"></div>
+  <div class="help-panel">
+    <div class="help-panel-hdr">
+      <div class="help-panel-title">How to use the Score Tracker</div>
+      <button class="help-close" data-act="close-help" aria-label="Close">&#x2715;</button>
+    </div>
+    <div class="help-body">
+      <div>
+        <div class="help-section-title">Setup</div>
+        <div class="help-section-body">Add <strong>2–8 players</strong>, give each a name and colour, then tap <strong>Start game</strong>.</div>
+      </div>
+      <div>
+        <div class="help-section-title">Entering scores</div>
+        <div class="help-section-body">Each of the 13 rounds matches a card rank — Aces first, Kings last. After each round of play, enter everyone's score. The player who went out (laid all their cards) must score <strong>0</strong> — the tracker won't let you advance until someone has a zero.</div>
+      </div>
+      <div>
+        <div class="help-section-title">Round winner</div>
+        <div class="help-section-body">The <strong>lowest score</strong> each round is highlighted. Rank pills (1st, 2nd=, etc.) appear once all scores are in.</div>
+      </div>
+      <div>
+        <div class="help-section-title">Editing a past round</div>
+        <div class="help-section-body">Tap any <strong>completed chip</strong> in the round strip to go back and correct a score. Tap <strong>Save changes</strong> to return, or <strong>Discard changes</strong> to revert.</div>
+      </div>
+      <div>
+        <div class="help-section-title">Winning</div>
+        <div class="help-section-body">After 13 rounds, the player with the <strong>lowest total</strong> wins. Tap <strong>View full scorecard</strong> to see every round in one table.</div>
+      </div>
+      <div>
+        <div class="help-section-title">Play again / New game</div>
+        <div class="help-section-body"><strong>Play again</strong> keeps the same players and resets scores. <strong>New game</strong> returns to setup.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 const ROUNDS      = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 const ROUND_NAMES = ['Aces','Twos','Threes','Fours','Fives','Sixes','Sevens','Eights','Nines','Tens','Jacks','Queens','Kings'];
@@ -846,6 +978,7 @@ function renderSetup() {
           </div>
           <div class="hdr-title">Score Tracker</div>
         </div>
+        <button class="help-btn" data-act="open-help" aria-label="Help">?</button>
       </div>
       <div class="body">
         <div>
@@ -988,9 +1121,12 @@ function renderScoring() {
             ${isEdit ? rName : 'Enter scores'}
           </div>
         </div>
-        <div class="hdr-right">
-          <div class="hdr-rank-label">${rLabel}</div>
-          <div class="hdr-rank-name">${rName}</div>
+        <div class="hdr-right" style="display:flex;align-items:center;gap:10px;">
+          <div style="text-align:right;">
+            <div class="hdr-rank-label">${rLabel}</div>
+            <div class="hdr-rank-name">${rName}</div>
+          </div>
+          <button class="help-btn" data-act="open-help" aria-label="Help">?</button>
         </div>
       </div>
 
@@ -1116,6 +1252,7 @@ function renderGameOver() {
           </div>
           <div class="hdr-title">Game Over</div>
         </div>
+        <button class="help-btn" data-act="open-help" aria-label="Help">?</button>
       </div>
 
       <div class="body">
@@ -1310,6 +1447,33 @@ app.addEventListener('click', e => {
       openPicker = null;
       save(); render();
       break;
+
+    case 'open-help':
+      document.getElementById('help-overlay').style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      break;
+
+    case 'close-help':
+      document.getElementById('help-overlay').style.display = 'none';
+      document.body.style.overflow = '';
+      break;
+  }
+});
+
+// Help overlay clicks (backdrop + close button are outside #app)
+document.getElementById('help-overlay').addEventListener('click', e => {
+  const el = e.target.closest('[data-act]');
+  if (el && el.dataset.act === 'close-help') {
+    document.getElementById('help-overlay').style.display = 'none';
+    document.body.style.overflow = '';
+  }
+});
+
+// Close help on Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.getElementById('help-overlay').style.display = 'none';
+    document.body.style.overflow = '';
   }
 });
 
