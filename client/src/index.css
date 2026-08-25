@@ -335,11 +335,12 @@ html, body, #root {
 .action-card-create .ac-arr { background: rgba(91,143,214,0.2); color: var(--acc); }
 .action-card-join   .ac-arr { background: rgba(255,255,255,0.06); color: var(--text3); }
 
-.home-footer { text-align: center; margin-top: auto; padding-top: 16px; }
+.home-footer { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: auto; padding-top: 16px; }
 .home-footer button, .home-footer a {
   background: none; border: none; color: var(--accl);
   font-size: 13px; cursor: pointer; text-decoration: none;
 }
+.home-footer-divider { color: var(--accl); opacity: 0.4; font-size: 13px; }
 
 /* ── NAME SCREEN ─────────────────────────────────────────────────────────────── */
 .name-screen-inner {

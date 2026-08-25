@@ -87,6 +87,7 @@ export default function HomeScreen({ actions, playerName }) {
 
         <div className="home-footer">
           <button onClick={() => actions.goTo('howtoplay')}>How to play ›</button>
+          <span className="home-footer-divider">·</span>
           <a href="https://www.playbeanie.com/score-tracker.html" target="_blank" rel="noopener noreferrer">Score tracker ›</a>
         </div>
 
