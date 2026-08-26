@@ -1051,7 +1051,23 @@
     .prm-s4-actions { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 14px; width: 100%; padding: 0 6px; }
     .prm-s4-my-label { font-size: 8px; color: #7a9ab8; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 4px; text-align: center; }
     #prm-s4-hand { display: flex; justify-content: center; gap: 6px; margin-top: 3px; }
-    #prm-s5 { gap: 0; }
+    #prm-s5 { justify-content: flex-start; padding-top: 50px; gap: 0; }
+    .prm-sc-header { text-align:center; margin-bottom:16px; }
+    .prm-sc-wrap { width:100%; background:#0F1D2E; border:1px solid rgba(255,255,255,0.08); border-radius:11px; padding:12px 10px; margin-bottom:14px; }
+    .prm-sc-table { width:100%; border-collapse:collapse; font-size:9px; }
+    .prm-sc-table thead th { color:#7a9ab8; font-weight:600; font-size:8px; letter-spacing:0.5px; padding:0 3px 6px; text-align:center; }
+    .prm-sc-table thead th.prm-sc-name { text-align:left; }
+    .prm-sc-table tbody tr { border-top:1px solid rgba(255,255,255,0.05); }
+    .prm-sc-table tbody td { padding:5px 3px; color:#7a9ab8; text-align:center; }
+    .prm-sc-table td.prm-sc-name { text-align:left; color:#f0f4f2; font-weight:600; }
+    .prm-sc-table td.prm-sc-zero { color:#F0B429; font-weight:700; }
+    .prm-sc-table td.prm-sc-tot { color:#f0f4f2; font-weight:700; font-size:10px; }
+    .prm-sc-table tr.prm-sc-winner td { color:#f0f4f2; }
+    .prm-sc-table tr.prm-sc-winner td.prm-sc-name { color:#F0B429; }
+    .prm-sc-table tr.prm-sc-winner td.prm-sc-tot { color:#F0B429; font-weight:800; }
+    .prm-sc-table tr.prm-sc-winner { background:rgba(240,180,41,0.06); }
+    .prm-sc-win-banner { background:rgba(240,180,41,0.1); border:1px solid rgba(240,180,41,0.3); border-radius:8px; padding:9px 14px; text-align:center; width:100%; }
+    #prm-s6 { gap: 0; }
     .prm-cta-logo { width: 62px; height: 62px; background: #F0B429; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 35px; color: #1a0e00; margin-bottom: 17px; animation: prm-logoPulse 2.6s ease-in-out infinite; }
     .prm-cta-free-tag { font-size: 8px; color: #7a9ab8; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 700; margin-bottom: 6px; }
     .prm-cta-title { font-size: 41px; font-weight: 900; color: #F0B429; letter-spacing: -2px; line-height: 1; margin-bottom: 8px; }
@@ -1188,7 +1204,8 @@
   <section class="promo-anim-section">
     <div class="container">
       <p class="section-label reveal">See it in action</p>
-      <div class="promo-anim-wrap reveal" style="transition-delay:0.1s;">
+      <h2 class="section-title reveal" style="margin-bottom:0">Watch a full round — steal, set, and score.</h2>
+      <div class="promo-anim-wrap reveal" style="transition-delay:0.1s; margin-top:40px;">
         <div id="promo-stage">
 
           <div class="prm-scene prm-active" id="prm-s1">
@@ -1252,6 +1269,45 @@
           </div>
 
           <div class="prm-scene" id="prm-s5">
+            <div class="prm-sc-header">
+              <div class="prm-round-pill" style="background:rgba(240,180,41,0.15);color:#F0B429;border:1px solid rgba(240,180,41,0.3)">Game Over</div>
+              <div class="prm-wild-row" style="font-size:13px">Final Scores</div>
+            </div>
+            <div class="prm-sc-wrap">
+              <table class="prm-sc-table">
+                <thead>
+                  <tr>
+                    <th class="prm-sc-name"></th>
+                    <th>R1</th><th>R2</th><th>R3</th><th>R4</th><th>R5</th>
+                    <th class="prm-sc-tot">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="prm-sc-name">Alex</td>
+                    <td>23</td><td>14</td><td class="prm-sc-zero">0</td><td>18</td><td>32</td>
+                    <td class="prm-sc-tot">87</td>
+                  </tr>
+                  <tr class="prm-sc-winner">
+                    <td class="prm-sc-name">You ★</td>
+                    <td class="prm-sc-zero">0</td><td>21</td><td>15</td><td class="prm-sc-zero">0</td><td>25</td>
+                    <td class="prm-sc-tot">61</td>
+                  </tr>
+                  <tr>
+                    <td class="prm-sc-name">Sam</td>
+                    <td>31</td><td class="prm-sc-zero">0</td><td>22</td><td>14</td><td class="prm-sc-zero">0</td>
+                    <td class="prm-sc-tot">67</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="prm-sc-win-banner">
+              <div class="prm-bn-title" style="color:#F0B429">You win! ★</div>
+              <div class="prm-bn-sub">61 pts — lowest after 5 rounds</div>
+            </div>
+          </div>
+
+          <div class="prm-scene" id="prm-s6">
             <div class="prm-cta-logo">★</div>
             <div class="prm-cta-free-tag">Free · No download · Any browser</div>
             <div class="prm-cta-title">BEANIE</div>
@@ -1543,7 +1599,7 @@
     }
 
     var TOTAL = 20000;
-    var SCENES = [{id:'prm-s1',start:0,end:4500},{id:'prm-s2',start:4200,end:9000},{id:'prm-s3',start:8700,end:13500},{id:'prm-s4',start:13200,end:17500},{id:'prm-s5',start:17200,end:20000}];
+    var SCENES = [{id:'prm-s1',start:0,end:3500},{id:'prm-s2',start:3200,end:7000},{id:'prm-s3',start:6700,end:10500},{id:'prm-s4',start:10200,end:14000},{id:'prm-s5',start:13700,end:17000},{id:'prm-s6',start:16700,end:20000}];
     var t0 = null, activeId = 'prm-s1', timers = [];
     function clearT() { timers.forEach(clearTimeout); timers = []; }
     function later(fn,ms) { timers.push(setTimeout(fn,ms)); }
