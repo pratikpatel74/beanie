@@ -1001,12 +1001,13 @@ function renderSetup() {
         <div>
           <div class="slabel">Players — ${players.length} of 8</div>
           <div class="player-list">${rows}</div>
+          ${canAdd ? `
           <div style="margin-top:8px">
-            <button class="add-player-btn" data-act="add-player" ${!canAdd?'disabled':''}>
+            <button class="add-player-btn" data-act="add-player">
               <span class="add-circle">+</span>
               Add player
             </button>
-          </div>
+          </div>` : ''}
         </div>
 
         <div class="info-card">
@@ -1070,11 +1071,14 @@ function renderScoring() {
     });
   }
   const winnerCount = allIn ? players.filter((_, i) => roundScores[i] === minScore).length : 0;
-  const hasZero = players.some((_, i) => roundScores[i] === 0);
+  const zeroCount = players.filter((_, i) => roundScores[i] === 0).length;
+  const hasZero = zeroCount > 0;
+  const tooManyZeros = zeroCount > 1;
 
-  // Must have a 0 (someone went out) to advance — only enforced on current round, not edit
-  const canGo  = isEdit ? allIn : (allIn && hasZero);
+  // Must have exactly one 0 (one player goes out) to advance — only enforced on current round, not edit
+  const canGo  = isEdit ? allIn : (allIn && hasZero && !tooManyZeros);
   const allInButNoZero = !isEdit && allIn && !hasZero;
+  const allInTooManyZeros = !isEdit && allIn && tooManyZeros;
 
   // Compute rankings when all scores are in and valid
   const { ranks, rankCounts } = canGo ? getRoundRanks(viewingRound) : { ranks: {}, rankCounts: {} };
@@ -1184,6 +1188,15 @@ function renderScoring() {
               <circle cx="7" cy="10" r="0.8" fill="currentColor" stroke="none"/>
             </svg>
             Someone must score 0 — the player who went out
+          </div>
+        ` : allInTooManyZeros ? `
+          <div class="validation-msg">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8">
+              <circle cx="7" cy="7" r="6"/>
+              <line x1="7" y1="4" x2="7" y2="7.5"/>
+              <circle cx="7" cy="10" r="0.8" fill="currentColor" stroke="none"/>
+            </svg>
+            Only one player can score 0 — only one player goes out per round
           </div>
         ` : canGo && !isEdit ? `
           <div style="font-size:12px;color:var(--muted);text-align:center;padding:4px 0">
@@ -1707,11 +1720,11 @@ app.addEventListener('input', e => {
     el.classList.toggle('has-val', val !== null);
     el.closest('.score-row')?.classList.toggle('entered', val !== null);
 
-    // Update proceed button — also requires a 0 for current round
+    // Update proceed button — requires exactly one 0 for current round
     const allIn = allEntered(r);
     const isEditMode = state.viewingRound < state.currentRound;
-    const hasZero = state.players.some((_, pi) => state.scores[r]?.[pi] === 0);
-    const can = isEditMode ? allIn : (allIn && hasZero);
+    const zeroCount = state.players.filter((_, pi) => state.scores[r]?.[pi] === 0).length;
+    const can = isEditMode ? allIn : (allIn && zeroCount === 1);
     const btn = document.querySelector('[data-act="next-round"],[data-act="finish-game"],[data-act="save-edit"]');
     if (btn) btn.disabled = !can;
 
