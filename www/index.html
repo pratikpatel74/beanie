@@ -888,6 +888,180 @@
       .nav-htp { display: none; }
       .room-badge { display: none; }
     }
+
+    /* ─── PROMO ANIMATION SECTION ──────────────────────────────────── */
+    .promo-anim-section {
+      padding: 80px 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+    .promo-anim-wrap {
+      display: flex;
+      justify-content: center;
+      margin-top: 32px;
+    }
+    #promo-stage {
+      width: 280px;
+      height: 498px;
+      background: var(--bg-surface);
+      position: relative;
+      overflow: hidden;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+      font-family: 'Inter', sans-serif;
+    }
+    #promo-stage::before {
+      content: '';
+      position: absolute;
+      top: -120px; left: 50%; transform: translateX(-50%);
+      width: 420px; height: 280px;
+      background: radial-gradient(ellipse, rgba(91,143,214,0.07) 0%, transparent 65%);
+      pointer-events: none; z-index: 0;
+    }
+    #promo-stage::after {
+      content: '';
+      position: absolute;
+      bottom: -80px; left: 50%; transform: translateX(-50%);
+      width: 350px; height: 210px;
+      background: radial-gradient(ellipse, rgba(240,180,41,0.06) 0%, transparent 65%);
+      pointer-events: none; z-index: 0;
+    }
+    .prm-scene {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      opacity: 0;
+      transition: opacity 0.55s ease;
+      padding: 32px 22px;
+      z-index: 1;
+    }
+    .prm-scene.prm-active { opacity: 1; }
+    #promo-stage .prm-card {
+      width: 43px; height: 63px;
+      background: #fff;
+      border-radius: 7px;
+      border: 0.5px solid rgba(0,0,0,0.1);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.55);
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+      font-family: Georgia, serif;
+      flex-shrink: 0;
+      transition: transform 0.4s ease, box-shadow 0.4s ease, opacity 0.4s ease;
+    }
+    #promo-stage .prm-card .prm-cr {
+      position: absolute;
+      display: flex; flex-direction: column;
+      align-items: flex-start; line-height: 1; gap: 1px;
+    }
+    #promo-stage .prm-card .prm-cr.prm-tl { top: 4px; left: 5px; }
+    #promo-stage .prm-card .prm-cr.prm-br { bottom: 4px; right: 5px; transform: rotate(180deg); }
+    #promo-stage .prm-card .prm-cr .prm-r { font-size: 9px; font-weight: 800; line-height: 1; }
+    #promo-stage .prm-card .prm-cr .prm-s { font-size: 7px; line-height: 1; }
+    #promo-stage .prm-card .prm-pip { font-size: 18px; line-height: 1; }
+    #promo-stage .prm-red { color: #c0392b; }
+    #promo-stage .prm-blk { color: #1a1a2e; }
+    #promo-stage .prm-card.prm-bc {
+      background: linear-gradient(135deg, #2d200a, #1c1408);
+      border: 1.5px solid #F0B429;
+    }
+    #promo-stage .prm-card.prm-bc .prm-pip { color: #F0B429; font-size: 21px; }
+    #promo-stage .prm-card.prm-bc .prm-cr  { color: #F0B429; }
+    #promo-stage .prm-card.prm-bc .prm-bl {
+      position: absolute; bottom: 5px;
+      left: 0; right: 0; text-align: center;
+      font-size: 5px; font-weight: 800;
+      letter-spacing: 1.5px;
+      font-family: 'Inter', sans-serif;
+      color: #F0B429;
+    }
+    #promo-stage .prm-beanie-badge {
+      position: absolute;
+      bottom: -9px; left: 50%; transform: translateX(-50%);
+      background: #F0B429; color: #1a0e00;
+      font-size: 6px; font-weight: 800;
+      padding: 1px 4px; border-radius: 3px;
+      white-space: nowrap; font-family: 'Inter', sans-serif;
+    }
+    #promo-stage .prm-card.prm-selected {
+      box-shadow: 0 0 0 2px #5B8FD6, 0 6px 20px rgba(0,0,0,0.6);
+      transform: translateY(-8px);
+    }
+    #promo-stage .prm-card.prm-glow-gold {
+      box-shadow: 0 0 0 2px #F0B429, 0 6px 20px rgba(240,180,41,0.45);
+      transform: translateY(-8px);
+    }
+    #promo-stage .prm-card.prm-dim { opacity: 0.35; }
+    .prm-round-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #5B8FD6; color: #fff;
+      font-size: 8px; font-weight: 700;
+      letter-spacing: 0.8px; text-transform: uppercase;
+      padding: 4px 10px; border-radius: 100px;
+    }
+    .prm-wild-row { font-size: 14px; font-weight: 800; color: #f0f4f2; margin-top: 6px; }
+    .prm-wild-row .prm-wg { color: #F0B429; }
+    .prm-slabel { font-size: 7px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #7a9ab8; margin-bottom: 8px; }
+    .prm-card-row { display: flex; align-items: flex-end; justify-content: center; gap: 6px; }
+    .prm-banner { border-radius: 8px; padding: 9px 16px; text-align: center; transition: opacity 0.4s ease, transform 0.4s ease; }
+    .prm-banner.prm-purple { background: rgba(91,143,214,0.12); border: 1px solid rgba(91,143,214,0.35); }
+    .prm-banner.prm-gold   { background: rgba(240,180,41,0.1);  border: 1px solid rgba(240,180,41,0.3); }
+    .prm-bn-title { font-size: 11px; font-weight: 800; margin-bottom: 2px; }
+    .prm-bn-sub   { font-size: 8px; color: #7a9ab8; }
+    .prm-banner.prm-purple .prm-bn-title { color: #89B3E8; }
+    .prm-banner.prm-gold   .prm-bn-title { color: #F0B429; }
+    .prm-hidden { opacity: 0; transform: translateY(6px); pointer-events: none; }
+    .prm-steal-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(240,180,41,0.14); border: 1.5px solid rgba(240,180,41,0.5);
+      border-radius: 7px; padding: 8px 16px;
+      font-size: 10px; font-weight: 800; color: #F0B429;
+      transition: opacity 0.4s ease;
+    }
+    .prm-steal-btn.prm-hidden { opacity: 0; pointer-events: none; }
+    #prm-s1 { gap: 0; }
+    .prm-s1-logo {
+      width: 70px; height: 70px; background: #F0B429; border-radius: 18px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 38px; color: #1a0e00; margin-bottom: 18px;
+      animation: prm-logoPulse 2.6s ease-in-out infinite;
+    }
+    @keyframes prm-logoPulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(240,180,41,0.45); }
+      50%     { box-shadow: 0 0 0 12px rgba(240,180,41,0); }
+    }
+    .prm-s1-title { font-size: 48px; font-weight: 900; color: #F0B429; letter-spacing: -2px; line-height: 1; margin-bottom: 8px; }
+    .prm-s1-sub   { font-size: 11px; color: #7a9ab8; margin-bottom: 28px; }
+    .prm-s1-pill  { background: rgba(240,180,41,0.1); border: 1px solid rgba(240,180,41,0.28); border-radius: 100px; padding: 8px 16px; font-size: 9px; font-weight: 700; color: #F0B429; text-align: center; line-height: 1.4; max-width: 200px; }
+    #prm-s2 { justify-content: flex-start; padding-top: 56px; gap: 0; }
+    .prm-s2-top { text-align: center; margin-bottom: 22px; }
+    .prm-s2-mid { flex: 1; display: flex; align-items: center; justify-content: center; }
+    .prm-hand-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; }
+    .prm-hand-label-row { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 0 4px; }
+    .prm-hand-count { font-size: 8px; color: #7a9ab8; font-weight: 600; }
+    #prm-hand { display: flex; justify-content: center; gap: 4px; width: 100%; }
+    #prm-s3 { justify-content: flex-start; padding-top: 56px; gap: 0; }
+    .prm-s3-top { text-align: center; margin-bottom: 20px; }
+    .prm-table-box { width: 100%; background: #0F1D2E; border: 1px solid rgba(255,255,255,0.08); border-radius: 11px; padding: 14px 11px 18px; margin-bottom: 14px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    #prm-s3-hand { display: flex; justify-content: center; gap: 6px; margin-top: 4px; }
+    #prm-s4 { justify-content: flex-start; padding-top: 50px; gap: 0; }
+    .prm-s4-top { text-align: center; margin-bottom: 15px; }
+    .prm-s4-opp-label { font-size: 8px; color: #7a9ab8; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .prm-opp-box { width: 100%; background: #0F1D2E; border: 1px solid rgba(255,255,255,0.08); border-radius: 11px; padding: 12px 11px 17px; display: flex; flex-direction: column; align-items: center; gap: 8px; margin-bottom: 11px; }
+    .prm-s4-actions { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 14px; width: 100%; padding: 0 6px; }
+    .prm-s4-my-label { font-size: 8px; color: #7a9ab8; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 4px; text-align: center; }
+    #prm-s4-hand { display: flex; justify-content: center; gap: 6px; margin-top: 3px; }
+    #prm-s5 { gap: 0; }
+    .prm-cta-logo { width: 62px; height: 62px; background: #F0B429; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 35px; color: #1a0e00; margin-bottom: 17px; animation: prm-logoPulse 2.6s ease-in-out infinite; }
+    .prm-cta-free-tag { font-size: 8px; color: #7a9ab8; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 700; margin-bottom: 6px; }
+    .prm-cta-title { font-size: 41px; font-weight: 900; color: #F0B429; letter-spacing: -2px; line-height: 1; margin-bottom: 8px; }
+    .prm-cta-url { font-size: 14px; font-weight: 800; color: #5B8FD6; margin-bottom: 26px; }
+    .prm-cta-btn { background: #5B8FD6; color: #fff; font-size: 12px; font-weight: 800; padding: 11px 30px; border-radius: 8px; text-decoration: none; display: inline-block; margin-bottom: 10px; }
+    .prm-cta-note { font-size: 9px; color: #7a9ab8; }
+    .prm-progress-bar { position: absolute; bottom: 0; left: 0; height: 2px; background: #F0B429; opacity: 0.5; transition: width 0.1s linear; z-index: 10; }
+    @media (max-width: 600px) {
+      .promo-anim-section { padding: 60px 0; }
+    }
   </style>
 </head>
 <body>
@@ -1006,6 +1180,88 @@
           </div>
         </div>
 
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── PROMO ANIMATION ──────────────────────────────────────────── -->
+  <section class="promo-anim-section">
+    <div class="container">
+      <p class="section-label reveal">See it in action</p>
+      <div class="promo-anim-wrap reveal" style="transition-delay:0.1s;">
+        <div id="promo-stage">
+
+          <div class="prm-scene prm-active" id="prm-s1">
+            <div class="prm-s1-logo">★</div>
+            <div class="prm-s1-title">BEANIE</div>
+            <div class="prm-s1-sub">Wild card rummy · 2–4 players</div>
+            <div class="prm-s1-pill">★ The wild card rank changes every single round</div>
+          </div>
+
+          <div class="prm-scene" id="prm-s2">
+            <div class="prm-s2-top">
+              <div class="prm-round-pill">Round 7</div>
+              <div class="prm-wild-row">7s are <span class="prm-wg">wild ★</span></div>
+            </div>
+            <div class="prm-s2-mid">
+              <div class="prm-hand-wrap">
+                <div class="prm-hand-label-row">
+                  <span class="prm-slabel">Your hand</span>
+                  <span class="prm-hand-count">6 cards</span>
+                </div>
+                <div id="prm-hand"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="prm-scene" id="prm-s3">
+            <div class="prm-s3-top">
+              <div class="prm-round-pill">Round 7</div>
+              <div class="prm-wild-row">7s are <span class="prm-wg">wild ★</span></div>
+            </div>
+            <div class="prm-table-box">
+              <div class="prm-slabel">Set on the table</div>
+              <div class="prm-card-row" id="prm-s3-set"></div>
+            </div>
+            <div id="prm-s3-flash" class="prm-banner prm-purple prm-hidden" style="width:100%">
+              <div class="prm-bn-title">Set laid!</div>
+              <div class="prm-bn-sub">Now you can steal Beanies from anyone</div>
+            </div>
+            <div style="height:18px"></div>
+            <div class="prm-slabel" style="align-self:flex-start;padding-left:4px">Your hand</div>
+            <div id="prm-s3-hand" class="prm-card-row"></div>
+          </div>
+
+          <div class="prm-scene" id="prm-s4">
+            <div class="prm-s4-top">
+              <div class="prm-round-pill" style="background:rgba(240,180,41,0.15);color:#F0B429;border:1px solid rgba(240,180,41,0.3)">Steal Beanie ★</div>
+            </div>
+            <div class="prm-opp-box">
+              <div class="prm-s4-opp-label">Opponent's set — Beanie acting as Q♥</div>
+              <div class="prm-card-row" id="prm-s4-opp-set"></div>
+            </div>
+            <div class="prm-s4-actions">
+              <div id="prm-steal-btn" class="prm-steal-btn prm-hidden">Steal Beanie ★</div>
+              <div id="prm-steal-banner" class="prm-banner prm-gold prm-hidden" style="width:100%">
+                <div class="prm-bn-title">Beanie stolen! ★</div>
+                <div class="prm-bn-sub">Your Q♥ takes its place — Beanie is yours</div>
+              </div>
+            </div>
+            <div class="prm-s4-my-label">Your hand</div>
+            <div id="prm-s4-hand" class="prm-card-row"></div>
+          </div>
+
+          <div class="prm-scene" id="prm-s5">
+            <div class="prm-cta-logo">★</div>
+            <div class="prm-cta-free-tag">Free · No download · Any browser</div>
+            <div class="prm-cta-title">BEANIE</div>
+            <div class="prm-cta-url">playbeanie.com</div>
+            <a href="https://play.playbeanie.com" class="prm-cta-btn">Play Now →</a>
+            <div class="prm-cta-note">Share a 4-letter code with friends</div>
+          </div>
+
+          <div class="prm-progress-bar" id="prm-prog"></div>
+        </div>
       </div>
     </div>
   </section>
@@ -1231,6 +1487,98 @@
       </div>
     </div>
   </footer>
+
+  <!-- ─── PROMO ANIMATION SCRIPT ──────────────────────────────────────── -->
+  <script>
+  (function () {
+    function pCard(o) {
+      o = o || {};
+      var d = document.createElement('div');
+      var cls = 'prm-card';
+      if (o.beanie)   cls += ' prm-bc';
+      if (o.selected) cls += ' prm-selected';
+      if (o.glowGold) cls += ' prm-glow-gold';
+      if (o.dim)      cls += ' prm-dim';
+      d.className = cls;
+      if (o.beanie) {
+        d.innerHTML = '<div class="prm-cr prm-tl" style="color:#F0B429"><span class="prm-r">★</span></div><span class="prm-pip">★</span><span class="prm-bl">BEANIE</span>' + (o.badge ? '<div class="prm-beanie-badge">' + o.badge + '</div>' : '');
+      } else {
+        var col = o.red ? 'prm-red' : 'prm-blk';
+        d.innerHTML = '<div class="prm-cr prm-tl ' + col + '"><span class="prm-r">' + o.rank + '</span><span class="prm-s">' + o.suit + '</span></div><span class="prm-pip ' + col + '">' + o.suit + '</span><div class="prm-cr prm-br ' + col + '"><span class="prm-r">' + o.rank + '</span><span class="prm-s">' + o.suit + '</span></div>';
+      }
+      return d;
+    }
+    function pClear(id) { var e = document.getElementById(id); if (e) e.innerHTML = ''; }
+    function pAdd(id) { var e = document.getElementById(id); if (!e) return; for (var i = 1; i < arguments.length; i++) e.appendChild(arguments[i]); }
+
+    function buildS2() {
+      pClear('prm-hand');
+      var cards = [{rank:'Q',suit:'♥',red:true},{rank:'3',suit:'♠'},{rank:'Q',suit:'♠'},{rank:'Q',suit:'♦',red:true},{rank:'K',suit:'♣'},{beanie:true}];
+      cards.forEach(function(c,i) {
+        var el = pCard(c);
+        el.style.opacity = '0'; el.style.transform = 'translateY(35px)';
+        el.style.transition = 'opacity 0.35s ease '+(i*0.1)+'s, transform 0.35s ease '+(i*0.1)+'s';
+        document.getElementById('prm-hand').appendChild(el);
+      });
+    }
+    function buildS3(flash) {
+      pClear('prm-s3-set'); pClear('prm-s3-hand');
+      pAdd('prm-s3-set', pCard({rank:'Q',suit:'♠'}), pCard({rank:'Q',suit:'♥',red:true}), pCard({rank:'Q',suit:'♦',red:true}));
+      pAdd('prm-s3-hand', pCard({rank:'3',suit:'♠'}), pCard({rank:'K',suit:'♣'}), pCard({beanie:true}));
+      var f = document.getElementById('prm-s3-flash');
+      if (f) { if (flash) f.classList.remove('prm-hidden'); else f.classList.add('prm-hidden'); }
+    }
+    function buildS4(phase) {
+      pClear('prm-s4-opp-set'); pClear('prm-s4-hand');
+      var btn = document.getElementById('prm-steal-btn'), ban = document.getElementById('prm-steal-banner');
+      if (phase === 'before') {
+        pAdd('prm-s4-opp-set', pCard({rank:'Q',suit:'♣'}), pCard({rank:'Q',suit:'♠'}), pCard({beanie:true,badge:'Q♥'}));
+        pAdd('prm-s4-hand', pCard({rank:'3',suit:'♠'}), pCard({rank:'K',suit:'♣'}), pCard({beanie:true}), pCard({rank:'Q',suit:'♥',red:true,glowGold:true}));
+        if (btn) btn.classList.remove('prm-hidden'); if (ban) ban.classList.add('prm-hidden');
+      } else {
+        pAdd('prm-s4-opp-set', pCard({rank:'Q',suit:'♣'}), pCard({rank:'Q',suit:'♠'}), pCard({rank:'Q',suit:'♥',red:true}));
+        pAdd('prm-s4-hand', pCard({rank:'3',suit:'♠'}), pCard({rank:'K',suit:'♣'}), pCard({beanie:true}), pCard({beanie:true}));
+        if (btn) btn.classList.add('prm-hidden'); if (ban) ban.classList.remove('prm-hidden');
+      }
+    }
+
+    var TOTAL = 20000;
+    var SCENES = [{id:'prm-s1',start:0,end:4500},{id:'prm-s2',start:4200,end:9000},{id:'prm-s3',start:8700,end:13500},{id:'prm-s4',start:13200,end:17500},{id:'prm-s5',start:17200,end:20000}];
+    var t0 = null, activeId = 'prm-s1', timers = [];
+    function clearT() { timers.forEach(clearTimeout); timers = []; }
+    function later(fn,ms) { timers.push(setTimeout(fn,ms)); }
+
+    function activate(id) {
+      if (id === activeId) return;
+      activeId = id; clearT();
+      document.querySelectorAll('#promo-stage .prm-scene').forEach(function(s){ s.classList.remove('prm-active'); });
+      var el = document.getElementById(id); if (el) el.classList.add('prm-active');
+      if (id === 'prm-s2') { buildS2(); later(function(){ document.querySelectorAll('#prm-hand .prm-card').forEach(function(c){ c.style.opacity='1'; c.style.transform='translateY(0)'; }); }, 60); }
+      if (id === 'prm-s3') { buildS3(false); later(function(){ buildS3(true); }, 2500); }
+      if (id === 'prm-s4') { buildS4('before'); later(function(){ buildS4('after'); }, 3000); }
+    }
+
+    function tick(ts) {
+      if (!t0) t0 = ts;
+      var e = (ts - t0) % TOTAL;
+      var p = document.getElementById('prm-prog'); if (p) p.style.width = ((e/TOTAL)*100)+'%';
+      for (var i = 0; i < SCENES.length; i++) { if (e >= SCENES[i].start && e < SCENES[i].end) { activate(SCENES[i].id); break; } }
+      requestAnimationFrame(tick);
+    }
+
+    var stage = document.getElementById('promo-stage');
+    if (stage) {
+      if ('IntersectionObserver' in window) {
+        var obs = new IntersectionObserver(function(entries) {
+          if (entries[0].isIntersecting) { requestAnimationFrame(tick); obs.unobserve(stage); }
+        }, { threshold: 0.2 });
+        obs.observe(stage);
+      } else {
+        requestAnimationFrame(tick);
+      }
+    }
+  })();
+  </script>
 
   <!-- ─── SCROLL REVEAL SCRIPT ──────────────────────────────────────── -->
   <script>
