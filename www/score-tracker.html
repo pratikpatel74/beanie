@@ -1206,6 +1206,177 @@ function renderScoring() {
   `;
 }
 
+// ── Share helpers ──────────────────────────────────────────────────────────
+
+function canvasRR(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+function shareResult() {
+  const completedRounds = numCompletedRounds();
+  const ranking = sorted(completedRounds);
+  const winner = ranking[0];
+  const lines = [`Beanie — ${winner.name} wins! (${winner.pts} pts)`, ''];
+  lines.push(...ranking.map((p, i) => `${i + 1}. ${p.name} — ${p.pts} pts`));
+  lines.push('', 'www.playbeanie.com/score-tracker.html');
+  const text = lines.join('\n');
+  if (navigator.share) {
+    navigator.share({ title: 'Beanie result', text }).catch(() => {});
+  } else {
+    navigator.clipboard?.writeText(text).catch(() => {});
+  }
+}
+
+function numCompletedRounds() {
+  let n = 0;
+  for (let r = 0; r < 13; r++) {
+    if (state.scores[r] && state.players.every((_, i) => typeof state.scores[r][i] === 'number')) n = r + 1;
+    else break;
+  }
+  return n || state.currentRound;
+}
+
+function shareScorecard() {
+  const SANS = "-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif";
+  const completedRounds = numCompletedRounds();
+  const ranks = ROUNDS.slice(0, completedRounds);
+  const ranking = sorted(completedRounds);
+  const winner = ranking[0];
+  const numP = ranking.length;
+
+  const W = 680, PAD = 28;
+  const NAME_W = 120, TOT_W = 52;
+  const RD_W = Math.max(24, Math.floor((W - PAD * 2 - NAME_W - TOT_W) / ranks.length));
+  const TABLE_W = NAME_W + RD_W * ranks.length + TOT_W;
+  const HDR_H = 98, LBL_H = 30, TBL_H = 30, ROW_H = 40, FOOT_H = 44;
+  const H = PAD + HDR_H + 16 + LBL_H + TBL_H + ROW_H * numP + FOOT_H;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = W * 2; canvas.height = H * 2;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(2, 2);
+
+  ctx.fillStyle = '#080F1A'; ctx.fillRect(0, 0, W, H);
+
+  // Header card
+  ctx.fillStyle = '#0F1D2E';
+  canvasRR(ctx, PAD, PAD, W - PAD * 2, HDR_H, 14); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.07)'; ctx.lineWidth = 0.5;
+  canvasRR(ctx, PAD, PAD, W - PAD * 2, HDR_H, 14); ctx.stroke();
+
+  ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  ctx.font = `600 11px ${SANS}`;
+  ctx.fillText('BEANIE', W / 2, PAD + 24);
+
+  ctx.fillStyle = '#F0B429';
+  ctx.font = `700 22px ${SANS}`;
+  ctx.fillText(`${winner.name} wins!`, W / 2, PAD + 52);
+
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.font = `400 13px ${SANS}`;
+  ctx.fillText(`${winner.pts} pts — lowest after ${completedRounds} rounds`, W / 2, PAD + 76);
+
+  // Section label
+  const secY = PAD + HDR_H + 20;
+  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  ctx.font = `600 10px ${SANS}`;
+  ctx.textAlign = 'left';
+  ctx.fillText('ROUND BY ROUND', PAD, secY + 16);
+
+  // Table header
+  const tblY = secY + LBL_H;
+  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  ctx.font = `500 10px ${SANS}`;
+  ctx.textAlign = 'left';
+  ctx.fillText('Player', PAD + 12, tblY + 20);
+  ranks.forEach((r, i) => {
+    ctx.textAlign = 'center';
+    ctx.fillText(`★${r}`, PAD + NAME_W + RD_W * i + RD_W / 2, tblY + 20);
+  });
+  ctx.textAlign = 'center';
+  ctx.fillText('Total', PAD + NAME_W + RD_W * ranks.length + TOT_W / 2, tblY + 20);
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 0.5;
+  ctx.beginPath();
+  ctx.moveTo(PAD, tblY + TBL_H); ctx.lineTo(PAD + TABLE_W, tblY + TBL_H); ctx.stroke();
+
+  // Player rows
+  ranking.forEach((p, pi) => {
+    const rowY = tblY + TBL_H + ROW_H * pi;
+    const isWin = pi === 0;
+    const col = COLORS[p.colorIdx];
+
+    if (isWin) {
+      ctx.fillStyle = 'rgba(240,180,41,0.06)';
+      ctx.fillRect(PAD - 4, rowY, TABLE_W + 8, ROW_H);
+    }
+
+    ctx.fillStyle = col;
+    ctx.beginPath(); ctx.arc(PAD + 7, rowY + ROW_H / 2, 4, 0, Math.PI * 2); ctx.fill();
+
+    const displayName = p.name.length > 14 ? p.name.slice(0, 13) + '…' : p.name;
+    ctx.fillStyle = '#ffffff'; ctx.font = `500 13px ${SANS}`; ctx.textAlign = 'left';
+    ctx.fillText(displayName, PAD + 18, rowY + ROW_H / 2 + 5);
+
+    ranks.forEach((_, ri) => {
+      const score = state.scores[ri] ? state.scores[ri][p.idx] : null;
+      const cx = PAD + NAME_W + RD_W * ri + RD_W / 2;
+      const cy = rowY + ROW_H / 2;
+      if (score === 0) {
+        const pw = Math.min(RD_W - 4, 28), ph = 18;
+        ctx.fillStyle = 'rgba(240,165,0,0.15)';
+        canvasRR(ctx, cx - pw / 2, cy - ph / 2, pw, ph, 4); ctx.fill();
+        ctx.fillStyle = '#F0B429'; ctx.font = `700 11px ${SANS}`; ctx.textAlign = 'center';
+        ctx.fillText('W', cx, cy + 4);
+      } else if (typeof score === 'number') {
+        ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = `400 12px ${SANS}`; ctx.textAlign = 'center';
+        ctx.fillText(String(score), cx, cy + 4);
+      } else {
+        ctx.fillStyle = 'rgba(255,255,255,0.2)'; ctx.font = `400 12px ${SANS}`; ctx.textAlign = 'center';
+        ctx.fillText('—', cx, cy + 4);
+      }
+    });
+
+    ctx.fillStyle = isWin ? '#2DD4A7' : 'rgba(168,155,255,0.85)';
+    ctx.font = `700 14px ${SANS}`; ctx.textAlign = 'center';
+    ctx.fillText(String(p.pts), PAD + NAME_W + RD_W * ranks.length + TOT_W / 2, rowY + ROW_H / 2 + 5);
+
+    if (pi < numP - 1) {
+      ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 0.5;
+      ctx.beginPath();
+      ctx.moveTo(PAD, rowY + ROW_H); ctx.lineTo(PAD + TABLE_W, rowY + ROW_H); ctx.stroke();
+    }
+  });
+
+  // Footer
+  const footY = tblY + TBL_H + ROW_H * numP;
+  ctx.fillStyle = 'rgba(255,255,255,0.25)'; ctx.font = `400 12px ${SANS}`; ctx.textAlign = 'center';
+  ctx.fillText('www.playbeanie.com/score-tracker.html', W / 2, footY + 26);
+
+  canvas.toBlob(blob => {
+    const file = new File([blob], 'beanie-scorecard.png', { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({ files: [file], title: 'Beanie scorecard' }).catch(() => {});
+    } else {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'beanie-scorecard.png';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+  }, 'image/png');
+}
+
 // ── Render: Game Over ──────────────────────────────────────────────────────
 function renderGameOver() {
   const { players, showCard } = state;
@@ -1305,6 +1476,15 @@ function renderGameOver() {
           <button class="btn btn-acc" data-act="play-again">Play again</button>
           <button class="btn btn-ghost" data-act="new-game">New game</button>
         </div>
+        <button data-act="${showCard ? 'share-scorecard' : 'share-result'}"
+          style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;padding:4px 0;width:100%;font-family:var(--font);">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+            <polyline points="16 6 12 2 8 6"/>
+            <line x1="12" y1="2" x2="12" y2="15"/>
+          </svg>
+          ${showCard ? 'Share scorecard' : 'Share result'}
+        </button>
       </div>
     </div>
   `;
@@ -1461,6 +1641,14 @@ app.addEventListener('click', e => {
       state = freshState();
       openPicker = null;
       save(); render();
+      break;
+
+    case 'share-result':
+      shareResult();
+      break;
+
+    case 'share-scorecard':
+      shareScorecard();
       break;
 
     case 'open-help':
