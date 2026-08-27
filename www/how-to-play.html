@@ -134,7 +134,7 @@
       display: block; padding: 8px 12px; border-radius: 7px;
       font-size: 0.88rem; font-weight: 500; color: var(--text-muted);
       text-decoration: none; transition: color 0.15s, background 0.15s;
-      border-left: 2px solid transparent; text-align: left;
+      border-left: 2px solid transparent; text-align: left; width: 100%;
     }
     .htp-nav a:hover { color: var(--text); background: var(--bg-surface); }
     .htp-nav a.active { color: var(--gold); border-left-color: var(--gold); background: rgba(240,180,41,0.06); }
@@ -144,7 +144,7 @@
     }
     .htp-play-cta p { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 10px; }
 
-    .htp-nav { display: flex; flex-direction: column; }
+    .htp-nav { display: flex; flex-direction: column; align-items: stretch; }
 
     /* ─── CONTENT ──── */
     .htp-content { flex: 1; min-width: 0; }
