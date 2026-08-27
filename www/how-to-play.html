@@ -94,7 +94,28 @@
       background: radial-gradient(ellipse, rgba(240,180,41,0.08) 0%, transparent 65%);
       pointer-events: none;
     }
-    .page-hero-inner { max-width: 680px; }
+    .page-hero-inner { display: flex; align-items: center; gap: 56px; }
+    .page-hero-text { max-width: 520px; flex: 1; }
+    .page-hero-graphic { flex-shrink: 0; display: none; }
+    @media (min-width: 820px) { .page-hero-graphic { display: block; } }
+
+    .htp-round-grid { display: flex; flex-wrap: wrap; gap: 8px; width: 230px; }
+    .htp-rchip {
+      width: 37px; height: 37px; border-radius: 8px;
+      background: #0F1D2E; border: 1.5px solid rgba(255,255,255,0.07);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 600; color: rgba(91,143,214,0.25);
+      opacity: 0; transform: translateY(8px);
+      transition: opacity 0.35s, transform 0.35s, color 0.5s, border-color 0.5s, background 0.5s, box-shadow 0.5s;
+    }
+    .htp-rchip.visible { opacity: 1; transform: translateY(0); }
+    .htp-rchip.done { color: #5B8FD6; border-color: rgba(91,143,214,0.35); background: rgba(91,143,214,0.08); }
+    .htp-rchip.active { color: #F0B429; border-color: #F0B429; background: rgba(240,180,41,0.12); animation: rchip-pulse 2s ease-in-out infinite; }
+    @keyframes rchip-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(240,180,41,0.35); }
+      50% { box-shadow: 0 0 0 6px rgba(240,180,41,0); }
+    }
+    .htp-round-caption { font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 12px; letter-spacing: 0.4px; }
     .page-eyebrow {
       display: inline-flex; align-items: center; gap: 8px;
       background: rgba(240,180,41,0.1); color: var(--gold);
@@ -353,10 +374,30 @@
   <section class="page-hero">
     <div class="container">
       <div class="page-hero-inner">
-        <span class="page-eyebrow">★ Full Rules &amp; Guide</span>
-        <h1>How to Play <em>Beanie</em></h1>
-        <p>Beanie is a wild-card rummy game for 2–4 players across 13 rounds. Each round a different rank becomes the wild card — the Beanie. Lay sets, steal Beanies, and empty your hand first to score zero.</p>
-        <a href="https://play.playbeanie.com" class="btn-primary">Play Now — it's free</a>
+        <div class="page-hero-text">
+          <span class="page-eyebrow">★ Full Rules &amp; Guide</span>
+          <h1>How to Play <em>Beanie</em></h1>
+          <p>Beanie is a wild-card rummy game for 2–4 players across 13 rounds. Each round a different rank becomes the wild card — the Beanie. Lay sets, steal Beanies, and empty your hand first to score zero.</p>
+          <a href="https://play.playbeanie.com" class="btn-primary">Play Now — it's free</a>
+        </div>
+        <div class="page-hero-graphic" aria-hidden="true">
+          <div class="htp-round-grid" id="htpRoundGrid">
+            <div class="htp-rchip">A</div>
+            <div class="htp-rchip">2</div>
+            <div class="htp-rchip">3</div>
+            <div class="htp-rchip">4</div>
+            <div class="htp-rchip">5</div>
+            <div class="htp-rchip">6</div>
+            <div class="htp-rchip">7</div>
+            <div class="htp-rchip">8</div>
+            <div class="htp-rchip">9</div>
+            <div class="htp-rchip">10</div>
+            <div class="htp-rchip">J</div>
+            <div class="htp-rchip">Q</div>
+            <div class="htp-rchip">K</div>
+          </div>
+          <p class="htp-round-caption">13 rounds · wild card changes each round</p>
+        </div>
       </div>
     </div>
   </section>
@@ -822,6 +863,28 @@
 
   <!-- Sidebar active state on scroll -->
   <script>
+    (function () {
+      var grid = document.getElementById('htpRoundGrid');
+      if (grid) {
+        var chips = Array.from(grid.querySelectorAll('.htp-rchip'));
+        var current = 0;
+        function updateRound() {
+          chips.forEach(function(c, i) {
+            c.classList.remove('done', 'active');
+            if (i < current) c.classList.add('done');
+            else if (i === current) c.classList.add('active');
+          });
+        }
+        chips.forEach(function(c, i) {
+          setTimeout(function() { c.classList.add('visible'); }, 60 * i);
+        });
+        updateRound();
+        setInterval(function() {
+          current = (current + 1) % 13;
+          updateRound();
+        }, 1400);
+      }
+    })();
     (function () {
       const links = document.querySelectorAll('.htp-nav a');
       const sections = Array.from(links).map(l => document.querySelector(l.getAttribute('href')));
