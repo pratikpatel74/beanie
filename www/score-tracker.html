@@ -54,6 +54,65 @@ body {
   overflow: hidden;
 }
 
+/* ── Setup decoration ── */
+.setup-glow {
+  position: absolute;
+  top: -60px; left: 50%;
+  transform: translateX(-50%);
+  width: 320px; height: 220px;
+  background: radial-gradient(ellipse, rgba(240,180,41,0.07) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+.setup-dec {
+  margin-top: 28px;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.setup-dec-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--muted);
+  opacity: 0.6;
+}
+.setup-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  max-width: 280px;
+}
+.setup-chip {
+  width: 32px; height: 32px;
+  border-radius: 7px;
+  background: var(--surf);
+  border: 1.5px solid rgba(255,255,255,0.05);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600;
+  color: rgba(91,143,214,0.2);
+  opacity: 0;
+  animation: chip-fadein 0.4s ease forwards;
+}
+.setup-chip.lit {
+  color: var(--gold);
+  border-color: rgba(240,180,41,0.3);
+  background: rgba(240,180,41,0.07);
+  animation: chip-fadein 0.4s ease forwards, chip-glow 3s ease-in-out infinite;
+}
+@keyframes chip-fadein {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes chip-glow {
+  0%, 100% { box-shadow: none; }
+  50% { box-shadow: 0 0 8px rgba(240,180,41,0.25); }
+}
+
 /* ── Header ── */
 .hdr {
   display: flex;
@@ -987,8 +1046,15 @@ function renderSetup() {
     </div>
   `).join('');
 
+  const CHIP_LABELS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+  const litIdx = Math.floor(Math.random() * 13);
+  const chipsHtml = CHIP_LABELS.map((l,i) =>
+    `<div class="setup-chip${i===litIdx?' lit':''}" style="animation-delay:${i*45}ms">${l}</div>`
+  ).join('');
+
   return `
-    <div class="screen">
+    <div class="screen" style="position:relative;overflow:hidden;">
+      <div class="setup-glow"></div>
       <div class="hdr">
         <div class="hdr-brand">
           <div class="hdr-eyebrow">
@@ -1028,6 +1094,10 @@ function renderSetup() {
             <span class="info-k">Winner</span>
             <span class="info-v">Lowest total wins</span>
           </div>
+        </div>
+        <div class="setup-dec">
+          <div class="setup-dec-label">13 rounds</div>
+          <div class="setup-chips">${chipsHtml}</div>
         </div>
       </div>
       <div class="btm">
