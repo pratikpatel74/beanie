@@ -262,29 +262,33 @@ body {
   margin-bottom: 8px;
 }
 
-/* ── Setup: player rows ── */
-.player-list { display: flex; flex-direction: column; gap: 8px; }
+/* ── Setup: player grid ── */
+.player-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .player-row {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   background: var(--surf);
-  border-radius: var(--r);
-  padding: 10px 12px;
-  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 12px 14px;
+  border: 1.5px solid var(--border);
   transition: border-color 0.15s;
+  position: relative;
+  min-height: 110px;
 }
 .player-row:focus-within { border-color: rgba(91,143,214,0.4); }
 
 .color-wrap { position: relative; flex-shrink: 0; }
 .color-dot-btn {
-  width: 28px; height: 28px;
+  width: 44px; height: 44px;
   border-radius: 50%;
   border: 2.5px solid rgba(255,255,255,0.18);
   cursor: pointer;
   transition: transform 0.12s, border-color 0.15s;
   background: var(--acc);
   padding: 0;
+  display: block;
 }
 .color-dot-btn:active { transform: scale(0.88); }
 .color-dot-btn:hover { border-color: rgba(255,255,255,0.4); }
@@ -319,61 +323,69 @@ body {
 .cswatch.sel { border-color: white; }
 
 .name-input {
-  flex: 1;
+  width: 100%;
   background: none;
   border: none;
   color: var(--text);
   font-family: var(--font);
-  font-size: 15px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 600;
   outline: none;
+  text-align: center;
   min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .name-input::placeholder { color: var(--dim); }
 
 .rm-btn {
+  position: absolute;
+  top: 6px; right: 6px;
   background: none;
   border: none;
   color: var(--dim);
   cursor: pointer;
-  width: 44px;
-  height: 44px;
+  width: 28px; height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: color 0.15s;
-  flex-shrink: 0;
-  border-radius: 8px;
-  margin-right: -8px;
+  border-radius: 6px;
+  padding: 0;
 }
 .rm-btn:hover { color: var(--danger); }
+.rm-btn svg { width: 16px; height: 16px; }
 
 /* ── Add player button ── */
 .add-player-btn {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 10px;
-  padding: 11px 12px;
+  justify-content: center;
+  gap: 8px;
+  padding: 18px 12px 14px;
   background: none;
-  border: 1.5px dashed var(--surf3);
-  border-radius: var(--r);
+  border: 1.5px dashed rgba(91,143,214,0.25);
+  border-radius: 12px;
   color: var(--muted);
   font-family: var(--font);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  width: 100%;
+  min-height: 110px;
   transition: border-color 0.15s, color 0.15s;
 }
 .add-player-btn:hover:not(:disabled) { border-color: var(--acc); color: var(--acc); }
 .add-player-btn:disabled { opacity: 0.35; cursor: default; }
 .add-circle {
-  width: 22px; height: 22px;
+  width: 44px; height: 44px;
   border-radius: 50%;
   border: 1.5px solid currentColor;
   display: flex; align-items: center; justify-content: center;
-  font-size: 15px; line-height: 1;
+  font-size: 22px; line-height: 1;
   flex-shrink: 0;
+  opacity: 0.5;
 }
 
 /* ── Info card ── */
@@ -1070,14 +1082,14 @@ function renderSetup() {
       <div class="body">
         <div>
           <div class="slabel">Players — ${players.length} of 8</div>
-          <div class="player-list">${rows}</div>
-          ${canAdd ? `
-          <div style="margin-top:8px">
+          <div class="player-list">
+            ${rows}
+            ${canAdd ? `
             <button class="add-player-btn" data-act="add-player">
               <span class="add-circle">+</span>
               Add player
-            </button>
-          </div>` : ''}
+            </button>` : ''}
+          </div>
         </div>
 
         <div class="info-card">
