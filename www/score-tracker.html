@@ -131,18 +131,21 @@ body {
 .hdr-eyebrow {
   display: flex;
   align-items: center;
-  gap: 5px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  color: var(--gold);
-  text-transform: uppercase;
+  gap: 8px;
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  color: var(--text);
+  line-height: 1;
 }
+.hdr-eyebrow svg { flex-shrink: 0; margin-top: 1px; }
 .hdr-title {
-  font-size: 24px;
-  font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -0.3px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.1px;
+  color: var(--muted);
+  margin-top: 4px;
 }
 .hdr-right {
   text-align: right;
@@ -1070,7 +1073,7 @@ function renderSetup() {
       <div class="hdr">
         <div class="hdr-brand">
           <div class="hdr-eyebrow">
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="var(--gold)">
+            <svg width="20" height="20" viewBox="0 0 12 12" fill="var(--gold)">
               <polygon points="6,0.5 7.6,4.2 11.8,4.2 8.4,6.9 9.7,11.2 6,8.7 2.3,11.2 3.6,6.9 0.2,4.2 4.4,4.2"/>
             </svg>
             Beanie
