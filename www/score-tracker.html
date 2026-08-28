@@ -113,6 +113,72 @@ body {
   50% { box-shadow: 0 0 8px rgba(240,180,41,0.25); }
 }
 
+/* ── Player avatar ── */
+.avatar {
+  width: 44px; height: 44px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; cursor: pointer;
+  border: 2.5px solid rgba(255,255,255,0.18);
+  transition: border-color 0.15s, transform 0.12s;
+  padding: 0;
+}
+.avatar:active { transform: scale(0.88); }
+.avatar:hover { border-color: rgba(255,255,255,0.4); }
+.avatar-initial { font-size: 18px; font-weight: 800; color: rgba(255,255,255,0.8); line-height: 1; pointer-events: none; }
+.avatar-icon    { font-size: 22px; line-height: 1; pointer-events: none; }
+.avatar-suit    { font-size: 24px; line-height: 1; pointer-events: none; }
+
+/* Score-row avatar (non-interactive) */
+.s-avatar {
+  width: 42px; height: 42px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; border: 2px solid rgba(255,255,255,0.12);
+}
+.s-avatar-initial { font-size: 17px; font-weight: 800; color: rgba(255,255,255,0.75); line-height: 1; }
+.s-avatar-icon    { font-size: 20px; line-height: 1; }
+.s-avatar-suit    { font-size: 22px; line-height: 1; }
+
+/* ── Icon picker ── */
+.picker-tabs-row {
+  display: flex; gap: 4px; margin-bottom: 12px;
+  background: var(--bg); border-radius: 8px; padding: 3px;
+}
+.picker-tab-btn {
+  flex: 1; padding: 7px; border-radius: 6px;
+  font-size: 12px; font-weight: 600; text-align: center;
+  color: var(--muted); background: none; border: none; cursor: pointer;
+  font-family: var(--font); transition: background 0.15s, color 0.15s;
+}
+.picker-tab-btn.active { background: var(--surf2); color: var(--text); }
+.icon-section-label {
+  font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 6px; opacity: 0.7;
+}
+.suits-grid {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;
+  margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--border);
+}
+.suit-btn {
+  aspect-ratio: 1; border-radius: 8px; background: var(--surf2);
+  border: 1.5px solid transparent; display: flex; align-items: center;
+  justify-content: center; cursor: pointer; font-size: 22px; line-height: 1;
+  transition: border-color 0.15s, background 0.15s;
+}
+.suit-btn:active { transform: scale(0.88); }
+.suit-btn.sel { border-color: var(--gold); background: rgba(240,180,41,0.1); }
+.emoji-grid-picker {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;
+}
+.emoji-btn {
+  aspect-ratio: 1; border-radius: 8px; background: var(--surf2);
+  border: 1.5px solid transparent; display: flex; align-items: center;
+  justify-content: center; cursor: pointer; font-size: 18px; line-height: 1;
+  transition: border-color 0.15s, background 0.15s;
+}
+.emoji-btn:active { transform: scale(0.88); }
+.emoji-btn.sel { border-color: var(--gold); background: rgba(240,180,41,0.1); }
+.emoji-btn.none-btn { font-size: 10px; font-weight: 700; color: var(--muted); }
+
 /* ── Header ── */
 .hdr {
   display: flex;
@@ -304,12 +370,15 @@ body {
   border: 1px solid rgba(255,255,255,0.12);
   border-radius: 10px;
   padding: 10px;
-  display: grid;
-  grid-template-columns: repeat(4, 28px);
-  gap: 8px;
+  width: 200px;
   z-index: 50;
   box-shadow: 0 8px 32px rgba(0,0,0,0.6);
   animation: pop-in 0.12s ease;
+}
+.picker-colors {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
 }
 @keyframes pop-in {
   from { opacity: 0; transform: scale(0.92) translateY(-4px); }
@@ -682,7 +751,10 @@ body {
   flex-shrink: 0;
 }
 .lb-rank.gold { color: var(--gold); }
-.lb-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.lb-dot { width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border: 2px solid rgba(255,255,255,0.12); }
+.lb-dot-initial { font-size: 15px; font-weight: 800; color: rgba(255,255,255,0.75); line-height: 1; }
+.lb-dot-icon    { font-size: 18px; line-height: 1; }
+.lb-dot-suit    { font-size: 20px; line-height: 1; }
 .lb-name { flex: 1; font-size: 15px; font-weight: 500; }
 .lb-pts {
   font-family: var(--font);
@@ -921,18 +993,21 @@ body {
 const ROUNDS      = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 const ROUND_NAMES = ['Aces','Twos','Threes','Fours','Fives','Sixes','Sevens','Eights','Nines','Tens','Jacks','Queens','Kings'];
 const COLORS      = ['#5B8FD6','#E85480','#2DD4A7','#F5A623','#A855F7','#22D3EE','#F97316','#84CC16'];
+const SUITS       = ['♠','♥','♦','♣','★'];
+const EMOJIS      = ['🦊','🐉','🦁','🐯','🦄','🐸','🦋','🐺','🦅','🔥','💎','⚡','🌙','👑','🎯','🎲','🐻','🦈','🌊','🎪'];
 
 const SK = 'beanie-tracker-v1';
 
 // ── State ──────────────────────────────────────────────────────────────────
 let openPicker = null; // playerIdx of open colour picker, or null
+let pickerTab  = 'color'; // 'color' | 'icon'
 
 function freshState() {
   return {
     screen: 'setup',
     players: [
-      { name: 'Player 1', colorIdx: 0 },
-      { name: 'Player 2', colorIdx: 1 },
+      { name: 'Player 1', colorIdx: 0, icon: null },
+      { name: 'Player 2', colorIdx: 1, icon: null },
     ],
     scores: Array.from({ length: 13 }, () => []),
     currentRound: 0,
@@ -944,7 +1019,11 @@ function freshState() {
 function load() {
   try {
     const s = JSON.parse(localStorage.getItem(SK));
-    if (s && s.screen && s.players) return s;
+    if (s && s.screen && s.players) {
+      // migrate: ensure icon field exists on all players
+      s.players.forEach(p => { if (!('icon' in p)) p.icon = null; });
+      return s;
+    }
   } catch {}
   return null;
 }
@@ -956,6 +1035,26 @@ function save() {
 let state = load() || freshState();
 
 // ── Helpers ────────────────────────────────────────────────────────────────
+const SUIT_COLORS = { '♠':'rgba(255,255,255,0.85)', '♥':'#ffb3c6', '♦':'#ffb3c6', '♣':'rgba(255,255,255,0.85)', '★':'#FFE08A' };
+
+function avatarHtml(p, prefix) {
+  // prefix: 'avatar' (setup, 44px btn) | 's-avatar' (scoring, 42px div)
+  const color   = COLORS[p.colorIdx];
+  const initial = (p.name || '?')[0].toUpperCase();
+  const isSuit  = p.icon && SUITS.includes(p.icon);
+  let inner;
+  if (p.icon) {
+    if (isSuit) {
+      inner = `<span class="${prefix}-suit" style="color:${SUIT_COLORS[p.icon]}">${p.icon}</span>`;
+    } else {
+      inner = `<span class="${prefix}-icon">${p.icon}</span>`;
+    }
+  } else {
+    inner = `<span class="${prefix}-initial">${initial}</span>`;
+  }
+  return inner;
+}
+
 function esc(s) {
   return String(s)
     .replace(/&/g,'&amp;').replace(/</g,'&lt;')
@@ -1033,17 +1132,39 @@ function renderSetup() {
   const canStart = players.length >= 2 && players.every(p => p.name.trim());
   const canAdd   = players.length < 8;
 
-  const rows = players.map((p, i) => `
+  const rows = players.map((p, i) => {
+    const iconPickerHtml = pickerTab === 'color' ? `
+      <div class="picker-colors">
+        ${COLORS.map((c, ci) => `
+          <div class="cswatch${ci===p.colorIdx?' sel':''}" style="background:${c}"
+            data-act="pick-color" data-i="${i}" data-ci="${ci}"></div>
+        `).join('')}
+      </div>
+    ` : `
+      <div class="icon-section-label">Card suits &amp; Beanie</div>
+      <div class="suits-grid">
+        ${SUITS.map(s => `<div class="suit-btn${p.icon===s?' sel':''}" data-act="pick-icon" data-i="${i}" data-icon="${s}">${s}</div>`).join('')}
+      </div>
+      <div class="icon-section-label">Emoji</div>
+      <div class="emoji-grid-picker">
+        <div class="emoji-btn none-btn${!p.icon?' sel':''}" data-act="pick-icon" data-i="${i}" data-icon="">None</div>
+        ${EMOJIS.map(em => `<div class="emoji-btn${p.icon===em?' sel':''}" data-act="pick-icon" data-i="${i}" data-icon="${em}">${em}</div>`).join('')}
+      </div>
+    `;
+    return `
     <div class="player-row anim" style="animation-delay:${i*0.05}s">
       <div class="color-wrap">
-        <button class="color-dot-btn" data-act="open-picker" data-i="${i}"
-          style="background:${COLORS[p.colorIdx]}" aria-label="Change colour"></button>
+        <button class="avatar" data-act="open-picker" data-i="${i}"
+          style="background:${COLORS[p.colorIdx]}" aria-label="Change avatar">
+          ${avatarHtml(p, 'avatar')}
+        </button>
         ${openPicker === i ? `
           <div class="color-popover" data-picker="${i}">
-            ${COLORS.map((c, ci) => `
-              <div class="cswatch${ci===p.colorIdx?' sel':''}" style="background:${c}"
-                data-act="pick-color" data-i="${i}" data-ci="${ci}"></div>
-            `).join('')}
+            <div class="picker-tabs-row">
+              <button class="picker-tab-btn${pickerTab==='color'?' active':''}" data-act="picker-tab" data-tab="color" data-i="${i}">Colour</button>
+              <button class="picker-tab-btn${pickerTab==='icon'?' active':''}" data-act="picker-tab" data-tab="icon" data-i="${i}">Icon</button>
+            </div>
+            ${iconPickerHtml}
           </div>
         ` : ''}
       </div>
@@ -1060,7 +1181,7 @@ function renderSetup() {
            </button>`
         : ''}
     </div>
-  `).join('');
+  `; }).join('');
 
   const CHIP_LABELS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
   const chipsHtml = CHIP_LABELS.map((l,i) =>
@@ -1195,7 +1316,7 @@ function renderScoring() {
 
     return `
       <div class="score-row${hasVal?' entered':''}${isLow&&!isTied?' winner-row':''} anim" style="animation-delay:${i*0.05}s">
-        <div class="sdot" style="background:${COLORS[p.colorIdx]}"></div>
+        <div class="s-avatar" style="background:${COLORS[p.colorIdx]}">${avatarHtml(p, 's-avatar')}</div>
         <div class="sname-wrap">
           <div class="sname">${esc(p.name)}</div>
           <div class="stotal">Total: <strong>${runningTotal}</strong> pts</div>
@@ -1492,7 +1613,7 @@ function renderGameOver() {
     return `
     <div class="lb-row${rank===0?' lb-first':''} anim" style="animation-delay:${rank*0.07}s">
       <div class="lb-rank${rank===0?' gold':''}">${rank===0?'★':rank+1}</div>
-      <div class="lb-dot" style="background:${COLORS[p.colorIdx]}"></div>
+      <div class="lb-dot" style="background:${COLORS[p.colorIdx]}">${avatarHtml(p, 'lb-dot')}</div>
       <div class="lb-name">
         ${esc(p.name)}
         ${won > 0 ? `<div style="font-size:11px;color:var(--muted);margin-top:1px">${won} round${won!==1?'s':''} won</div>` : ''}
@@ -1634,6 +1755,7 @@ app.addEventListener('click', e => {
   // Close colour picker on outside click
   if (openPicker !== null && !e.target.closest('.color-wrap')) {
     openPicker = null;
+    pickerTab  = 'color';
     render();
   }
 
@@ -1645,7 +1767,13 @@ app.addEventListener('click', e => {
   switch (act) {
 
     case 'open-picker':
+      if (openPicker !== i) pickerTab = 'color'; // reset tab when switching player
       openPicker = openPicker === i ? null : i;
+      render();
+      break;
+
+    case 'picker-tab':
+      pickerTab = el.dataset.tab;
       render();
       break;
 
@@ -1657,11 +1785,19 @@ app.addEventListener('click', e => {
       break;
     }
 
+    case 'pick-icon': {
+      const icon = el.dataset.icon || null; // empty string → null (None)
+      state.players[i].icon = icon;
+      openPicker = null;
+      save(); render();
+      break;
+    }
+
     case 'add-player':
       if (state.players.length < 8) {
         const used = new Set(state.players.map(p => p.colorIdx));
         const next = COLORS.findIndex((_, ci) => !used.has(ci));
-        state.players.push({ name: 'Player ' + (state.players.length + 1), colorIdx: next >= 0 ? next : 0 });
+        state.players.push({ name: 'Player ' + (state.players.length + 1), colorIdx: next >= 0 ? next : 0, icon: null });
         save(); render();
       }
       break;
