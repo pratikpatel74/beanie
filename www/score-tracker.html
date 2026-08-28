@@ -1979,6 +1979,11 @@ app.addEventListener('input', e => {
     // Update start button without full re-render
     const btn = document.querySelector('[data-act="start-game"]');
     if (btn) btn.disabled = !(state.players.length >= 2 && state.players.every(p => p.name.trim()));
+    // Update avatar initial in-place (only when no icon is set)
+    if (!state.players[idx].icon) {
+      const avatarInitial = el.closest('.player-row')?.querySelector('.avatar-initial');
+      if (avatarInitial) avatarInitial.textContent = (el.value || '?')[0].toUpperCase();
+    }
   }
 
   if (el.dataset.act === 'set-score') {
