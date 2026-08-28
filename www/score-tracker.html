@@ -1774,10 +1774,39 @@ app.addEventListener('click', e => {
       render();
       break;
 
-    case 'picker-tab':
+    case 'picker-tab': {
       pickerTab = el.dataset.tab;
-      render();
+      const pi  = parseInt(el.dataset.i);
+      const pp  = state.players[pi];
+      // Update tab button active states in-place
+      el.closest('.picker-tabs-row').querySelectorAll('.picker-tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === pickerTab);
+      });
+      // Swap picker body without full re-render
+      const popover   = el.closest('.color-popover');
+      const tabsRow   = popover.querySelector('.picker-tabs-row');
+      while (tabsRow.nextSibling) tabsRow.nextSibling.remove();
+      const bodyHtml  = pickerTab === 'color' ? `
+        <div class="picker-colors">
+          ${COLORS.map((c, ci) => `
+            <div class="cswatch${ci===pp.colorIdx?' sel':''}" style="background:${c}"
+              data-act="pick-color" data-i="${pi}" data-ci="${ci}"></div>
+          `).join('')}
+        </div>
+      ` : `
+        <div class="icon-section-label">Card suits &amp; Beanie</div>
+        <div class="suits-grid">
+          ${SUITS.map(s => `<div class="suit-btn${pp.icon===s?' sel':''}" data-act="pick-icon" data-i="${pi}" data-icon="${s}">${s}</div>`).join('')}
+        </div>
+        <div class="icon-section-label">Emoji</div>
+        <div class="emoji-grid-picker">
+          <div class="emoji-btn none-btn${!pp.icon?' sel':''}" data-act="pick-icon" data-i="${pi}" data-icon="">None</div>
+          ${EMOJIS.map(em => `<div class="emoji-btn${pp.icon===em?' sel':''}" data-act="pick-icon" data-i="${pi}" data-icon="${em}">${em}</div>`).join('')}
+        </div>
+      `;
+      tabsRow.insertAdjacentHTML('afterend', bodyHtml);
       break;
+    }
 
     case 'pick-color': {
       const ci = parseInt(el.dataset.ci);
