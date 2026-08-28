@@ -751,6 +751,7 @@
       margin-top: 8px;
     }
     .nav-htp { font-size: 0.88rem; padding: 9px 16px; }
+    .nav-secondary { display: none; }
 
     /* ─── PHONE HERO MOCKUP ─────────────────────────────────────── */
     .phone-hero-wrap {
@@ -887,6 +888,8 @@
       .footer-inner { flex-direction: column; align-items: flex-start; gap: 10px; }
       .nav-htp { display: none; }
       .room-badge { display: none; }
+      .nav-secondary { display: flex; align-items: center; gap: 20px; padding: 0 0 10px; }
+      .nav-secondary a { font-size: 0.85rem; font-weight: 500; color: var(--text-muted); text-decoration: none; }
     }
 
     /* ─── PROMO ANIMATION SECTION ──────────────────────────────────── */
@@ -1086,7 +1089,7 @@
   <header>
     <div class="container">
       <nav>
-        <a href="#" class="logo" aria-label="Beanie home">
+        <a href="/" class="logo" aria-label="Beanie home">
           <span class="logo-icon">★</span>
           <span class="logo-text">Beanie</span>
         </a>
@@ -1096,6 +1099,10 @@
           <a href="https://play.playbeanie.com" class="btn-primary">Play Now</a>
         </div>
       </nav>
+      <div class="nav-secondary">
+        <a href="/how-to-play.html">How to Play</a>
+        <a href="/score-tracker.html">Score Tracker</a>
+      </div>
     </div>
   </header>
 
